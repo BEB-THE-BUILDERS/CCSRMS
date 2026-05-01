@@ -216,6 +216,7 @@
 
         .user-badge {
             display: flex; align-items: center; gap: 10px;
+            min-width: 0; overflow: hidden;
         }
 
 
@@ -232,9 +233,9 @@
 
 
 
-        .user-info { line-height: 1.2; }
-        .user-name  { font-weight: 700; font-size: 0.85rem; }
-        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; }
+        .user-info { line-height: 1.2; min-width: 0; overflow: hidden; }
+        .user-name  { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; white-space: nowrap; }
 
 
 
@@ -1110,10 +1111,45 @@
             .navbar {
                 padding: 0 16px;
                 height: 56px;
+                overflow: hidden;
             }
-            .nav-title { font-size: 0.95rem; }
-            .user-name  { font-size: 0.8rem; }
-            .user-role  { font-size: 0.68rem; }
+            .nav-left {
+                flex-shrink: 0;
+                gap: 10px;
+            }
+            .nav-title { font-size: 0.9rem; }
+            .nav-right {
+                flex-shrink: 0;
+                gap: 8px;
+                min-width: 0;
+            }
+            .user-badge {
+                min-width: 0;
+                overflow: hidden;
+                max-width: 140px;
+            }
+            .user-info {
+                min-width: 0;
+                overflow: hidden;
+            }
+            .user-name {
+                font-size: 0.72rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 130px;
+            }
+            .user-role {
+                font-size: 0.62rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .hamburger-btn {
+                flex-shrink: 0;
+                width: 36px;
+                height: 36px;
+            }
 
             /* ── Cards ── */
             .card {
