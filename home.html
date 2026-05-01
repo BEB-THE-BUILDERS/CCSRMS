@@ -564,10 +564,12 @@
         /* ── TIMETABLE ── */
         .timetable-container {
             overflow-x: auto;
-            overflow-y: visible;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: 65vh;
             margin-top: 4px;
-            display: flex;
-            flex-direction: column-reverse;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
         .timetable-container table {
             order: 1;
@@ -597,7 +599,36 @@
             white-space: nowrap;
         }
 
+        /* Sticky room header row */
+        .timetable thead th {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background: #f8fafc;
+        }
 
+        /* Sticky time column */
+        .timetable th:first-child,
+        .timetable td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #f8fafc;
+        }
+
+        /* Top-left corner stays fixed in both axes */
+        .timetable thead th:first-child {
+            z-index: 4;
+        }
+
+        /* Dark mode sticky cells */
+        body.dark-mode .timetable thead th {
+            background: #1e293b;
+        }
+        body.dark-mode .timetable th:first-child,
+        body.dark-mode .timetable td:first-child {
+            background: #1e293b;
+        }
 
 
         .timetable td {
@@ -1041,6 +1072,152 @@
         }
         .logo {
             height: 60px;
+        }
+
+        /* ══════════════════════════════════════════
+           MOBILE OVERHAUL — max-width: 768px
+        ══════════════════════════════════════════ */
+        @media (max-width: 768px) {
+
+            /* ── Page layout ── */
+            body { overflow-x: hidden; }
+
+            .dashboard {
+                padding: 12px 4%;
+            }
+
+            /* Stack grid to single column */
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 12px 0;
+            }
+
+            /* ── Navbar ── */
+            .navbar {
+                padding: 0 16px;
+                height: 56px;
+            }
+            .nav-title { font-size: 0.95rem; }
+            .user-name  { font-size: 0.8rem; }
+            .user-role  { font-size: 0.68rem; }
+
+            /* ── Cards ── */
+            .card {
+                padding: 16px;
+                border-radius: 12px;
+            }
+            .card-title { font-size: 0.9rem; margin-bottom: 12px; }
+
+            /* ── Floor grid: 2 columns on mobile ── */
+            .floor-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .floor-btn {
+                padding: 12px 8px;
+                font-size: 0.82rem;
+                border-radius: 8px;
+            }
+
+            /* ── Day buttons ── */
+            .floor-grid .floor-btn { min-height: 44px; }
+
+            /* ── Print button full-width on mobile ── */
+            .print-btn {
+                width: 100%;
+                font-size: 0.9rem;
+                padding: 12px;
+                margin-top: 12px;
+                min-height: 44px;
+            }
+
+            /* ── TIMETABLE: horizontal scroll + sticky columns ── */
+            .timetable-container {
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                max-height: 65vh;
+            }
+
+            /* Room columns narrower on mobile */
+            .timetable th {
+                min-width: 80px;
+                padding: 6px 3px;
+                font-size: 0.65rem;
+            }
+
+            .timetable td {
+                height: 28px;
+            }
+
+            /* Scheduled slot text stays readable */
+            .class-info { font-size: 0.62rem; }
+            .class-info strong { font-size: 0.64rem; }
+
+            /* ── Mini legend pills ── */
+            .mini-legend-item {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+
+            /* ── Legend section ── */
+            .legend-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px;
+            }
+
+            /* ── Toast ── */
+            .toast {
+                bottom: 16px;
+                right: 12px;
+                left: 12px;
+                font-size: 0.82rem;
+            }
+
+            /* ── Modals full-width on mobile ── */
+            .modal {
+                width: 95%;
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            /* ── Form rows stack label above input ── */
+            .form-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .form-row label {
+                width: 100%;
+                font-size: 0.8rem;
+            }
+            .form-row input,
+            .form-row select {
+                width: 100%;
+                font-size: 0.85rem;
+                min-height: 42px;
+            }
+
+            /* ── Submit / action buttons tappable ── */
+            .submit-btn,
+            .modal-btns button {
+                min-height: 44px;
+                font-size: 0.88rem;
+            }
+
+            /* ── Sidebar wider on mobile ── */
+            .sidebar { width: 85%; }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 400px) {
+            .floor-grid { grid-template-columns: repeat(2, 1fr); }
+            .timetable { font-size: 0.6rem; }
+            .timetable th { min-width: 70px; }
         }
     </style>
 </head>
