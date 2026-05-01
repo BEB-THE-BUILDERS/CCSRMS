@@ -393,7 +393,7 @@
 
 
         /* ── DASHBOARD ── */
-        .dashboard { padding: 32px 5%; max-width: 1400px; margin: 0 auto; }
+        .dashboard { padding: 32px 5%; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
 
 
@@ -1080,17 +1080,30 @@
         @media (max-width: 768px) {
 
             /* ── Page layout ── */
-            body { overflow-x: hidden; }
+            html, body { overflow-x: hidden; width: 100%; }
 
             .dashboard {
                 padding: 12px 4%;
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
-            /* Stack grid to single column */
+            /* Stack grid to single column, full width */
             .grid {
-                grid-template-columns: 1fr;
+                display: flex;
+                flex-direction: column;
                 gap: 12px;
                 padding: 12px 0;
+                width: 100%;
+                overflow: hidden;
+            }
+
+            /* All cards full width, no overflow */
+            .grid > section,
+            .grid > .card {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
 
             /* ── Navbar ── */
@@ -1106,22 +1119,45 @@
             .card {
                 padding: 16px;
                 border-radius: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: hidden;
             }
-            .card-title { font-size: 0.9rem; margin-bottom: 12px; }
+            .card-title {
+                font-size: 0.9rem;
+                margin-bottom: 12px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
 
             /* ── Floor grid: 2 columns on mobile ── */
             .floor-grid {
+                display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
+                width: 100%;
             }
             .floor-btn {
                 padding: 12px 8px;
                 font-size: 0.82rem;
                 border-radius: 8px;
+                min-height: 44px;
+                width: 100%;
+                box-sizing: border-box;
             }
 
-            /* ── Day buttons ── */
-            .floor-grid .floor-btn { min-height: 44px; }
+            /* ── Mini legend bar wraps on mobile ── */
+            #miniLegendBar {
+                flex-wrap: wrap !important;
+                gap: 4px !important;
+                margin-top: 6px;
+            }
+
+            /* ── Mini legend pills ── */
+            .mini-legend-item {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
 
             /* ── Print button full-width on mobile ── */
             .print-btn {
@@ -1139,7 +1175,8 @@
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 border: 1px solid var(--border);
-                max-height: 65vh;
+                max-height: 60vh;
+                width: 100%;
             }
 
             /* Room columns narrower on mobile */
@@ -1157,16 +1194,17 @@
             .class-info { font-size: 0.62rem; }
             .class-info strong { font-size: 0.64rem; }
 
-            /* ── Mini legend pills ── */
-            .mini-legend-item {
-                font-size: 0.7rem;
-                padding: 3px 8px;
-            }
-
-            /* ── Legend section ── */
-            .legend-grid {
+            /* ── Legend section full width, wrap items ── */
+            .legend-grid,
+            #legendBar {
+                display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
-                gap: 8px;
+                gap: 8px !important;
+                flex-wrap: wrap;
+            }
+            #legendBar > div {
+                flex: unset !important;
+                min-width: 0;
             }
 
             /* ── Toast ── */
