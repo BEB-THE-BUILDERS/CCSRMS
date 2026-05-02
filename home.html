@@ -85,7 +85,28 @@
         body.dark-mode #scheduleModalCloseBtn:hover { background: #475569 !important; color: #e2e8f0 !important; }
         body.dark-mode #moveFromCard { background: #0f172a !important; border-color: #334155 !important; color: #e2e8f0 !important; }
         body.dark-mode #moveToCard   { background: #172554 !important; border-color: #3b82f6 !important; color: #bfdbfe !important; }
-        body.dark-mode #conflictSlotCard { background: #3b0764 !important; border-color: #a855f7 !important; color: #e9d5ff !important; }
+        body.dark-mode .move-time { color: #60a5fa !important; }
+        body.dark-mode #moveModal h3 { color: #93c5fd !important; }
+        body.dark-mode #moveModal p  { color: #94a3b8 !important; }
+        body.dark-mode #moveModal .fa-arrow-right { color: #475569 !important; }
+        body.dark-mode #moveConfirmBtn { background: #3b82f6 !important; color: #fff !important; }
+        body.dark-mode #moveConfirmBtn:hover { background: #2563eb !important; }
+        body.dark-mode #moveCancelBtn { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+        body.dark-mode #moveCancelBtn:hover { background: #475569 !important; }
+        body.dark-mode #conflictSlotCard { background: #1e1b4b !important; border-color: #6366f1 !important; color: #e0e7ff !important; }
+        body.dark-mode #conflictModal h3 { color: #93c5fd !important; }
+        body.dark-mode #conflictModal p  { color: #94a3b8 !important; }
+        body.dark-mode .conflict-replace-btn { background: #3b82f6 !important; color: #fff !important; }
+        body.dark-mode .conflict-cancel-btn  { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+        body.dark-mode #deleteModal h3 { color: #f87171 !important; }
+        body.dark-mode .modal-confirm { background: #dc2626 !important; color: #fff !important; }
+        body.dark-mode .modal-confirm:hover { background: #b91c1c !important; }
+        body.dark-mode #detailEditBtn   { background: #1e3a5f !important; color: #93c5fd !important; }
+        body.dark-mode #detailEditBtn:hover { background: #1e40af !important; }
+        body.dark-mode #detailDeleteBtn { background: #3b0f0f !important; color: #f87171 !important; }
+        body.dark-mode #detailDeleteBtn:hover { background: #7f1d1d !important; }
+        body.dark-mode #detailsCloseBtn { background: #334155 !important; color: #94a3b8 !important; }
+        body.dark-mode #detailsCloseBtn:hover { background: #475569 !important; color: #e2e8f0 !important; }
 
         /* ── DARK MODE: DETAILS / VIEW MODAL ── */
         body.dark-mode .details-modal .detail-title { color: #60a5fa !important; }
@@ -216,7 +237,6 @@
 
         .user-badge {
             display: flex; align-items: center; gap: 10px;
-            min-width: 0; overflow: hidden;
         }
 
 
@@ -233,9 +253,9 @@
 
 
 
-        .user-info { line-height: 1.2; min-width: 0; overflow: hidden; }
-        .user-name  { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; white-space: nowrap; }
+        .user-info { line-height: 1.2; }
+        .user-name  { font-weight: 700; font-size: 0.85rem; }
+        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; }
 
 
 
@@ -394,7 +414,7 @@
 
 
         /* ── DASHBOARD ── */
-        .dashboard { padding: 32px 5%; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .dashboard { padding: 32px 5%; max-width: 1400px; margin: 0 auto; }
 
 
 
@@ -566,11 +586,12 @@
         .timetable-container {
             overflow-x: auto;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            max-height: 65vh;
+            max-height: 520px;
             margin-top: 4px;
-            border-radius: 8px;
+            display: flex;
+            flex-direction: column-reverse;
             border: 1px solid var(--border);
+            border-radius: 8px;
         }
         .timetable-container table {
             order: 1;
@@ -598,38 +619,12 @@
             font-size: 0.72rem;
             min-width: 90px;
             white-space: nowrap;
-        }
-
-        /* Sticky room header row */
-        .timetable thead th {
             position: sticky;
             top: 0;
-            z-index: 3;
-            background: #f8fafc;
-        }
-
-        /* Sticky time column */
-        .timetable th:first-child,
-        .timetable td:first-child {
-            position: sticky;
-            left: 0;
             z-index: 2;
-            background: #f8fafc;
         }
 
-        /* Top-left corner stays fixed in both axes */
-        .timetable thead th:first-child {
-            z-index: 4;
-        }
 
-        /* Dark mode sticky cells */
-        body.dark-mode .timetable thead th {
-            background: #1e293b;
-        }
-        body.dark-mode .timetable th:first-child,
-        body.dark-mode .timetable td:first-child {
-            background: #1e293b;
-        }
 
 
         .timetable td {
@@ -649,6 +644,17 @@
             font-size: 0.7rem;
             color: var(--muted);
             width: 48px;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Top-left corner cell: sticky both horizontally and vertically */
+        .timetable thead th:first-child {
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 3;
         }
 
 
@@ -1081,119 +1087,48 @@
         @media (max-width: 768px) {
 
             /* ── Page layout ── */
-            html, body { overflow-x: hidden; width: 100%; }
+            body { overflow-x: hidden; }
 
             .dashboard {
                 padding: 12px 4%;
-                max-width: 100%;
-                overflow-x: hidden;
             }
 
-            /* Stack grid to single column, full width */
+            /* Stack grid to single column */
             .grid {
-                display: flex;
-                flex-direction: column;
+                grid-template-columns: 1fr;
                 gap: 12px;
                 padding: 12px 0;
-                width: 100%;
-                overflow: hidden;
-            }
-
-            /* All cards full width, no overflow */
-            .grid > section,
-            .grid > .card {
-                width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
             }
 
             /* ── Navbar ── */
             .navbar {
                 padding: 0 16px;
                 height: 56px;
-                overflow: hidden;
             }
-            .nav-left {
-                flex-shrink: 0;
-                gap: 10px;
-            }
-            .nav-title { font-size: 0.9rem; }
-            .nav-right {
-                flex-shrink: 0;
-                gap: 8px;
-                min-width: 0;
-            }
-            .user-badge {
-                min-width: 0;
-                overflow: hidden;
-                max-width: 140px;
-            }
-            .user-info {
-                min-width: 0;
-                overflow: hidden;
-            }
-            .user-name {
-                font-size: 0.72rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 130px;
-            }
-            .user-role {
-                font-size: 0.62rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            .hamburger-btn {
-                flex-shrink: 0;
-                width: 36px;
-                height: 36px;
-            }
+            .nav-title { font-size: 0.95rem; }
+            .user-name  { font-size: 0.8rem; }
+            .user-role  { font-size: 0.68rem; }
 
             /* ── Cards ── */
             .card {
                 padding: 16px;
                 border-radius: 12px;
-                width: 100%;
-                box-sizing: border-box;
-                overflow: hidden;
             }
-            .card-title {
-                font-size: 0.9rem;
-                margin-bottom: 12px;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
+            .card-title { font-size: 0.9rem; margin-bottom: 12px; }
 
             /* ── Floor grid: 2 columns on mobile ── */
             .floor-grid {
-                display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-                width: 100%;
             }
             .floor-btn {
                 padding: 12px 8px;
                 font-size: 0.82rem;
                 border-radius: 8px;
-                min-height: 44px;
-                width: 100%;
-                box-sizing: border-box;
             }
 
-            /* ── Mini legend bar wraps on mobile ── */
-            #miniLegendBar {
-                flex-wrap: wrap !important;
-                gap: 4px !important;
-                margin-top: 6px;
-            }
-
-            /* ── Mini legend pills ── */
-            .mini-legend-item {
-                font-size: 0.7rem;
-                padding: 3px 8px;
-            }
+            /* ── Day buttons ── */
+            .floor-grid .floor-btn { min-height: 44px; }
 
             /* ── Print button full-width on mobile ── */
             .print-btn {
@@ -1211,8 +1146,46 @@
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 border: 1px solid var(--border);
-                max-height: 60vh;
-                width: 100%;
+                /* Give it a max-height so room headers stick while scrolling down */
+                max-height: 65vh;
+            }
+
+            .timetable {
+                font-size: 0.68rem;
+                min-width: 600px; /* force horizontal scroll */
+            }
+
+            /* Sticky room header row */
+            .timetable thead th {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                background: #f8fafc;
+            }
+
+            /* Sticky time column */
+            .timetable th:first-child,
+            .timetable td:first-child {
+                position: sticky;
+                left: 0;
+                z-index: 2;
+                background: #f8fafc;
+                min-width: 60px;
+                font-size: 0.65rem;
+            }
+
+            /* Top-left corner cell needs highest z-index */
+            .timetable thead th:first-child {
+                z-index: 4;
+            }
+
+            /* Dark mode sticky cells */
+            body.dark-mode .timetable th:first-child,
+            body.dark-mode .timetable td:first-child {
+                background: #1e293b;
+            }
+            body.dark-mode .timetable thead th {
+                background: #1e293b;
             }
 
             /* Room columns narrower on mobile */
@@ -1230,17 +1203,16 @@
             .class-info { font-size: 0.62rem; }
             .class-info strong { font-size: 0.64rem; }
 
-            /* ── Legend section full width, wrap items ── */
-            .legend-grid,
-            #legendBar {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 8px !important;
-                flex-wrap: wrap;
+            /* ── Mini legend pills ── */
+            .mini-legend-item {
+                font-size: 0.7rem;
+                padding: 3px 8px;
             }
-            #legendBar > div {
-                flex: unset !important;
-                min-width: 0;
+
+            /* ── Legend section ── */
+            .legend-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px;
             }
 
             /* ── Toast ── */
@@ -1488,19 +1460,27 @@
                 <div class="schedule-modal-icon"><i class="fa-solid fa-calendar-plus"></i></div>
                 <div>
                     <div class="schedule-modal-title" id="scheduleModalTitle">Schedule Room 101</div>
-                    <div class="schedule-modal-sub" id="scheduleModalSub"></div>
+                    <div class="schedule-modal-sub" id="scheduleModalSub" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:18px;"></div>
                 </div>
             </div>
             <form class="schedule-form" id="scheduleForm" style="display:flex;flex-direction:column;gap:12px;">
                 <div class="form-row">
                     <label>Course Name:</label>
+                    <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                </div>
+                <div class="form-row">
+                    <label>Course Type:</label>
                     <div style="display:flex;gap:6px;flex:1;">
-                        <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
-                        <select id="courseType" style="width:72px;flex-shrink:0;padding:9px 6px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
-                            <option value="">Type</option>
+                        <select id="courseMajorMinor" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                            <option value="" disabled hidden selected>Major/Minor</option>
+                            <option value="Major">Major</option>
+                            <option value="Minor">Minor</option>
+                        </select>
+                        <select id="courseType" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                            <option value="" disabled hidden selected>Lec/Lab</option>
+                            <option value="Lecture">Lecture</option>
+                            <option value="Laboratory">Laboratory</option>
                             <option value="None">None</option>
-                            <option value="Lec">Lec</option>
-                            <option value="Lab">Lab</option>
                         </select>
                     </div>
                 </div>
@@ -1555,24 +1535,30 @@
                 <input type="hidden" id="startTime">
                 <div class="form-row">
                     <label>End Time:</label>
-                    <select id="endTime" required>
-                        <option value="">Select time</option>
-                        <option value="07:00">7:00 AM</option><option value="07:30">7:30 AM</option>
-                        <option value="08:00">8:00 AM</option><option value="08:30">8:30 AM</option>
-                        <option value="09:00">9:00 AM</option><option value="09:30">9:30 AM</option>
-                        <option value="10:00">10:00 AM</option><option value="10:30">10:30 AM</option>
-                        <option value="11:00">11:00 AM</option><option value="11:30">11:30 AM</option>
-                        <option value="12:00">12:00 PM</option><option value="12:30">12:30 PM</option>
-                        <option value="13:00">1:00 PM</option><option value="13:30">1:30 PM</option>
-                        <option value="14:00">2:00 PM</option><option value="14:30">2:30 PM</option>
-                        <option value="15:00">3:00 PM</option><option value="15:30">3:30 PM</option>
-                        <option value="16:00">4:00 PM</option><option value="16:30">4:30 PM</option>
-                        <option value="17:00">5:00 PM</option><option value="17:30">5:30 PM</option>
-                        <option value="18:00">6:00 PM</option><option value="18:30">6:30 PM</option>
-                        <option value="19:00">7:00 PM</option><option value="19:30">7:30 PM</option>
-                        <option value="20:00">8:00 PM</option><option value="20:30">8:30 PM</option>
-                        <option value="21:00">9:00 PM</option>
-                    </select>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+                        <select id="endTime" required>
+                            <option value="">Select time</option>
+                            <option value="07:00">7:00 AM</option><option value="07:30">7:30 AM</option>
+                            <option value="08:00">8:00 AM</option><option value="08:30">8:30 AM</option>
+                            <option value="09:00">9:00 AM</option><option value="09:30">9:30 AM</option>
+                            <option value="10:00">10:00 AM</option><option value="10:30">10:30 AM</option>
+                            <option value="11:00">11:00 AM</option><option value="11:30">11:30 AM</option>
+                            <option value="12:00">12:00 PM</option><option value="12:30">12:30 PM</option>
+                            <option value="13:00">1:00 PM</option><option value="13:30">1:30 PM</option>
+                            <option value="14:00">2:00 PM</option><option value="14:30">2:30 PM</option>
+                            <option value="15:00">3:00 PM</option><option value="15:30">3:30 PM</option>
+                            <option value="16:00">4:00 PM</option><option value="16:30">4:30 PM</option>
+                            <option value="17:00">5:00 PM</option><option value="17:30">5:30 PM</option>
+                            <option value="18:00">6:00 PM</option><option value="18:30">6:30 PM</option>
+                            <option value="19:00">7:00 PM</option><option value="19:30">7:30 PM</option>
+                            <option value="20:00">8:00 PM</option><option value="20:30">8:30 PM</option>
+                            <option value="21:00">9:00 PM</option>
+                        </select>
+                        <div id="endTimeWarning" style="display:none;align-items:center;gap:6px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:7px;padding:7px 10px;font-size:0.78rem;font-weight:600;color:#dc2626;">
+                            <i class="fa-solid fa-circle-exclamation" style="flex-shrink:0;"></i>
+                            <span id="endTimeWarningText">End time must be after the start time.</span>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="submit-btn" id="submitBtn">
                     <span class="spinner"></span>
@@ -1650,7 +1636,8 @@
             <h3 style="margin-bottom:4px;"><i class="fa-solid fa-pen" style="color:#16a34a;margin-right:8px;"></i>Edit Schedule</h3>
             <p id="editSubtitle" style="margin-bottom:16px;"></p>
             <div style="display:flex;flex-direction:column;gap:10px;">
-                <div class="form-row"><label>Course Name:</label><div style="display:flex;gap:6px;flex:1;"><input type="text" id="editCourseName" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><select id="editCourseType" style="width:72px;flex-shrink:0;padding:9px 6px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="">Type</option><option value="None">None</option><option value="Lec">Lec</option><option value="Lab">Lab</option></select></div></div>
+                <div class="form-row"><label>Course Name:</label><input type="text" id="editCourseName" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"></div>
+                <div class="form-row"><label>Course Type:</label><div style="display:flex;gap:6px;flex:1;"><select id="editCourseMajorMinor" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Major/Minor</option><option value="Major">Major</option><option value="Minor">Minor</option></select><select id="editCourseType" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Lec/Lab</option><option value="Lecture">Lecture</option><option value="Laboratory">Laboratory</option><option value="None">None</option></select></div></div>
                 <div class="form-row">
                     <label>Section:</label>
                     <div style="display:flex;gap:6px;flex:1;">
@@ -1808,7 +1795,7 @@
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { init(); return; }
         try {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) { window.location.href = 'index.html'; return; }
+            if (!session) { window.location.href = 'login.html'; return; }
             document.getElementById('userName').textContent = session.user.email;
         } catch(e) { console.warn('Auth failed, demo mode'); }
         init();
@@ -1934,9 +1921,15 @@
                     td.dataset.room       = room;
                     td.dataset.startMins  = slot.startMins;
                     td.dataset.endMins    = slot.endMins;
+                    // Strip [Major]/[Minor] tag; only show (Lecture)/(Laboratory) type as short label
+                    const _rawName   = slot.course_name;
+                    const _typeMatch = _rawName.match(/\((Lecture|Laboratory)\)/);
+                    const _typeShort = _typeMatch ? (_typeMatch[1] === 'Lecture' ? 'Lec' : 'Lab') : '';
+                    const _typeLabel = _typeShort ? ' <span style="opacity:0.75;font-size:0.65rem;">('+_typeShort+')</span>' : '';
+                    const _dispName  = escHtml(_rawName.replace(/\s*\[.*?\]/g, '').replace(/\s*\(.*?\)/g, '').trim());
                     td.innerHTML =
                         '<div class="class-info">'+
-                            '<strong>'+escHtml(slot.course_name)+'</strong>'+
+                            '<strong>'+_dispName+_typeLabel+'</strong>'+
                             escHtml(slot.section)+'<br>'+
                             escHtml(slot.faculty)+
                         '</div>'+
@@ -2101,11 +2094,17 @@
         const s = schedules.find(x => String(x.id)===String(currentDetailId));
         if (!s) return;
         document.getElementById('detailsModal').classList.remove('show');
-        const typeMatch = s.course_name.match(/ \((Lec|Lab)\)$/);
-        document.getElementById('editCourseName').value  = typeMatch ? s.course_name.replace(/ \((Lec|Lab)\)$/, '') : s.course_name;
+        const typeMatch = s.course_name.match(/ \((Lecture|Laboratory|None)\)/);
+        const majorMinorMatch = s.course_name.match(/ \[(Major|Minor)\]/);
+        document.getElementById('editCourseName').value  = s.course_name.replace(/ \[(Major|Minor)\]/, '').replace(/ \((Lecture|Laboratory|None)\)/, '').trim();
         document.getElementById('editCourseType').value  = typeMatch ? typeMatch[1] : '';
+        document.getElementById('editCourseMajorMinor').value = majorMinorMatch ? majorMinorMatch[1] : '';
+        const isMinor = majorMinorMatch && majorMinorMatch[1] === 'Minor';
+        document.getElementById('editCourseType').disabled = isMinor;
+        document.getElementById('editCourseType').style.opacity = isMinor ? '0.5' : '1';
+        document.getElementById('editCourseType').style.cursor = isMinor ? 'not-allowed' : '';
         // Parse stored section e.g. "BSCS 2-A" into parts
-        const secParts = (s.section || '').match(/^(\S+)\s+(\d+)-([A-E])$/);
+        const secParts = (s.section || '').match(/^(\S+)\s+(\d+)-([A-J])$/);
         document.getElementById('editSectionCourse').value = secParts ? secParts[1] : '';
         document.getElementById('editSectionYear').value   = secParts ? secParts[2] : '';
         document.getElementById('editSectionBlock').value  = secParts ? secParts[3] : '';
@@ -2126,6 +2125,7 @@
         const id         = currentDetailId;
         const courseName  = document.getElementById('editCourseName').value.trim();
         const editCourseType = document.getElementById('editCourseType').value;
+        const editCourseMajorMinor = document.getElementById('editCourseMajorMinor').value;
         const editSecCourse = document.getElementById('editSectionCourse').value;
         const editSecYear   = document.getElementById('editSectionYear').value;
         const editSecBlock  = document.getElementById('editSectionBlock').value;
@@ -2135,6 +2135,8 @@
         const startTime  = document.getElementById('editStartTime').value;
         const endTime    = document.getElementById('editEndTime').value;
         if (!courseName||!section||!faculty||!day||!startTime||!endTime) { showToast('Please fill in all fields','error'); return; }
+        if (!editCourseMajorMinor) { showToast('Please select Major or Minor','error'); return; }
+        if (!editCourseType) { showToast('Please select a class type (Lec/Lab)','error'); return; }
         if (!editSecCourse||!editSecYear||!editSecBlock) { showToast('Please complete the section fields','error'); return; }
         if (startTime>=endTime) { showToast('End time must be after start time','error'); return; }
         const sM=timeToMins(startTime), eM=timeToMins(endTime);
@@ -2143,7 +2145,7 @@
             return sM < timeToMins(s.end_time) && eM > timeToMins(s.start_time);
         });
         if (conflict) { showToast('Conflict with "'+conflict.course_name+'"','error'); return; }
-        const updated = { course_name:courseName+(editCourseType&&editCourseType!=='None'?' ('+editCourseType+')':''), section, faculty, day, start_time:startTime+':00', end_time:endTime+':00' };
+        const updated = { course_name:courseName+(editCourseMajorMinor?' ['+editCourseMajorMinor+']':'')+(editCourseType&&editCourseType!=='None'?' ('+editCourseType+')':''), section, faculty, day, start_time:startTime+':00', end_time:endTime+':00' };
         pushUndo('Schedule edited');
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
             schedules = schedules.map(s => String(s.id)===String(id)?{...s,...updated}:s);
@@ -2180,10 +2182,206 @@
 
     // ── ADD SCHEDULE FORM ──
     // ── SCHEDULE MODAL OPEN/CLOSE ──
+    // ── AUTO-SET TYPE TO NONE WHEN MINOR IS SELECTED ──
+    document.getElementById('courseMajorMinor').addEventListener('change', function() {
+        const typeSelect = document.getElementById('courseType');
+        if (this.value === 'Minor') {
+            typeSelect.value = 'None';
+            typeSelect.disabled = true;
+            typeSelect.style.opacity = '0.5';
+            typeSelect.style.cursor = 'not-allowed';
+        } else {
+            typeSelect.disabled = false;
+            typeSelect.style.opacity = '1';
+            typeSelect.style.cursor = '';
+        }
+    });
+
+    document.getElementById('editCourseMajorMinor').addEventListener('change', function() {
+        const typeSelect = document.getElementById('editCourseType');
+        if (this.value === 'Minor') {
+            typeSelect.value = 'None';
+            typeSelect.disabled = true;
+            typeSelect.style.opacity = '0.5';
+            typeSelect.style.cursor = 'not-allowed';
+        } else {
+            typeSelect.disabled = false;
+            typeSelect.style.opacity = '1';
+            typeSelect.style.cursor = '';
+        }
+    });
+
+    // ── START TIME PILL ──
+    (function injectStartTimePillStyles() {
+        const s = document.createElement('style');
+        s.textContent = `
+            .start-time-pill {
+                display: inline-flex; align-items: center; gap: 5px;
+                background: rgba(255,255,255,0.18);
+                border: 1.5px solid rgba(255,255,255,0.35);
+                border-radius: 20px;
+                padding: 2px 10px 2px 8px;
+                font-size: 0.78rem; font-weight: 600;
+                color: inherit;
+                cursor: pointer;
+                transition: background 0.15s, border-color 0.15s;
+                position: relative;
+                white-space: nowrap;
+            }
+            .start-time-pill:hover {
+                background: rgba(255,255,255,0.28);
+                border-color: rgba(255,255,255,0.6);
+            }
+            .start-time-pill i { font-size: 0.68rem; opacity: 0.8; }
+            .start-time-pill .pill-caret { font-size: 0.6rem; opacity: 0.7; margin-left: 1px; }
+            .start-time-dropdown {
+                position: absolute;
+                top: calc(100% + 6px);
+                left: 0;
+                z-index: 9999;
+                background: var(--white);
+                border: 1.5px solid var(--border);
+                border-radius: 10px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+                max-height: 220px;
+                overflow-y: auto;
+                min-width: 140px;
+                padding: 4px 0;
+            }
+            .start-time-dropdown-option {
+                padding: 8px 14px;
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--text);
+                cursor: pointer;
+                transition: background 0.12s;
+                font-family: 'DM Sans', sans-serif;
+            }
+            .start-time-dropdown-option:hover { background: var(--light-bg); }
+            .start-time-dropdown-option.selected {
+                background: var(--navy);
+                color: white;
+                font-weight: 700;
+            }
+            body.dark-mode .start-time-dropdown { background: #1e293b; border-color: #334155; }
+            body.dark-mode .start-time-dropdown-option { color: #e2e8f0; }
+            body.dark-mode .start-time-dropdown-option:hover { background: #334155; }
+            body.dark-mode .start-time-dropdown-option.selected { background: var(--accent); color: white; }
+        `;
+        document.head.appendChild(s);
+    })();
+
+    const TIME_OPTIONS = [
+        {v:'07:00',l:'7:00 AM'},{v:'07:30',l:'7:30 AM'},
+        {v:'08:00',l:'8:00 AM'},{v:'08:30',l:'8:30 AM'},
+        {v:'09:00',l:'9:00 AM'},{v:'09:30',l:'9:30 AM'},
+        {v:'10:00',l:'10:00 AM'},{v:'10:30',l:'10:30 AM'},
+        {v:'11:00',l:'11:00 AM'},{v:'11:30',l:'11:30 AM'},
+        {v:'12:00',l:'12:00 PM'},{v:'12:30',l:'12:30 PM'},
+        {v:'13:00',l:'1:00 PM'},{v:'13:30',l:'1:30 PM'},
+        {v:'14:00',l:'2:00 PM'},{v:'14:30',l:'2:30 PM'},
+        {v:'15:00',l:'3:00 PM'},{v:'15:30',l:'3:30 PM'},
+        {v:'16:00',l:'4:00 PM'},{v:'16:30',l:'4:30 PM'},
+        {v:'17:00',l:'5:00 PM'},{v:'17:30',l:'5:30 PM'},
+        {v:'18:00',l:'6:00 PM'},{v:'18:30',l:'6:30 PM'},
+        {v:'19:00',l:'7:00 PM'},{v:'19:30',l:'7:30 PM'},
+        {v:'20:00',l:'8:00 PM'},{v:'20:30',l:'8:30 PM'},
+        {v:'21:00',l:'9:00 PM'}
+    ];
+
+    let startTimePillDropdownOpen = false;
+
+    function renderStartTimePill(time) {
+        const sub = document.getElementById('scheduleModalSub');
+        sub.innerHTML = '';
+        if (!time) return;
+
+        // "Starting at" label
+        const label = document.createElement('span');
+        label.textContent = 'Starting at';
+        sub.appendChild(label);
+
+        // Pill wrapper (position:relative for dropdown anchor)
+        const wrapper = document.createElement('span');
+        wrapper.style.position = 'relative';
+
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'start-time-pill';
+        pill.innerHTML = `<i class="fa-solid fa-clock"></i><span id="pillTimeLabel">${to12hr(time)}</span><i class="fa-solid fa-chevron-down pill-caret"></i>`;
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'start-time-dropdown';
+        dropdown.style.display = 'none';
+
+        TIME_OPTIONS.forEach(opt => {
+            const item = document.createElement('div');
+            item.className = 'start-time-dropdown-option' + (opt.v === time ? ' selected' : '');
+            item.textContent = opt.l;
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // prevent blur firing first
+                selectStartTime(opt.v, opt.l, dropdown, pill);
+            });
+            dropdown.appendChild(item);
+        });
+
+        pill.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.style.display !== 'none';
+            dropdown.style.display = isOpen ? 'none' : 'block';
+            startTimePillDropdownOpen = !isOpen;
+            if (!isOpen) {
+                // Scroll selected option into view
+                const sel = dropdown.querySelector('.selected');
+                if (sel) sel.scrollIntoView({ block: 'nearest' });
+            }
+        });
+
+        wrapper.appendChild(pill);
+        wrapper.appendChild(dropdown);
+        sub.appendChild(wrapper);
+
+        // Close on outside click
+        document.addEventListener('click', function closePillDropdown(e) {
+            if (!wrapper.contains(e.target)) {
+                dropdown.style.display = 'none';
+                startTimePillDropdownOpen = false;
+                document.removeEventListener('click', closePillDropdown);
+            }
+        });
+    }
+
+    function selectStartTime(value, label, dropdown, pill) {
+        // Update hidden input
+        document.getElementById('startTime').value = value;
+        // Update pill label
+        pill.querySelector('#pillTimeLabel').textContent = label;
+        // Update selected state in dropdown
+        dropdown.querySelectorAll('.start-time-dropdown-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.textContent === label);
+        });
+        // Close dropdown
+        dropdown.style.display = 'none';
+        startTimePillDropdownOpen = false;
+        // Auto-update end time to +1hr if end time hasn't been manually set or is before new start
+        const endSel = document.getElementById('endTime');
+        const newEndM = timeToMins(value) + 60;
+        const curEndM = endSel.value ? timeToMins(endSel.value) : 0;
+        if (!endSel.value || curEndM <= timeToMins(value)) {
+            endSel.value = newEndM <= 21*60 ? minsToTime(newEndM) : '';
+        }
+        // Re-validate end time against the new start time
+        if (typeof validateEndTime === 'function') validateEndTime();
+    }
+
     function openScheduleModal(room, time) {
         currentRoom = room || currentRoom;
         schedules   = allRoomSchedules[currentRoom] || [];
         document.getElementById('courseName').value  = '';
+        document.getElementById('courseMajorMinor').value = '';
+        document.getElementById('courseType').disabled = false;
+        document.getElementById('courseType').style.opacity = '1';
+        document.getElementById('courseType').style.cursor = '';
         document.getElementById('sectionCourse').value = '';
         document.getElementById('sectionYear').value   = '';
         document.getElementById('sectionBlock').value  = '';
@@ -2197,7 +2395,10 @@
             document.getElementById('endTime').value = '';
         }
         document.getElementById('scheduleModalTitle').textContent = 'Schedule Room ' + currentRoom;
-        document.getElementById('scheduleModalSub').textContent   = time ? 'Starting at ' + to12hr(time) : '';
+        renderStartTimePill(time);
+        // Reset end time warning state
+        document.getElementById('endTimeWarning').style.display = 'none';
+        document.getElementById('endTime').style.borderColor = '';
         document.getElementById('scheduleModal').classList.add('show');
     }
     document.getElementById('scheduleModalCloseBtn').addEventListener('click', () => {
@@ -2208,10 +2409,32 @@
             document.getElementById('scheduleModal').classList.remove('show');
     });
 
+    // ── END TIME VALIDATION ──
+    function validateEndTime() {
+        const startVal = document.getElementById('startTime').value;
+        const endVal   = document.getElementById('endTime').value;
+        const warning  = document.getElementById('endTimeWarning');
+        const warnText = document.getElementById('endTimeWarningText');
+        const endSel   = document.getElementById('endTime');
+        if (!endVal || !startVal) { warning.style.display = 'none'; endSel.style.borderColor = ''; return true; }
+        if (endVal <= startVal) {
+            warnText.textContent = 'End time must be after ' + to12hr(startVal) + '. Please pick a later time.';
+            warning.style.display = 'flex';
+            endSel.style.borderColor = '#ef4444';
+            endSel.value = ''; // reset the invalid selection
+            return false;
+        }
+        warning.style.display = 'none';
+        endSel.style.borderColor = '';
+        return true;
+    }
+    document.getElementById('endTime').addEventListener('change', validateEndTime);
+
     document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const courseName = document.getElementById('courseName').value.trim();
         const courseType = document.getElementById('courseType').value;
+        const courseMajorMinor = document.getElementById('courseMajorMinor').value;
         const sectionCourse = document.getElementById('sectionCourse').value;
         const sectionYear   = document.getElementById('sectionYear').value;
         const sectionBlock  = document.getElementById('sectionBlock').value;
@@ -2221,6 +2444,8 @@
         const startTime  = document.getElementById('startTime').value;
         const endTime    = document.getElementById('endTime').value;
         if (!courseName||!section||!faculty||!day||!startTime||!endTime) { showToast('Please fill in all fields','error'); return; }
+        if (!courseMajorMinor) { showToast('Please select Major or Minor','error'); return; }
+        if (!courseType) { showToast('Please select a class type (Lec/Lab)','error'); return; }
         if (startTime>=endTime) { showToast('End time must be after start time','error'); return; }
         const sM=timeToMins(startTime), eM=timeToMins(endTime);
         const conflict = schedules.find(s => {
@@ -2238,7 +2463,7 @@
         }
         const btn = document.getElementById('submitBtn');
         btn.classList.add('loading'); btn.disabled=true;
-        const newEntry = { room:currentRoom, course_name:courseName+(courseType&&courseType!=='None'?' ('+courseType+')':''), section, faculty, day, start_time:startTime+':00', end_time:endTime+':00' };
+        const newEntry = { room:currentRoom, course_name:courseName+(courseMajorMinor?' ['+courseMajorMinor+']':'')+(courseType&&courseType!=='None'?' ('+courseType+')':''), section, faculty, day, start_time:startTime+':00', end_time:endTime+':00' };
         pushUndo('Schedule added');
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
             newEntry.id = Date.now();
@@ -2338,10 +2563,25 @@
     let activeFilter = null;
 
     function isMajorSlot(slot) {
-        // Major = has (Lec) or (Lab) in course name
-        const name = slot.querySelector('.class-info strong') ?
-            slot.querySelector('.class-info strong').textContent : '';
-        return /\((Lec|Lab)\)/.test(name);
+        const id = slot.querySelector('.slot-id') ? slot.querySelector('.slot-id').dataset.id : null;
+        if (!id) return false;
+        let rawName = '';
+        for (const room of Object.keys(allRoomSchedules)) {
+            const s = allRoomSchedules[room].find(x => String(x.id) === String(id));
+            if (s) { rawName = s.course_name; break; }
+        }
+        return /\[Major\]/.test(rawName);
+    }
+
+    function isMinorSlot(slot) {
+        const id = slot.querySelector('.slot-id') ? slot.querySelector('.slot-id').dataset.id : null;
+        if (!id) return false;
+        let rawName = '';
+        for (const room of Object.keys(allRoomSchedules)) {
+            const s = allRoomSchedules[room].find(x => String(x.id) === String(id));
+            if (s) { rawName = s.course_name; break; }
+        }
+        return /\[Minor\]/.test(rawName);
     }
 
     function applyLegendFilter(filter) {
@@ -2379,7 +2619,7 @@
                 if (major) slot.classList.add('slot-highlight-major');
                 else slot.classList.add('slot-filtered-out');
             } else if (filter === 'minor') {
-                if (!major) slot.classList.add('slot-highlight-minor');
+                if (isMinorSlot(slot)) slot.classList.add('slot-highlight-minor');
                 else slot.classList.add('slot-filtered-out');
             } else {
                 slot.classList.toggle('slot-filtered-out', !slot.classList.contains('slot-' + filter));
@@ -2445,7 +2685,7 @@
         closeSidebar();
         await _supabase.auth.signOut();
         localStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     });
 
     // Sync sidebar footer name with navbar username
@@ -2465,8 +2705,7 @@
         const tc    = document.querySelector('.timetable-container');
         const title = document.getElementById('scheduleTitle').textContent;
         const pw    = window.open('','_blank','width=1200,height=800');
-        const html = tc.innerHTML.replace(/<\/script/gi, '<\\/script');
-        pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + title + '</title><style>body{font-family:sans-serif;padding:20px;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ccc;padding:6px 10px;font-size:0.8rem;}th{background:#0d1b3e;color:white;}@media print{button{display:none;}}h2{margin-bottom:12px;}</style></head><body><h2>' + title + '</h2>' + html + '</body></html>');
+        pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+title+'</title><style>@page{size:A4 landscape;margin:6mm 8mm;}*{box-sizing:border-box;margin:0;padding:0;}html,body{width:100%;height:100%;font-family:Arial,sans-serif;background:white;}.print-wrapper{width:100%;height:100%;display:flex;flex-direction:column;}.print-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;padding-bottom:3px;border-bottom:2px solid #0d1b3e;}.print-title{font-size:9pt;font-weight:700;color:#0d1b3e;}.print-date{font-size:7pt;color:#64748b;}.timetable-container{flex:1;overflow:hidden;}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:6pt;}th{background:#0d1b3e;color:white;font-weight:700;padding:3px 2px;border:0.5px solid #cbd5e0;text-align:center;font-size:6.5pt;}td{border:0.5px solid #cbd5e0;text-align:center;vertical-align:middle;height:12px;padding:0;overflow:hidden;}.time-col{background:#f8fafc;font-weight:700;font-size:5.5pt;color:#475569;width:32px;white-space:nowrap;}.scheduled-slot{background:#eff6ff;color:#1e40af;vertical-align:middle;padding:2px 1px;border:0.5px solid #93c5fd!important;}.class-info{line-height:1.25;font-size:5.5pt;word-break:break-word;white-space:normal;}.class-info strong{display:block;font-size:6pt;font-weight:700;}.slot-id{display:none!important;}</style></head><body><div class="print-wrapper"><div class="print-header"><span class="print-title">'+title+'</span><span class="print-date">Printed: '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})+'</span></div>'+tc.innerHTML+'</div></body></html>');
         pw.document.close(); pw.focus();
         pw.onload = () => { pw.print(); pw.close(); };
     }
