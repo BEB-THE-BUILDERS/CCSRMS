@@ -230,14 +230,8 @@
 
 
 
-        .nav-right { display: flex; align-items: center; gap: 16px; }
-
-
-
-
-        .user-badge {
-            display: flex; align-items: center; gap: 10px;
-        }
+        .nav-right { display: flex; align-items: center; gap: 16px; min-width: 0; flex-shrink: 0; }
+        .user-badge { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
 
 
 
@@ -253,9 +247,9 @@
 
 
 
-        .user-info { line-height: 1.2; }
-        .user-name  { font-weight: 700; font-size: 0.85rem; }
-        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; }
+        .user-info { line-height: 1.2; min-width: 0; overflow: hidden; }
+        .user-name  { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; white-space: nowrap; }
 
 
 
@@ -1114,10 +1108,14 @@
                 padding: 0 14px;
                 height: 56px;
             }
+            .nav-left { flex-shrink: 0; }
+            .nav-right { gap: 10px; flex-shrink: 0; }
             .nav-title { font-size: 0.9rem; }
-            .user-info { max-width: 120px; }
-            .user-name  { font-size: 0.75rem; }
-            .user-role  { font-size: 0.65rem; }
+            .user-badge { max-width: 130px; }
+            .user-info  { max-width: 130px; }
+            .user-name  { font-size: 0.72rem; max-width: 130px; }
+            .user-role  { font-size: 0.62rem; }
+            .hamburger-btn { flex-shrink: 0; }
 
             /* ── Cards ── */
             .card {
