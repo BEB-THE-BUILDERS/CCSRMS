@@ -230,8 +230,8 @@
 
 
 
-        .nav-right { display: flex; align-items: center; gap: 16px; min-width: 0; flex-shrink: 0; }
-        .user-badge { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
+        .nav-right { display: flex; align-items: center; gap: 16px; min-width: 0; overflow: hidden; }
+        .user-badge { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; flex: 1; }
 
 
 
@@ -248,8 +248,8 @@
 
 
         .user-info { line-height: 1.2; min-width: 0; overflow: hidden; }
-        .user-name  { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-        .user-role  { font-size: 0.72rem; opacity: 0.7; text-align: right; white-space: nowrap; }
+        .user-name  { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role  { font-size: 0.72rem; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 
 
@@ -1108,14 +1108,26 @@
                 padding: 0 14px;
                 height: 56px;
             }
-            .nav-left { flex-shrink: 0; }
-            .nav-right { gap: 10px; flex-shrink: 0; }
-            .nav-title { font-size: 0.9rem; }
-            .user-badge { max-width: 130px; }
-            .user-info  { max-width: 130px; }
-            .user-name  { font-size: 0.72rem; max-width: 130px; }
+            .nav-left  { flex-shrink: 0; gap: 10px; }
+            .nav-title { font-size: 0.88rem; }
+            /* nav-right: user info shrinks, hamburger stays fixed */
+            .nav-right {
+                gap: 8px;
+                min-width: 0;
+                overflow: hidden;
+                flex: 1;
+                justify-content: flex-end;
+            }
+            .user-badge {
+                min-width: 0;
+                overflow: hidden;
+                flex: 1;
+                max-width: calc(100vw - 180px); /* logo + title + hamburger space */
+            }
+            .user-info  { min-width: 0; overflow: hidden; }
+            .user-name  { font-size: 0.72rem; }
             .user-role  { font-size: 0.62rem; }
-            .hamburger-btn { flex-shrink: 0; }
+            .hamburger-btn { flex-shrink: 0 !important; }
 
             /* ── Cards ── */
             .card {
@@ -1303,7 +1315,7 @@
 </head>
 <body>
     <header class="navbar">
-        <div class="nav-left">
+        <div class="nav-left" style="flex-shrink:0;">
             <div class="logo-circle">
                 <img src="logo.png" class="logo">
             </div>
@@ -1316,7 +1328,7 @@
                     <div class="user-role">Department Head</div>
                 </div>
             </div>
-            <button class="hamburger-btn" id="hamburgerBtn" title="Menu">
+            <button class="hamburger-btn" id="hamburgerBtn" title="Menu" style="flex-shrink:0;">
                 <span></span>
                 <span></span>
                 <span></span>
