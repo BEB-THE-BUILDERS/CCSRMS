@@ -248,6 +248,10 @@
         </div>
 
 
+        <div style="text-align:right;margin-top:-8px;margin-bottom:4px;">
+            <button type="button" id="forgotPasswordLink" style="background:none;border:none;color:#1d4ed8;font-size:0.8rem;font-family:'DM Sans',sans-serif;cursor:pointer;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:2px;">Forgot password?</button>
+        </div>
+
         <div class="info-box">
             <strong>Note:</strong> The Admin will have full access to create and manage schedules.
         </div>
@@ -261,6 +265,56 @@
         </div>
     </div>
 
+
+    <!-- Forgot Password Modal Overlay -->
+    <div id="forgotOverlay" style="display:none;position:fixed;inset:0;background:rgba(2,12,31,0.75);z-index:1000;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;">
+        <div id="forgotCard" style="background:#fff;width:100%;max-width:420px;padding:40px 36px 32px;border-radius:16px;box-shadow:0 25px 60px rgba(0,0,0,0.5);position:relative;animation:cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both;">
+            <!-- Close button -->
+            <button id="forgotCloseBtn" type="button" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+
+            <!-- Icon + heading -->
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+                <div style="width:46px;height:46px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1.5px solid #93c5fd;flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.8"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div>
+                    <div style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:700;color:#0d1b3e;">Reset Password</div>
+                    <div style="font-size:0.78rem;color:#64748b;margin-top:2px;">We'll send a reset link to your email</div>
+                </div>
+            </div>
+
+            <!-- Panels: input vs success -->
+            <div id="forgotInputPanel">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block;font-size:0.83rem;font-weight:600;color:#1e293b;margin-bottom:7px;">Email Address</label>
+                    <div style="position:relative;">
+                        <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:#94a3b8;fill:none;stroke-width:1.8;pointer-events:none;" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="forgotEmail" placeholder="Enter your account email" autocomplete="email" style="width:100%;padding:11px 12px 11px 36px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:#1e293b;background:#f8fafc;transition:border-color 0.2s,box-shadow 0.2s;" onfocus="this.style.borderColor='#0d1b3e';this.style.boxShadow='0 0 0 3px rgba(13,27,62,0.08)';this.style.background='#fff';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';this.style.background='#f8fafc';">
+                    </div>
+                </div>
+                <div id="forgotError" style="display:none;background:#fef2f2;border-left:3px solid #ef4444;color:#dc2626;padding:9px 12px;border-radius:0 7px 7px 0;font-size:0.8rem;margin-bottom:12px;"></div>
+                <div style="display:flex;gap:10px;margin-top:6px;">
+                    <button id="forgotCancelBtn" type="button" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#64748b;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">Cancel</button>
+                    <button id="forgotSendBtn" type="button" style="flex:2;padding:11px;border:none;border-radius:8px;background:#0d1b3e;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;" onmouseover="this.style.background='#1a3060'" onmouseout="this.style.background='#0d1b3e'">
+                        <span id="forgotBtnSpinner" style="display:none;width:15px;height:15px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;"></span>
+                        <span id="forgotBtnText">Send Reset Link</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success state -->
+            <div id="forgotSuccessPanel" style="display:none;text-align:center;padding:10px 0 4px;">
+                <div style="width:56px;height:56px;background:#f0fdf4;border-radius:50%;border:2px solid #86efac;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:#0d1b3e;margin-bottom:8px;">Check your inbox!</div>
+                <div id="forgotSuccessMsg" style="font-size:0.83rem;color:#64748b;line-height:1.6;margin-bottom:20px;"></div>
+                <button id="forgotDoneBtn" type="button" style="padding:10px 28px;border:none;border-radius:8px;background:#0d1b3e;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#1a3060'" onmouseout="this.style.background='#0d1b3e'">Back to Login</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -339,6 +393,75 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') loginBtn.click();
+        });
+
+        // ── Forgot Password ──
+        const forgotOverlay   = document.getElementById('forgotOverlay');
+        const forgotInputPanel  = document.getElementById('forgotInputPanel');
+        const forgotSuccessPanel = document.getElementById('forgotSuccessPanel');
+        const forgotError     = document.getElementById('forgotError');
+        const forgotEmail     = document.getElementById('forgotEmail');
+        const forgotBtnSpinner = document.getElementById('forgotBtnSpinner');
+        const forgotBtnText   = document.getElementById('forgotBtnText');
+
+        function openForgot() {
+            forgotEmail.value = document.getElementById('email').value.trim() || '';
+            forgotError.style.display = 'none';
+            forgotInputPanel.style.display = 'block';
+            forgotSuccessPanel.style.display = 'none';
+            forgotOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => forgotEmail.focus(), 100);
+        }
+        function closeForgot() {
+            forgotOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('forgotPasswordLink').addEventListener('click', openForgot);
+        document.getElementById('forgotCloseBtn').addEventListener('click', closeForgot);
+        document.getElementById('forgotCancelBtn').addEventListener('click', closeForgot);
+        document.getElementById('forgotDoneBtn').addEventListener('click', closeForgot);
+        forgotOverlay.addEventListener('click', (e) => { if (e.target === forgotOverlay) closeForgot(); });
+
+        document.getElementById('forgotSendBtn').addEventListener('click', async () => {
+            const email = forgotEmail.value.trim();
+            forgotError.style.display = 'none';
+
+            if (!email) {
+                forgotError.textContent = 'Please enter your email address.';
+                forgotError.style.display = 'block'; return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                forgotError.textContent = 'Please enter a valid email address.';
+                forgotError.style.display = 'block'; return;
+            }
+
+            forgotBtnSpinner.style.display = 'block';
+            forgotBtnText.textContent = 'Sending…';
+            document.getElementById('forgotSendBtn').disabled = true;
+
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/home.html'
+            });
+
+            forgotBtnSpinner.style.display = 'none';
+            forgotBtnText.textContent = 'Send Reset Link';
+            document.getElementById('forgotSendBtn').disabled = false;
+
+            if (error) {
+                forgotError.textContent = error.message || 'Something went wrong. Please try again.';
+                forgotError.style.display = 'block';
+            } else {
+                document.getElementById('forgotSuccessMsg').textContent =
+                    'A password reset link has been sent to ' + email + '. Please check your inbox (and spam folder).';
+                forgotInputPanel.style.display = 'none';
+                forgotSuccessPanel.style.display = 'block';
+            }
+        });
+
+        forgotEmail.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('forgotSendBtn').click();
         });
 
         // ── Register Service Worker (PWA) ──
