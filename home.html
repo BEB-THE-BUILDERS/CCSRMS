@@ -207,9 +207,9 @@
 
 
         .logo-circle {
-            width: 40px; height: 40px;
-            background: #f97316;
-            border-radius: 10px;
+            width: 45px; height: 45px;
+            background: rgb(13, 27, 62);
+            border-radius: 100%;
             display: flex; align-items: center; justify-content: center;
             font-family: 'Sora', sans-serif;
             font-weight: 700; font-size: 0.7rem;
@@ -814,6 +814,33 @@
         body.dark-mode .submit-btn { background: rgb(59,130,246); }
         body.dark-mode .submit-btn:hover { background: rgb(37,99,235); }
         body.dark-mode #aboutCloseBtn { background: rgb(59,130,246) !important; }
+        body.dark-mode #changePasswordModal .modal { background: #1e293b !important; color: #e2e8f0 !important; }
+        body.dark-mode #changePasswordModal input {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: #e2e8f0 !important;
+        }
+        body.dark-mode #changePasswordModal input::placeholder { color: #475569 !important; }
+        body.dark-mode #changePasswordModal input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+        body.dark-mode #changePasswordModal label { color: #cbd5e1 !important; }
+        body.dark-mode #changePasswordModal .modal > div:first-of-type > div:last-of-type > div:first-child { color: #93c5fd !important; }
+        body.dark-mode #changePasswordModal button[onclick] { background: #334155 !important; color: #94a3b8 !important; }
+        body.dark-mode #changePasswordModal button[onclick]:hover { background: #475569 !important; color: #e2e8f0 !important; }
+        body.dark-mode #changePasswordModal .modal > div:last-of-type > button:first-child {
+            background: #1e293b !important;
+            border-color: #475569 !important;
+            color: #e2e8f0 !important;
+        }
+        body.dark-mode #changePasswordModal .modal > div:last-of-type > button:first-child:hover { background: #334155 !important; }
+        body.dark-mode #changePasswordError   { background: #3b0f0f !important; color: #fca5a5 !important; border-color: #ef4444 !important; }
+        body.dark-mode #changePasswordSuccess { background: #052e16 !important; color: #86efac !important; border-color: #22c55e !important; }
+        body.dark-mode #changePasswordConfirmBtn { background: #3b82f6 !important; color: white !important; }
+        body.dark-mode #changePasswordConfirmBtn:hover { background: #2563eb !important; }
+        body.dark-mode #changePasswordConfirmBtn:disabled { opacity: 0.7; }
+        body.dark-mode #cpCloseBtn  { background: #334155 !important; color: #94a3b8 !important; }
+        body.dark-mode #cpCloseBtn:hover { background: #475569 !important; color: #e2e8f0 !important; }
+        body.dark-mode #cpCancelBtn { background: #1e293b !important; border-color: #475569 !important; color: #e2e8f0 !important; }
+        body.dark-mode #cpCancelBtn:hover { background: #334155 !important; }
 
 
 
@@ -1076,6 +1103,89 @@
         .user-name  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
         .user-role  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
+        /* ── TERMS & CONDITIONS MODAL ── */
+        #termsModal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        #termsModal.show { display: flex; }
+        .terms-card {
+            background: white;
+            border-radius: 16px;
+            width: 90%; max-width: 620px;
+            max-height: 88vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+            overflow: hidden;
+            animation: fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .terms-header {
+            background: var(--navy);
+            padding: 22px 28px 18px;
+            flex-shrink: 0;
+        }
+        .terms-header h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem; font-weight: 700;
+            color: white; margin-bottom: 4px;
+        }
+        .terms-header p { font-size: 0.78rem; color: rgba(255,255,255,0.65); }
+        .terms-body {
+            flex: 1; overflow-y: auto;
+            padding: 24px 28px;
+            font-size: 0.83rem; line-height: 1.7;
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
+        .terms-body h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.88rem; font-weight: 700;
+            color: var(--navy); margin: 18px 0 6px;
+        }
+        .terms-body h3:first-child { margin-top: 0; }
+        .terms-body p { margin-bottom: 8px; color: var(--muted); }
+        .terms-body ul { padding-left: 18px; margin-bottom: 8px; color: var(--muted); }
+        .terms-body ul li { margin-bottom: 4px; }
+        .terms-footer {
+            padding: 16px 28px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; gap: 12px;
+            background: white;
+        }
+        .terms-scroll-hint {
+            font-size: 0.75rem; color: var(--muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .terms-scroll-hint i { font-size: 0.8rem; }
+        #termsAcceptBtn {
+            padding: 10px 24px;
+            border-radius: 8px; border: none;
+            background: var(--navy); color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700; font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+            display: flex; align-items: center; gap: 8px;
+            flex-shrink: 0;
+        }
+        #termsAcceptBtn:disabled {
+            opacity: 0.4; cursor: not-allowed;
+        }
+        #termsAcceptBtn:not(:disabled):hover { background: var(--navy-mid); }
+        /* Dark mode */
+        body.dark-mode .terms-card { background: #1e293b; }
+        body.dark-mode .terms-header { background: #0d1b3e; }
+        body.dark-mode .terms-body { color: #e2e8f0; }
+        body.dark-mode .terms-body h3 { color: #93c5fd; }
+        body.dark-mode .terms-body p,
+        body.dark-mode .terms-body li { color: #94a3b8; }
+        body.dark-mode .terms-footer { background: #1e293b; border-color: #334155; }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
             .grid { grid-template-columns: 1fr; }
@@ -1317,14 +1427,12 @@
                 <img src="logo.png" class="logo">
             </div>
             <span class="nav-title">CCSRMS</span>
-            <!-- Desktop: email shown next to logo/title -->
-            <div class="user-info nav-user-desktop">
+        </div>
+        <div class="nav-right">
+            <div class="user-info nav-user-desktop" style="text-align:right;">
                 <div class="user-name" id="userName">Admin</div>
                 <div class="user-role" id="userRole">Department Head</div>
             </div>
-        </div>
-        <div class="nav-right">
-            <!-- Mobile: truncated email shown right before hamburger -->
             <div class="user-info nav-user-mobile">
                 <div class="user-name" id="userNameMobile">Admin</div>
                 <div class="user-role" id="userRoleMobile">Department Head</div>
@@ -1343,21 +1451,31 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo-circle" style="width:32px;height:32px;font-size:0.6rem;border-radius:8px;flex-shrink:0;">
-                <img src="logo.png" style="height:100%;width:100%;object-fit:contain;">
+            <div class="logo-circle" style="width:32px;height:32px;font-size:0.6rem;border-radius:100%;flex-shrink:0;">
+                <img src="logo.png" style="height:100%;width:100%;object-fit:contain;border-radius: 100%;">
             </div>
             <span style="font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;color:white;letter-spacing:-0.2px;">CCSRMS</span>
         </div>
         <div class="sidebar-body">
-            <button class="sidebar-item" id="aboutBtn">
-                <i class="fa-solid fa-circle-info"></i> About CCSRMS
-            </button>
             <button class="sidebar-item" id="darkModeToggle">
                 <i class="fa-solid fa-moon"></i>
                 <span style="flex:1;">Dark Mode</span>
                 <div class="toggle-switch">
                     <div class="toggle-knob"></div>
                 </div>
+            </button>
+            <button class="sidebar-item" id="changePasswordBtn">
+                <i class="fa-solid fa-key"></i>
+                <span style="flex:1;">Change Password</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
+            </button>
+            <button class="sidebar-item" id="aboutBtn">
+                <i class="fa-solid fa-circle-info"></i> About CCSRMS
+            </button>
+            <button class="sidebar-item" id="termsBtn">
+                <i class="fa-solid fa-file-contract"></i>
+                <span style="flex:1;">Terms &amp; Conditions</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
             </button>
 
             <!-- Danger Zone -->
@@ -1747,6 +1865,146 @@
         </div>
     </div>
     
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal" style="max-width:420px;position:relative;">
+            <button id="cpCloseBtn" onclick="document.getElementById('changePasswordModal').classList.remove('show')" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:var(--light-bg);color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <div style="width:44px;height:44px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid #93c5fd;flex-shrink:0;">
+                    <i class="fa-solid fa-key" style="color:#1d4ed8;font-size:1.1rem;"></i>
+                </div>
+                <div>
+                    <div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);">Change Password</div>
+                    <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Update your account password</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;transition:border-color 0.2s;">
+                </div>
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;transition:border-color 0.2s;">
+                </div>
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter new password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;transition:border-color 0.2s;">
+                </div>
+                <div id="changePasswordError" style="display:none;background:#fef2f2;border-left:3px solid #ef4444;color:#dc2626;padding:9px 12px;border-radius:0 7px 7px 0;font-size:0.8rem;"></div>
+                <div id="changePasswordSuccess" style="display:none;background:#f0fdf4;border-left:3px solid #22c55e;color:#166534;padding:9px 12px;border-radius:0 7px 7px 0;font-size:0.8rem;"></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+                <button id="cpCancelBtn" onclick="document.getElementById('changePasswordModal').classList.remove('show')" style="padding:9px 20px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;">Cancel</button>
+                <button id="changePasswordConfirmBtn" style="padding:9px 20px;border-radius:7px;border:none;background:#1d4ed8;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;">
+                    <i class="fa-solid fa-check"></i> Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Terms & Conditions Modal -->
+    <div id="termsModal">
+        <div class="terms-card">
+            <div class="terms-header">
+                <h2><i class="fa-solid fa-file-contract" style="margin-right:8px;opacity:0.8;"></i>Terms and Conditions</h2>
+                <p>Please read carefully and scroll to the bottom to accept before using CCSRMS.</p>
+            </div>
+            <div class="terms-body" id="termsBody">
+
+                <h3>1. Introduction</h3>
+                <p>Welcome to the <strong>CCS Room Management System (CCSRMS)</strong>, a web-based platform developed for the College of Computer Studies (CCS). By accessing and using this system, you agree to be bound by the terms and conditions set forth in this document. These terms apply to all authorized users of CCSRMS.</p>
+
+                <h3>2. Purpose of the System</h3>
+                <p>CCSRMS is designed exclusively for the management and scheduling of classrooms and laboratory rooms within the College of Computer Studies. The system enables authorized Department Heads to:</p>
+                <ul>
+                    <li>View and manage room availability across all floors</li>
+                    <li>Schedule classes including lecture and laboratory sessions</li>
+                    <li>Assign faculty members to specific rooms and time slots</li>
+                    <li>Organize and monitor weekly room utilization</li>
+                    <li>Filter and categorize schedules by program (BSCS, BSIT, BSEMC) and subject type (Major/Minor)</li>
+                </ul>
+
+                <h3>3. Authorized Users</h3>
+                <p>Access to CCSRMS is strictly limited to authorized personnel of the College of Computer Studies. Only verified Department Heads with valid credentials issued by the system administrator are permitted to use this platform. Unauthorized access is strictly prohibited and may be subject to disciplinary action.</p>
+
+                <h3>4. User Responsibilities</h3>
+                <p>As an authorized user of CCSRMS, you agree to:</p>
+                <ul>
+                    <li>Ensure all schedule entries are accurate, complete, and up-to-date</li>
+                    <li>Avoid scheduling conflicts by reviewing existing room assignments before adding new ones</li>
+                    <li>Use the system solely for official room scheduling purposes</li>
+                    <li>Not misrepresent course names, faculty assignments, or section information</li>
+                    <li>Promptly update or remove outdated schedules to maintain system accuracy</li>
+                    <li>Exercise care when using features such as drag-and-drop rescheduling or bulk deletion</li>
+                </ul>
+
+                <h3>5. Account Security</h3>
+                <p>You are solely responsible for maintaining the confidentiality of your login credentials. You agree to:</p>
+                <ul>
+                    <li>Keep your password secure and not share it with any other person</li>
+                    <li>Log out of the system after each session, especially on shared devices</li>
+                    <li>Immediately report any suspected unauthorized access to your account to the system administrator</li>
+                    <li>Change your password periodically using the Change Password feature available in the sidebar</li>
+                </ul>
+                <p>The CCS is not liable for any loss or damage arising from unauthorized use of your account due to your failure to keep your credentials secure.</p>
+
+                <h3>6. Data and Privacy</h3>
+                <p>CCSRMS stores the following data in its database:</p>
+                <ul>
+                    <li>Your account information (email address and encrypted password)</li>
+                    <li>Room schedules including course names, section, faculty, day, and time</li>
+                    <li>User activity metadata such as acceptance of terms</li>
+                </ul>
+                <p>All data stored in CCSRMS is the property of the College of Computer Studies. Data is used solely for the purpose of room management and is not shared with external parties. You agree not to extract, copy, or reproduce system data for unauthorized purposes.</p>
+
+                <h3>7. Prohibited Actions</h3>
+                <p>The following actions are strictly prohibited and may result in account suspension or disciplinary measures:</p>
+                <ul>
+                    <li>Accessing or attempting to access another user's account</li>
+                    <li>Deleting, modifying, or overwriting schedules belonging to other departments without authorization</li>
+                    <li>Using the Danger Zone (Delete All Schedules) feature recklessly or without proper authorization</li>
+                    <li>Attempting to exploit, hack, or reverse-engineer any part of the system</li>
+                    <li>Inputting false or misleading schedule information into the system</li>
+                </ul>
+
+                <h3>8. System Availability and Changes</h3>
+                <p>CCSRMS is provided on an "as available" basis. The system administrator reserves the right to:</p>
+                <ul>
+                    <li>Temporarily suspend the system for maintenance without prior notice</li>
+                    <li>Modify, update, or discontinue any feature of the system at any time</li>
+                    <li>Update these Terms and Conditions as necessary, with changes taking effect upon your next login</li>
+                </ul>
+                <p>Continued use of CCSRMS after any changes to these terms constitutes your acceptance of the updated terms.</p>
+
+                <h3>9. Disclaimer of Liability</h3>
+                <p>The College of Computer Studies and the developers of CCSRMS shall not be held liable for any scheduling conflicts, data loss, or operational disruptions arising from misuse of the system, user error, or technical issues beyond the control of the administration. Users are responsible for verifying the accuracy of all information entered into the system.</p>
+
+                <h3>10. Acceptance</h3>
+                <p>By clicking <strong>"I Accept"</strong> below, you confirm that:</p>
+                <ul>
+                    <li>You have read and fully understood these Terms and Conditions</li>
+                    <li>You are an authorized Department Head of the College of Computer Studies</li>
+                    <li>You agree to comply with all the terms stated in this document</li>
+                    <li>You understand that violation of these terms may result in revocation of your access to CCSRMS</li>
+                </ul>
+                <p style="margin-top:12px;font-size:0.78rem;color:var(--muted);font-style:italic;">Last updated: May 2026 · CCS Room Management System · College of Computer Studies</p>
+
+            </div>
+            <div class="terms-footer">
+                <div class="terms-scroll-hint" id="termsScrollHint">
+                    <i class="fa-solid fa-arrow-down"></i>
+                    <span>Scroll to the bottom to enable acceptance</span>
+                </div>
+                <button id="termsAcceptBtn" disabled>
+                    <i class="fa-solid fa-check"></i> I Accept
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -1843,14 +2101,58 @@
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { init(); return; }
         try {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
-            document.getElementById('userName').textContent = session.user.email;
-            document.getElementById('userNameMobile').textContent = session.user.email;
+            if (!session) { window.location.href = 'loginpage.html'; return; }
+            const email = session.user.email;
+            document.getElementById('userName').textContent = email;
+            if (document.getElementById('userNameMobile'))
+                document.getElementById('userNameMobile').textContent = email;
+            if (document.getElementById('sidebarFooterName'))
+                document.getElementById('sidebarFooterName').textContent = email;
+            // Check if user has accepted terms
+            const termsAccepted = session.user.user_metadata?.terms_accepted;
+            if (!termsAccepted) {
+                showTermsModal();
+                return; // don't call init() until terms are accepted
+            }
         } catch(e) { console.warn('Auth failed, demo mode'); }
         init();
     })();
 
     // Supabase sign-out is handled in the sidebarLogoutBtn click above
+
+    // ── TERMS & CONDITIONS ──
+    function showTermsModal() {
+        document.getElementById('termsModal').classList.add('show');
+        const body   = document.getElementById('termsBody');
+        const btn    = document.getElementById('termsAcceptBtn');
+        const hint   = document.getElementById('termsScrollHint');
+
+        // Check scroll on load (in case content is short)
+        function checkScroll() {
+            const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 10;
+            btn.disabled = !atBottom;
+            if (atBottom) {
+                hint.innerHTML = '<i class="fa-solid fa-check" style="color:#22c55e;"></i><span style="color:#22c55e;">You may now accept the terms</span>';
+            }
+        }
+        body.addEventListener('scroll', checkScroll);
+        checkScroll();
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            try {
+                const { error } = await _supabase.auth.updateUser({
+                    data: { terms_accepted: true }
+                });
+                if (error) throw error;
+            } catch(e) {
+                console.warn('Could not save terms acceptance:', e.message);
+            }
+            document.getElementById('termsModal').classList.remove('show');
+            init();
+        }, { once: true });
+    }
 
     function init() { loadSchedules(); }
 
@@ -2966,6 +3268,109 @@
         }
 
         aboutBtn.addEventListener('click', () => { closeSidebar(); openAbout(); });
+
+        // Terms & Conditions (view-only from sidebar, no accept required)
+        document.getElementById('termsBtn').addEventListener('click', () => {
+            closeSidebar();
+            const modal = document.getElementById('termsModal');
+            // In view mode, enable accept button immediately and hide hint
+            const btn  = document.getElementById('termsAcceptBtn');
+            const hint = document.getElementById('termsScrollHint');
+            btn.style.display  = 'none';
+            hint.style.display = 'none';
+            modal.classList.add('show');
+            // Add a close button if not already present
+            let closeBtn = document.getElementById('termsViewCloseBtn');
+            if (!closeBtn) {
+                closeBtn = document.createElement('button');
+                closeBtn.id = 'termsViewCloseBtn';
+                closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close';
+                closeBtn.style.cssText = 'padding:10px 24px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:DM Sans,sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;display:flex;align-items:center;gap:8px;flex-shrink:0;';
+                closeBtn.addEventListener('click', () => {
+                    modal.classList.remove('show');
+                    btn.style.display  = '';
+                    hint.style.display = '';
+                    closeBtn.remove();
+                });
+                document.querySelector('.terms-footer').appendChild(closeBtn);
+            }
+        });
+
+        // ── CHANGE PASSWORD ──
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        changePasswordBtn.addEventListener('click', () => {
+            closeSidebar();
+            document.getElementById('currentPassword').value   = '';
+            document.getElementById('newPassword').value       = '';
+            document.getElementById('confirmPassword').value   = '';
+            document.getElementById('changePasswordError').style.display   = 'none';
+            document.getElementById('changePasswordSuccess').style.display = 'none';
+            document.getElementById('changePasswordModal').classList.add('show');
+        });
+
+        document.getElementById('changePasswordConfirmBtn').addEventListener('click', async () => {
+            const current  = document.getElementById('currentPassword').value;
+            const newPass  = document.getElementById('newPassword').value;
+            const confirm  = document.getElementById('confirmPassword').value;
+            const errEl    = document.getElementById('changePasswordError');
+            const succEl   = document.getElementById('changePasswordSuccess');
+            errEl.style.display  = 'none';
+            succEl.style.display = 'none';
+
+            if (!current || !newPass || !confirm) {
+                errEl.textContent = 'Please fill in all fields.';
+                errEl.style.display = 'block'; return;
+            }
+            if (newPass.length < 6) {
+                errEl.textContent = 'New password must be at least 6 characters.';
+                errEl.style.display = 'block'; return;
+            }
+            if (newPass !== confirm) {
+                errEl.textContent = 'New passwords do not match.';
+                errEl.style.display = 'block'; return;
+            }
+
+            const btn = document.getElementById('changePasswordConfirmBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+
+            try {
+                // Re-authenticate with current password first
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) { window.location.href = 'loginpage.html'; return; }
+
+                const { error: authErr } = await _supabase.auth.signInWithPassword({
+                    email: session.user.email, password: current
+                });
+                if (authErr) {
+                    errEl.textContent = 'Current password is incorrect.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Update Password';
+                    return;
+                }
+
+                // Update password
+                const { error: updateErr } = await _supabase.auth.updateUser({ password: newPass });
+                if (updateErr) {
+                    errEl.textContent = 'Failed to update password: ' + updateErr.message;
+                    errEl.style.display = 'block';
+                } else {
+                    succEl.textContent = 'Password updated successfully!';
+                    succEl.style.display = 'block';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value     = '';
+                    document.getElementById('confirmPassword').value = '';
+                    setTimeout(() => document.getElementById('changePasswordModal').classList.remove('show'), 1800);
+                }
+            } catch(e) {
+                errEl.textContent = 'An error occurred. Please try again.';
+                errEl.style.display = 'block';
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Update Password';
+        });
         aboutCloseBtn.addEventListener('click', closeAbout);
         aboutOverlay.addEventListener('click', closeAbout);
     </script>
