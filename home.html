@@ -1073,6 +1073,11 @@
             line-height: 1;
         }
 
+        /* ── User name truncation (always) ── */
+        .user-info { max-width: 160px; overflow: hidden; }
+        .user-name  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .user-role  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
             .grid { grid-template-columns: 1fr; }
@@ -1087,32 +1092,40 @@
         @media (max-width: 768px) {
 
             /* ── Page layout ── */
-            body { overflow-x: hidden; }
+            html, body { overflow-x: hidden; width: 100%; }
 
             .dashboard {
                 padding: 12px 4%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
-            /* Stack grid to single column */
+            /* Stack grid to single column, no overflow */
             .grid {
                 grid-template-columns: 1fr;
                 gap: 12px;
                 padding: 12px 0;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             /* ── Navbar ── */
             .navbar {
-                padding: 0 16px;
+                padding: 0 14px;
                 height: 56px;
             }
-            .nav-title { font-size: 0.95rem; }
-            .user-name  { font-size: 0.8rem; }
-            .user-role  { font-size: 0.68rem; }
+            .nav-title { font-size: 0.9rem; }
+            .user-info { max-width: 120px; }
+            .user-name  { font-size: 0.75rem; }
+            .user-role  { font-size: 0.65rem; }
 
             /* ── Cards ── */
             .card {
                 padding: 16px;
                 border-radius: 12px;
+                width: 100%;
+                box-sizing: border-box;
+                overflow: hidden;
             }
             .card-title { font-size: 0.9rem; margin-bottom: 12px; }
 
@@ -1120,11 +1133,17 @@
             .floor-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
+                width: 100%;
             }
             .floor-btn {
                 padding: 12px 8px;
                 font-size: 0.82rem;
                 border-radius: 8px;
+                width: 100%;
+                box-sizing: border-box;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             /* ── Day buttons ── */
@@ -1137,6 +1156,7 @@
                 padding: 12px;
                 margin-top: 12px;
                 min-height: 44px;
+                box-sizing: border-box;
             }
 
             /* ── TIMETABLE: horizontal scroll + sticky columns ── */
@@ -1146,13 +1166,13 @@
                 -webkit-overflow-scrolling: touch;
                 border-radius: 8px;
                 border: 1px solid var(--border);
-                /* Give it a max-height so room headers stick while scrolling down */
                 max-height: 65vh;
+                width: 100%;
             }
 
             .timetable {
                 font-size: 0.68rem;
-                min-width: 600px; /* force horizontal scroll */
+                min-width: 500px;
             }
 
             /* Sticky room header row */
@@ -1190,7 +1210,7 @@
 
             /* Room columns narrower on mobile */
             .timetable th {
-                min-width: 80px;
+                min-width: 75px;
                 padding: 6px 3px;
                 font-size: 0.65rem;
             }
@@ -1203,16 +1223,31 @@
             .class-info { font-size: 0.62rem; }
             .class-info strong { font-size: 0.64rem; }
 
-            /* ── Mini legend pills ── */
+            /* ── Mini legend pills: wrap on mobile ── */
+            #miniLegendBar {
+                flex-wrap: wrap !important;
+                gap: 4px !important;
+                width: 100%;
+            }
             .mini-legend-item {
-                font-size: 0.7rem;
-                padding: 3px 8px;
+                font-size: 0.68rem;
+                padding: 3px 7px;
             }
 
-            /* ── Legend section ── */
-            .legend-grid {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 8px;
+            /* ── Schedule card title: stack on mobile ── */
+            .schedule-card .card-title {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+
+            /* ── Legend bar: wrap to 2 cols ── */
+            #legendBar {
+                flex-wrap: wrap !important;
+            }
+            #legendBar .legend-item {
+                flex: 1 1 calc(50% - 4px) !important;
+                min-width: 0 !important;
             }
 
             /* ── Toast ── */
@@ -1263,7 +1298,8 @@
         @media (max-width: 400px) {
             .floor-grid { grid-template-columns: repeat(2, 1fr); }
             .timetable { font-size: 0.6rem; }
-            .timetable th { min-width: 70px; }
+            .timetable th { min-width: 65px; }
+            .user-info { max-width: 90px; }
         }
     </style>
 </head>
@@ -1334,6 +1370,7 @@
             </button>
         </div>
     </div>
+    <main class="dashboard">
         <div class="grid">
             <section class="card">
                 <div class="card-title"><i class="fa-solid fa-building"></i> Select Floor</div>
