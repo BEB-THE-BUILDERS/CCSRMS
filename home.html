@@ -1887,6 +1887,23 @@
                 <div>
                     <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">New Password</label>
                     <input type="password" id="newPassword" placeholder="Enter new password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;transition:border-color 0.2s;">
+                    <!-- Password Strength Meter -->
+                    <div id="pwStrengthWrap" style="display:none;margin-top:8px;">
+                        <div style="display:flex;gap:4px;margin-bottom:6px;">
+                            <div id="pwBar1" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar2" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar3" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar4" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                        </div>
+                        <div id="pwStrengthLabel" style="font-size:0.75rem;font-weight:600;margin-bottom:8px;color:var(--muted);"></div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <div id="req-length"  class="pw-req"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least 8 characters</span></div>
+                            <div id="req-upper"   class="pw-req"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one uppercase letter (A–Z)</span></div>
+                            <div id="req-lower"   class="pw-req"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one lowercase letter (a–z)</span></div>
+                            <div id="req-number"  class="pw-req"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one number (0–9)</span></div>
+                            <div id="req-special" class="pw-req"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one special character (!@#$…)</span></div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">Confirm New Password</label>
@@ -3305,7 +3322,59 @@
             document.getElementById('confirmPassword').value   = '';
             document.getElementById('changePasswordError').style.display   = 'none';
             document.getElementById('changePasswordSuccess').style.display = 'none';
+            document.getElementById('pwStrengthWrap').style.display = 'none';
+            ['pwBar1','pwBar2','pwBar3','pwBar4'].forEach(id => document.getElementById(id).style.background = '#e2e8f0');
+            ['req-length','req-upper','req-lower','req-number','req-special'].forEach(id => {
+                const el = document.getElementById(id);
+                el.querySelector('i').className = 'fa-solid fa-circle-xmark';
+                el.querySelector('i').style.color = '#ef4444';
+                el.querySelector('span').style.color = 'var(--muted)';
+            });
             document.getElementById('changePasswordModal').classList.add('show');
+        });
+
+        // ── Password Strength Meter ──
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const val = this.value;
+            const wrap = document.getElementById('pwStrengthWrap');
+            wrap.style.display = val.length > 0 ? 'block' : 'none';
+
+            const checks = {
+                length:  val.length >= 8,
+                upper:   /[A-Z]/.test(val),
+                lower:   /[a-z]/.test(val),
+                number:  /[0-9]/.test(val),
+                special: /[^A-Za-z0-9]/.test(val),
+            };
+            const score = Object.values(checks).filter(Boolean).length;
+
+            const map = { length: 'req-length', upper: 'req-upper', lower: 'req-lower', number: 'req-number', special: 'req-special' };
+            Object.entries(checks).forEach(([key, met]) => {
+                const el = document.getElementById(map[key]);
+                const icon = el.querySelector('i');
+                const txt  = el.querySelector('span');
+                if (met) {
+                    icon.className = 'fa-solid fa-circle-check';
+                    icon.style.color = '#10b981';
+                    txt.style.color  = '#10b981';
+                } else {
+                    icon.className = 'fa-solid fa-circle-xmark';
+                    icon.style.color = '#ef4444';
+                    txt.style.color  = 'var(--muted)';
+                }
+            });
+
+            const colors = ['#ef4444','#f59e0b','#3b82f6','#10b981'];
+            const labels = ['Weak','Fair','Good','Strong'];
+            const barIds = ['pwBar1','pwBar2','pwBar3','pwBar4'];
+            const color  = score <= 1 ? colors[0] : score === 2 ? colors[1] : score <= 4 ? colors[2] : colors[3];
+            const label  = score <= 1 ? labels[0] : score === 2 ? labels[1] : score <= 4 ? labels[2] : labels[3];
+            barIds.forEach((id, i) => {
+                document.getElementById(id).style.background = i < score ? color : '#e2e8f0';
+            });
+            const lbl = document.getElementById('pwStrengthLabel');
+            lbl.textContent = 'Strength: ' + label;
+            lbl.style.color = color;
         });
 
         document.getElementById('changePasswordConfirmBtn').addEventListener('click', async () => {
@@ -3321,8 +3390,16 @@
                 errEl.textContent = 'Please fill in all fields.';
                 errEl.style.display = 'block'; return;
             }
-            if (newPass.length < 6) {
-                errEl.textContent = 'New password must be at least 6 characters.';
+            // Strong password requirements
+            const pwReqs = {
+                length:  newPass.length >= 8,
+                upper:   /[A-Z]/.test(newPass),
+                lower:   /[a-z]/.test(newPass),
+                number:  /[0-9]/.test(newPass),
+                special: /[^A-Za-z0-9]/.test(newPass),
+            };
+            if (!Object.values(pwReqs).every(Boolean)) {
+                errEl.textContent = 'Password does not meet the strength requirements.';
                 errEl.style.display = 'block'; return;
             }
             if (newPass !== confirm) {
