@@ -2938,7 +2938,7 @@
         if (String(changedRoom) === String(currentRoom)) {
             schedules = allRoomSchedules[currentRoom] || [];
         }
-        renderTimetable();
+        if (currentTab === 'room') { renderTimetable(); }
         if (currentTab !== 'room' && COURSE_TABS[currentTab]) renderCourseView(currentTab);
         if (currentTab === 'major-minor') renderMajorMinorView();
         showToast(toastMsg, 'info');
@@ -3013,7 +3013,8 @@
             });
             // keep schedules pointing to current room for form submit compatibility
             schedules = allRoomSchedules[currentRoom] || [];
-            renderTimetable(); ov.classList.remove('show');
+            if (currentTab === 'room') { renderTimetable(); }
+            ov.classList.remove('show');
             if (currentTab !== 'room' && COURSE_TABS[currentTab]) renderCourseView(currentTab);
             if (currentTab === 'major-minor') renderMajorMinorView();
             return;
@@ -3029,7 +3030,7 @@
                 if (allRoomSchedules[s.room]) allRoomSchedules[s.room].push(s);
             });
             schedules = allRoomSchedules[currentRoom] || [];
-            renderTimetable();
+            if (currentTab === 'room') { renderTimetable(); }
             if (currentTab !== 'room' && COURSE_TABS[currentTab]) renderCourseView(currentTab);
             if (currentTab === 'major-minor') renderMajorMinorView();
         } catch(e) {
