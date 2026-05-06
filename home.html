@@ -1564,6 +1564,80 @@
             .timetable th { min-width: 65px; }
             .user-info { max-width: 90px; }
         }
+
+        /* ── AVAILABILITY FEATURE ── */
+        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col) {
+            background: #f0fdf4;
+            border-color: #86efac !important;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col):hover {
+            background: #dcfce7;
+        }
+        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col)::after {
+            content: '+';
+            font-size: 1rem;
+            font-weight: 700;
+            color: #16a34a;
+            opacity: 0.6;
+        }
+        .avail-mode .scheduled-slot {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+        .avail-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            border: 1.5px solid var(--success);
+            background: #f0fdf4;
+            color: #16a34a;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .avail-btn:hover { background: #dcfce7; }
+        .avail-btn.active { background: var(--success); color: white; border-color: var(--success); }
+        body.dark-mode .avail-btn { background: #052e16; color: #4ade80; border-color: #16a34a; }
+        body.dark-mode .avail-btn.active { background: #16a34a; color: white; }
+        body.dark-mode .avail-mode .timetable td:not(.scheduled-slot):not(.time-col) { background: #052e16; border-color: #16a34a !important; }
+        body.dark-mode .avail-mode .timetable td:not(.scheduled-slot):not(.time-col):hover { background: #14532d; }
+
+        /* ── FIND FREE ROOM PANEL ── */
+        #findFreePanel {
+            display: none;
+            margin-bottom: 14px;
+            padding: 14px 16px;
+            background: #f0fdf4;
+            border: 1.5px solid #86efac;
+            border-radius: 10px;
+            animation: fadeUp 0.2s ease both;
+        }
+        #findFreePanel.show { display: block; }
+        body.dark-mode #findFreePanel { background: #052e16; border-color: #16a34a; }
+        .find-free-results { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .free-room-chip {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700;
+            background: #dcfce7; color: #15803d; border: 1.5px solid #4ade80;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .free-room-chip:hover { background: #16a34a; color: white; border-color: #16a34a; }
+        .busy-room-chip {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700;
+            background: #fef2f2; color: #b91c1c; border: 1.5px solid #fca5a5;
+            cursor: default;
+        }
+        body.dark-mode .free-room-chip { background: #14532d; color: #4ade80; border-color: #16a34a; }
+        body.dark-mode .busy-room-chip { background: #450a0a; color: #f87171; border-color: #7f1d1d; }
     </style>
 </head>
 <body>
@@ -1723,6 +1797,46 @@
                             <i class="fa-solid fa-calendar-week"></i>
                             <span id="scheduleTitle">1st Floor — Weekly Schedule</span>
                         </div>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <!-- Highlight Available toggle -->
+                            <button class="avail-btn" id="availModeBtn" onclick="toggleAvailMode()" title="Highlight all free slots on this floor">
+                                <i class="fa-solid fa-circle-check"></i> Highlight Available
+                            </button>
+                            <!-- Find Free Room button -->
+                            <button class="avail-btn" id="findFreeBtn" onclick="toggleFindFreePanel()" title="Search for a free room at a specific time">
+                                <i class="fa-solid fa-magnifying-glass"></i> Find Free Room
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Find Free Room Panel -->
+                    <div id="findFreePanel">
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">Day:</label>
+                                <select id="findFreeDay" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                </select>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">From:</label>
+                                <select id="findFreeStart" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);"></select>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">To:</label>
+                                <select id="findFreeEnd" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);"></select>
+                            </div>
+                            <button onclick="runFindFreeRoom()" style="padding:6px 16px;border:none;border-radius:7px;background:#16a34a;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+                                <i class="fa-solid fa-magnifying-glass"></i> Search
+                            </button>
+                        </div>
+                        <div id="findFreeResults" class="find-free-results" style="display:none;"></div>
+                    </div>
                         <div id="miniLegendBar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                             <div class="mini-legend-item" data-filter="bscs" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:#eff6ff;border:1.5px solid #93c5fd;cursor:pointer;font-size:0.72rem;font-weight:700;color:#1e40af;transition:opacity 0.2s,box-shadow 0.2s;">
                                 <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;display:inline-block;"></span>BSCS
@@ -5242,6 +5356,214 @@
         }
     });
 
+    </script>
+
+    <script>
+    // ── AVAILABILITY FEATURE ──
+    let availModeOn = false;
+
+    // Populate From/To time dropdowns using the same HOURS array from the main script
+    (function initFindFreeSelects() {
+        const startSel = document.getElementById('findFreeStart');
+        const endSel   = document.getElementById('findFreeEnd');
+        if (!startSel || !endSel) return;
+        // HOURS is defined in the main script; wait until DOM is ready
+        function populate() {
+            if (typeof HOURS === 'undefined') { setTimeout(populate, 100); return; }
+            HOURS.forEach(h => {
+                const o1 = document.createElement('option');
+                o1.value = h; o1.textContent = to12hr(h);
+                startSel.appendChild(o1);
+                const o2 = document.createElement('option');
+                o2.value = h; o2.textContent = to12hr(h);
+                endSel.appendChild(o2);
+            });
+            // Default: 7:00 → 9:00
+            startSel.value = '07:00';
+            endSel.value   = '09:00';
+        }
+        populate();
+    })();
+
+    // Sync the Find Free Room Day dropdown to whatever day is currently selected
+    function syncFindFreeDay() {
+        const sel = document.getElementById('findFreeDay');
+        if (sel && typeof currentDay !== 'undefined') sel.value = currentDay;
+    }
+
+    // ── OPTION 1: Highlight Available (toggle mode) ──
+    function toggleAvailMode() {
+        availModeOn = !availModeOn;
+        const btn  = document.getElementById('availModeBtn');
+        const wrap = document.querySelector('.timetable-container');
+        if (availModeOn) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Exit Highlight';
+            wrap && wrap.classList.add('avail-mode');
+            showToast('Green cells = available. Click any green cell to schedule.', 'info');
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Highlight Available';
+            wrap && wrap.classList.remove('avail-mode');
+        }
+    }
+
+    // Turn off avail mode whenever the user switches floor/day (it would be stale)
+    const _origLoadSchedules = loadSchedules;
+    window.loadSchedules = async function() {
+        if (availModeOn) {
+            availModeOn = false;
+            const btn  = document.getElementById('availModeBtn');
+            const wrap = document.querySelector('.timetable-container');
+            if (btn) { btn.classList.remove('active'); btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Highlight Available'; }
+            if (wrap) wrap.classList.remove('avail-mode');
+        }
+        return _origLoadSchedules.apply(this, arguments);
+    };
+
+    // ── OPTION 2: Find Free Room panel ──
+    function toggleFindFreePanel() {
+        const panel = document.getElementById('findFreePanel');
+        const btn   = document.getElementById('findFreeBtn');
+        const isOpen = panel.classList.contains('show');
+        if (isOpen) {
+            panel.classList.remove('show');
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Find Free Room';
+        } else {
+            syncFindFreeDay();
+            panel.classList.add('show');
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close Search';
+            // Auto-run with current day on open
+            runFindFreeRoom();
+        }
+    }
+
+    function runFindFreeRoom() {
+        const day       = document.getElementById('findFreeDay').value;
+        const startVal  = document.getElementById('findFreeStart').value;
+        const endVal    = document.getElementById('findFreeEnd').value;
+        const resultsEl = document.getElementById('findFreeResults');
+
+        if (!startVal || !endVal) return;
+        if (startVal >= endVal) {
+            showToast('"From" time must be before "To" time', 'error'); return;
+        }
+
+        const searchStart = timeToMins(startVal);
+        const searchEnd   = timeToMins(endVal);
+
+        // Get ALL rooms across ALL floors
+        const allRoomNums = Object.values(FLOORS).flat().map(r => String(r));
+
+        const freeRooms = [];
+        const busyRooms = [];
+
+        allRoomNums.forEach(room => {
+            const roomSlots = allRoomSchedules[room] || [];
+            const conflict  = roomSlots.find(s => {
+                if (s.day !== day) return false;
+                const sM = timeToMins(s.start_time);
+                const eM = timeToMins(s.end_time);
+                return searchStart < eM && searchEnd > sM;
+            });
+            if (conflict) {
+                busyRooms.push({ room, conflict });
+            } else {
+                freeRooms.push(room);
+            }
+        });
+
+        // Build result chips
+        let html = '';
+
+        if (freeRooms.length === 0) {
+            html = `<div style="font-size:0.82rem;color:#b91c1c;font-weight:600;padding:4px 0;">
+                        <i class="fa-solid fa-circle-xmark"></i> No free rooms found for ${day} ${to12hr(startVal)} – ${to12hr(endVal)}
+                    </div>`;
+        } else {
+            html += `<div style="width:100%;font-size:0.75rem;font-weight:700;color:#15803d;margin-bottom:2px;">
+                        <i class="fa-solid fa-circle-check"></i> ${freeRooms.length} free room(s) — click to jump:
+                     </div>`;
+            freeRooms.forEach(room => {
+                html += `<div class="free-room-chip" onclick="jumpToRoom('${room}','${day}','${startVal}')">
+                            <i class="fa-solid fa-door-open"></i> Room ${room}
+                         </div>`;
+            });
+        }
+
+        if (busyRooms.length > 0) {
+            html += `<div style="width:100%;font-size:0.75rem;font-weight:700;color:#b91c1c;margin-top:8px;margin-bottom:2px;">
+                        <i class="fa-solid fa-circle-xmark"></i> ${busyRooms.length} occupied:
+                     </div>`;
+            busyRooms.forEach(({ room, conflict }) => {
+                const subj = (conflict.course_name || '').replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim();
+                html += `<div class="busy-room-chip" title="Occupied by: ${subj} (${conflict.section})">
+                            <i class="fa-solid fa-lock"></i> Room ${room}
+                         </div>`;
+            });
+        }
+
+        resultsEl.innerHTML = html;
+        resultsEl.style.display = 'flex';
+    }
+
+    // Jump to a specific room on a specific floor and day, then highlight the slot
+    function jumpToRoom(room, day, startTime) {
+        // Find which floor the room is on
+        let targetFloor = currentFloor;
+        Object.entries(FLOORS).forEach(([f, rooms]) => {
+            if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
+        });
+
+        // Switch floor if needed
+        if (targetFloor !== currentFloor) {
+            currentFloor = targetFloor;
+            currentRoom  = String(FLOORS[currentFloor][0]);
+            document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.floor == currentFloor);
+            });
+        }
+
+        // Switch day if needed
+        if (day !== currentDay) {
+            currentDay = day;
+            document.querySelectorAll('#dayGrid .floor-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.day === day);
+            });
+        }
+
+        // Load schedules for new floor/day then scroll & highlight the cell
+        loadSchedules().then(() => {
+            setTimeout(() => {
+                const startMins = timeToMins(startTime);
+                // Find the empty cell at that room + time
+                const cells = document.querySelectorAll('#timetableBody td');
+                let target = null;
+                cells.forEach(td => {
+                    if (String(td.dataset.room) === String(room) && td.dataset.time) {
+                        const cellMins = timeToMins(td.dataset.time);
+                        if (cellMins === startMins) target = td;
+                    }
+                });
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.style.transition = 'background 0.2s';
+                    target.style.background = '#bbf7d0';
+                    setTimeout(() => { target.style.background = ''; }, 1800);
+                }
+                // Close the panel
+                toggleFindFreePanel();
+                // Pre-fill the schedule modal room
+                currentRoom = String(room);
+                schedules   = allRoomSchedules[String(room)] || [];
+                if (target) {
+                    openScheduleModal(String(room), startTime);
+                }
+            }, 120);
+        });
+    }
     </script>
 
     <script>
