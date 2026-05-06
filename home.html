@@ -1652,7 +1652,7 @@
         <div class="sidebar-footer">
             <div class="sidebar-footer-info">
                 <div class="sidebar-footer-name" id="sidebarFooterName">Admin</div>
-                <div class="sidebar-footer-role">Department Head</div>
+                <div class="sidebar-footer-role" id="sidebarFooterRole">Department Head</div>
             </div>
             <button class="sidebar-logout-btn" id="sidebarLogoutBtn" title="Log out">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -2511,6 +2511,17 @@
         return null;
     }
 
+    function getRoleLabel(email) {
+        if (!email) return '';
+        const e = email.toLowerCase();
+        if (e.includes('bsemc_dat') || e.includes('bsemc-dat')) return 'BSEMC-DAT Coordinator';
+        if (e.includes('bsemc_gd')  || e.includes('bsemc-gd'))  return 'BSEMC-GD Coordinator';
+        if (e.includes('bscs')) return 'BSCS Coordinator';
+        if (e.includes('bsit')) return 'BSIT Coordinator';
+        if (e.includes('dept_head') || e.includes('depthead') || e.includes('dept-head') || e.includes('department_head') || e.includes('departmenthead')) return 'Department Head';
+        return ''; // unknown account — show nothing
+    }
+
     // Returns true if the logged-in coordinator is allowed to edit/move/delete this slot
     function canOwnSection(section) {
         if (!coordinatorCourse) return true; // no role detected = full access (admin / demo)
@@ -2654,6 +2665,12 @@
 
             // Detect coordinator role from email pattern
             coordinatorCourse = getCourseFromEmail(email);
+            const roleLabel = getRoleLabel(email);
+            // Update all role display elements (only show if we know the role)
+            ['userRole', 'userRoleMobile', 'sidebarFooterRole'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.textContent = roleLabel;
+            });
             if (coordinatorCourse) {
                 lockSectionDropdowns(coordinatorCourse);
                 var badge = document.getElementById('coordinatorBadge');
