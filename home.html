@@ -154,6 +154,20 @@
         }
         body.dark-mode #darkModeToggle i { color: #fbbf24; }
 
+        /* ── DARK MODE: IMPORT MODAL ── */
+        body.dark-mode #importModal { background: #1e293b; color: #e2e8f0; }
+        body.dark-mode #importModal h3 { color: #93c5fd !important; }
+        body.dark-mode #importModal p { color: #94a3b8 !important; }
+        body.dark-mode #importModalCloseBtn { background: #334155 !important; border-color: #475569 !important; color: #94a3b8 !important; }
+        body.dark-mode #importModalCloseBtn:hover { background: #475569 !important; }
+        body.dark-mode #importDropZone { background: #0f172a !important; border-color: #334155 !important; }
+        body.dark-mode #importDropZone:hover { border-color: #3b82f6 !important; background: #172554 !important; }
+        body.dark-mode #downloadTemplateBtn { background: #3b82f6 !important; }
+        body.dark-mode #downloadTemplateBtn:hover { background: #2563eb !important; }
+        body.dark-mode #importCancelBtn { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+        body.dark-mode #importConfirmBtn:not([disabled]) { background: #3b82f6 !important; }
+        body.dark-mode #importConfirmBtn:not([disabled]):hover { background: #2563eb !important; }
+
         /* ── SCHEDULE TABS ── */
         .schedule-tab {
             padding: 9px 18px;
@@ -1618,6 +1632,12 @@
                 <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
             </button>
 
+            <button class="sidebar-item" id="importScheduleBtn">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <span style="flex:1;">Import from Excel</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
+            </button>
+
             <!-- Danger Zone -->
             <div class="sidebar-danger-zone">
                 <div class="sidebar-danger-label">
@@ -2339,6 +2359,137 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- ══════════════════════════════════════════════════════
+         IMPORT FROM EXCEL MODAL
+         ══════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="importModalOverlay" style="display:none;z-index:1100;">
+        <div class="modal" id="importModal" style="max-width:720px;width:95%;max-height:90vh;overflow-y:auto;padding:28px 28px 24px;">
+
+            <!-- Header -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;">
+                <div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                        <div style="width:36px;height:36px;border-radius:9px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-file-arrow-up" style="color:#3b82f6;font-size:0.95rem;"></i>
+                        </div>
+                        <h3 style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin:0;">Import Schedule from Excel</h3>
+                    </div>
+                    <p style="font-size:0.82rem;color:var(--muted);margin:0 0 0 46px;">Upload a filled template to bulk-add schedules. Always preview before importing.</p>
+                </div>
+                <button id="importModalCloseBtn" style="background:var(--light-bg);border:1.5px solid var(--border);border-radius:7px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:0.9rem;transition:background 0.15s;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Step 1: Download Template -->
+            <div id="importStep1" style="margin-bottom:18px;">
+                <div style="background:var(--light-bg);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-table" style="color:#16a34a;font-size:0.8rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.85rem;font-weight:700;color:var(--text);">Step 1 — Download the Template</div>
+                            <div style="font-size:0.75rem;color:var(--muted);">Fill in your schedules using the correct column format, then upload below.</div>
+                        </div>
+                    </div>
+                    <button id="downloadTemplateBtn" style="padding:8px 16px;background:#0d1b3e;color:white;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background 0.15s;flex-shrink:0;">
+                        <i class="fa-solid fa-download"></i> Download Template
+                    </button>
+                </div>
+
+                <!-- Column guide -->
+                <div style="margin-top:10px;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;">
+                    <div style="padding:8px 14px;background:var(--navy);display:flex;align-items:center;gap:7px;">
+                        <i class="fa-solid fa-circle-info" style="color:#93c5fd;font-size:0.75rem;"></i>
+                        <span style="font-size:0.75rem;font-weight:700;color:white;letter-spacing:0.3px;">REQUIRED COLUMNS IN YOUR TEMPLATE</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.76rem;">
+                            <thead>
+                                <tr style="background:var(--light-bg);">
+                                    <th style="padding:7px 12px;text-align:left;font-weight:700;color:var(--navy);border-bottom:1.5px solid var(--border);white-space:nowrap;">Column</th>
+                                    <th style="padding:7px 12px;text-align:left;font-weight:700;color:var(--navy);border-bottom:1.5px solid var(--border);">Example Value</th>
+                                    <th style="padding:7px 12px;text-align:left;font-weight:700;color:var(--navy);border-bottom:1.5px solid var(--border);">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="importGuideRows">
+                                <!-- Filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Upload -->
+            <div id="importStep2" style="margin-bottom:18px;">
+                <div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:8px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy);color:white;font-size:0.7rem;font-weight:800;margin-right:6px;">2</span>
+                    Upload your filled template
+                </div>
+                <label id="importDropZone" for="importFileInput" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--border);border-radius:10px;padding:28px 20px;cursor:pointer;transition:border-color 0.2s,background 0.2s;background:var(--light-bg);">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:2rem;color:var(--muted);"></i>
+                    <span style="font-size:0.85rem;font-weight:600;color:var(--text);">Click to select or drag &amp; drop</span>
+                    <span style="font-size:0.75rem;color:var(--muted);">Accepts .xlsx or .csv files only</span>
+                    <input type="file" id="importFileInput" accept=".xlsx,.csv" style="display:none;">
+                </label>
+                <div id="importFileName" style="display:none;margin-top:8px;padding:8px 12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:7px;font-size:0.8rem;color:#166534;display:none;align-items:center;gap:7px;">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i>
+                    <span id="importFileNameText"></span>
+                    <button id="importFileClearBtn" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ef4444;font-size:0.78rem;padding:0;display:flex;align-items:center;gap:4px;">
+                        <i class="fa-solid fa-xmark"></i> Remove
+                    </button>
+                </div>
+                <div id="importParseError" style="display:none;margin-top:8px;padding:9px 12px;background:#fef2f2;border-left:3px solid #ef4444;border-radius:0 7px 7px 0;font-size:0.8rem;color:#dc2626;"></div>
+            </div>
+
+            <!-- Step 3: Preview Table -->
+            <div id="importStep3" style="display:none;margin-bottom:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                    <div style="font-size:0.85rem;font-weight:700;color:var(--text);">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--navy);color:white;font-size:0.7rem;font-weight:800;margin-right:6px;">3</span>
+                        Preview — <span id="importRowCount">0</span> row(s) ready
+                    </div>
+                    <div id="importWarningBadge" style="display:none;padding:3px 10px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:20px;font-size:0.72rem;font-weight:700;color:#c2410c;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span id="importWarningCount">0</span> row(s) with issues
+                    </div>
+                </div>
+                <div style="overflow-x:auto;max-height:260px;overflow-y:auto;border:1.5px solid var(--border);border-radius:9px;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.75rem;" id="importPreviewTable">
+                        <thead style="position:sticky;top:0;z-index:1;">
+                            <tr style="background:var(--navy);">
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">#</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Subject</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Type</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Major/Minor</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Section</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Teacher</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Room</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Day</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Start</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">End</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="importPreviewBody"></tbody>
+                    </table>
+                </div>
+                <div id="importConflictNote" style="display:none;margin-top:8px;padding:9px 12px;background:#fff7ed;border-left:3px solid #f59e0b;border-radius:0 7px 7px 0;font-size:0.79rem;color:#92400e;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Rows marked <strong>⚠ Conflict</strong> or <strong>✕ Invalid</strong> will be skipped. Only <strong>✓ Ready</strong> rows will be imported.
+                </div>
+            </div>
+
+            <!-- Footer buttons -->
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:16px;border-top:1.5px solid var(--border);">
+                <button id="importCancelBtn" style="padding:9px 20px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;transition:background 0.15s;">Cancel</button>
+                <button id="importConfirmBtn" disabled style="padding:9px 22px;border-radius:7px;border:none;background:#0d1b3e;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:not-allowed;opacity:0.5;display:flex;align-items:center;gap:8px;transition:background 0.15s,opacity 0.15s;">
+                    <i class="fa-solid fa-upload"></i>
+                    <span id="importConfirmLabel">Import Schedules</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
     const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
@@ -4606,6 +4757,452 @@
         });
         aboutCloseBtn.addEventListener('click', closeAbout);
         aboutOverlay.addEventListener('click', closeAbout);
+    </script>
+
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+    // ══════════════════════════════════════════════════════════════
+    // EXCEL IMPORT FEATURE
+    // ══════════════════════════════════════════════════════════════
+
+    // ── Column guide data ──
+    const IMPORT_COLUMNS = [
+        { col: 'Subject',     example: 'Data Structures',         note: 'Course/subject name only (no type or bracket)' },
+        { col: 'Type',        example: 'Lecture',                 note: 'Lecture, Laboratory, or None' },
+        { col: 'Major_Minor', example: 'Major',                   note: 'Major or Minor' },
+        { col: 'Section',     example: 'BSCS 2-A',               note: 'Format: COURSE YEAR-BLOCK (e.g. BSIT 1-A)' },
+        { col: 'Teacher',     example: 'Juan Dela Cruz',          note: 'Full name of the faculty member' },
+        { col: 'Room',        example: '301',                     note: 'Room number (must exist in the system)' },
+        { col: 'Day',         example: 'Monday',                  note: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday' },
+        { col: 'Start_Time',  example: '08:00',                   note: '24-hour format HH:MM (e.g. 13:30 for 1:30 PM)' },
+        { col: 'End_Time',    example: '09:30',                   note: '24-hour format HH:MM — must be after Start_Time' },
+    ];
+
+    const VALID_DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const VALID_TYPES = ['lecture','laboratory','none'];
+    const VALID_MM    = ['major','minor'];
+
+    // ── Render column guide table ──
+    (function renderGuide() {
+        const tbody = document.getElementById('importGuideRows');
+        if (!tbody) return;
+        IMPORT_COLUMNS.forEach((c, i) => {
+            const tr = document.createElement('tr');
+            tr.style.background = i % 2 === 0 ? '' : 'var(--light-bg)';
+            tr.innerHTML = `
+                <td style="padding:6px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--navy);white-space:nowrap;">${c.col}</td>
+                <td style="padding:6px 12px;border-bottom:1px solid var(--border);color:#16a34a;font-family:monospace;white-space:nowrap;">${c.example}</td>
+                <td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--muted);">${c.note}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    })();
+
+    // ── Download Template ──
+    document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
+        if (typeof XLSX === 'undefined') { alert('SheetJS not loaded yet, please wait a moment and try again.'); return; }
+
+        const headers = IMPORT_COLUMNS.map(c => c.col);
+        const examples = [
+            ['Data Structures','Lecture','Major','BSCS 2-A','Juan Dela Cruz','301','Monday','08:00','09:30'],
+            ['Web Development','Laboratory','Major','BSIT 1-B','Maria Santos','201','Tuesday','13:00','15:00'],
+            ['Physical Education','None','Minor','BSEMC-DAT 3-A','Pedro Reyes','101','Wednesday','07:00','08:00'],
+        ];
+
+        const wsData = [headers, ...examples];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+        // Column widths
+        ws['!cols'] = [
+            {wch:22},{wch:12},{wch:13},{wch:14},{wch:22},{wch:8},{wch:12},{wch:12},{wch:12}
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Schedule Template');
+
+        // Instructions sheet
+        const instrData = [
+            ['CCSRMS Schedule Import Template — Instructions'],
+            [''],
+            ['Fill in the "Schedule Template" sheet with your schedule data.'],
+            ['Do NOT change the column headers (Row 1).'],
+            ['You may delete the sample rows (Rows 2–4) before filling in your data.'],
+            [''],
+            ['Column Reference:'],
+            ...IMPORT_COLUMNS.map(c => [`  ${c.col}`, c.note, `Example: ${c.example}`]),
+            [''],
+            ['Valid values for Day: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday'],
+            ['Valid values for Type: Lecture, Laboratory, None'],
+            ['Valid values for Major_Minor: Major, Minor'],
+            ['Time format: HH:MM in 24-hour (07:00 to 21:00 in 30-min increments)'],
+        ];
+        const wsInstr = XLSX.utils.aoa_to_sheet(instrData);
+        wsInstr['!cols'] = [{wch:20},{wch:55},{wch:30}];
+        XLSX.utils.book_append_sheet(wb, wsInstr, 'Instructions');
+
+        XLSX.writeFile(wb, 'CCSRMS_Schedule_Import_Template.xlsx');
+        showToast('Template downloaded!', 'success');
+    });
+
+    // ── Modal open / close ──
+    document.getElementById('importScheduleBtn').addEventListener('click', () => {
+        resetImportModal();
+        document.getElementById('importModalOverlay').style.display = 'flex';
+        document.getElementById('importModalOverlay').style.alignItems = 'center';
+        document.getElementById('importModalOverlay').style.justifyContent = 'center';
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+    });
+
+    function closeImportModal() {
+        document.getElementById('importModalOverlay').style.display = 'none';
+        resetImportModal();
+    }
+
+    document.getElementById('importModalCloseBtn').addEventListener('click', closeImportModal);
+    document.getElementById('importCancelBtn').addEventListener('click', closeImportModal);
+    document.getElementById('importModalOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('importModalOverlay')) closeImportModal();
+    });
+
+    function resetImportModal() {
+        document.getElementById('importFileInput').value = '';
+        document.getElementById('importFileName').style.display  = 'none';
+        document.getElementById('importParseError').style.display = 'none';
+        document.getElementById('importStep3').style.display      = 'none';
+        document.getElementById('importPreviewBody').innerHTML    = '';
+        document.getElementById('importWarningBadge').style.display = 'none';
+        document.getElementById('importConflictNote').style.display = 'none';
+        document.getElementById('importConfirmBtn').disabled = true;
+        document.getElementById('importConfirmBtn').style.opacity = '0.5';
+        document.getElementById('importConfirmBtn').style.cursor  = 'not-allowed';
+        document.getElementById('importConfirmLabel').textContent = 'Import Schedules';
+        importReadyRows = [];
+    }
+
+    // ── Drag-over styling ──
+    const dropZone = document.getElementById('importDropZone');
+    dropZone.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.style.borderColor = '#3b82f6'; dropZone.style.background = '#eff6ff'; });
+    dropZone.addEventListener('dragleave', ()  => { dropZone.style.borderColor = ''; dropZone.style.background = ''; });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = ''; dropZone.style.background = '';
+        const file = e.dataTransfer.files[0];
+        if (file) handleImportFile(file);
+    });
+
+    document.getElementById('importFileInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) handleImportFile(e.target.files[0]);
+    });
+
+    document.getElementById('importFileClearBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        resetImportModal();
+    });
+
+    // ── Time helpers ──
+    function normalizeTime(raw) {
+        if (!raw && raw !== 0) return null;
+        // Handle Excel serial time (fraction of a day)
+        if (typeof raw === 'number') {
+            const totalMins = Math.round(raw * 24 * 60);
+            const h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+        }
+        const s = String(raw).trim();
+        // HH:MM or HH:MM:SS
+        const m1 = s.match(/^(\d{1,2}):(\d{2})/);
+        if (m1) return String(parseInt(m1[1])).padStart(2,'0') + ':' + m1[2];
+        // HHMM
+        const m2 = s.match(/^(\d{2})(\d{2})$/);
+        if (m2) return m2[1] + ':' + m2[2];
+        return null;
+    }
+
+    function isValidTime30(t) {
+        if (!t) return false;
+        const [h, m] = t.split(':').map(Number);
+        return h >= 7 && h <= 21 && (m === 0 || m === 30) && !(h === 21 && m === 30);
+    }
+
+    // ── Parse file ──
+    let importReadyRows = [];
+
+    function handleImportFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['xlsx','csv'].includes(ext)) {
+            showParseError('Only .xlsx or .csv files are accepted.');
+            return;
+        }
+
+        document.getElementById('importFileName').style.display = 'flex';
+        document.getElementById('importFileNameText').textContent = file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+        document.getElementById('importParseError').style.display = 'none';
+        document.getElementById('importStep3').style.display = 'none';
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data  = new Uint8Array(e.target.result);
+                const wb    = XLSX.read(data, { type: 'array', cellDates: false });
+                const ws    = wb.Sheets[wb.SheetNames[0]];
+                const rows  = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+                if (rows.length === 0) { showParseError('The file appears to be empty or has no data rows.'); return; }
+
+                // Validate headers
+                const required = IMPORT_COLUMNS.map(c => c.col);
+                const fileKeys = Object.keys(rows[0]);
+                const missing  = required.filter(r => !fileKeys.includes(r));
+                if (missing.length > 0) {
+                    showParseError('Missing required columns: ' + missing.join(', ') + '. Please use the downloaded template.');
+                    return;
+                }
+
+                processRows(rows);
+            } catch (err) {
+                showParseError('Could not read the file. Make sure it is a valid .xlsx or .csv. (' + err.message + ')');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function showParseError(msg) {
+        const el = document.getElementById('importParseError');
+        el.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="margin-right:6px;"></i>' + msg;
+        el.style.display = 'block';
+        document.getElementById('importStep3').style.display = 'none';
+        document.getElementById('importConfirmBtn').disabled = true;
+        document.getElementById('importConfirmBtn').style.opacity = '0.5';
+        importReadyRows = [];
+    }
+
+    function processRows(rows) {
+        const tbody = document.getElementById('importPreviewBody');
+        tbody.innerHTML = '';
+        importReadyRows = [];
+
+        let warnCount = 0;
+        const processedRows = [];
+
+        rows.forEach((row, idx) => {
+            const subject   = String(row['Subject']     || '').trim();
+            const type      = String(row['Type']        || '').trim();
+            const mm        = String(row['Major_Minor'] || '').trim();
+            const section   = String(row['Section']     || '').trim();
+            const teacher   = String(row['Teacher']     || '').trim();
+            const roomRaw   = String(row['Room']        || '').trim();
+            const day       = String(row['Day']         || '').trim();
+            const startRaw  = row['Start_Time'];
+            const endRaw    = row['End_Time'];
+
+            const startTime = normalizeTime(startRaw);
+            const endTime   = normalizeTime(endRaw);
+
+            // ── Validation ──
+            const errors = [];
+
+            if (!subject)   errors.push('Subject is empty');
+            if (!VALID_TYPES.includes(type.toLowerCase()))  errors.push('Type must be Lecture, Laboratory, or None');
+            if (!VALID_MM.includes(mm.toLowerCase()))       errors.push('Major_Minor must be Major or Minor');
+
+            // Section format: COURSE YEAR-BLOCK
+            const secMatch = section.trim().match(/^(\S+)\s+(\d+)-([A-Z])$/i);
+            if (!secMatch) errors.push('Section format invalid (e.g. BSCS 2-A)');
+
+            if (!teacher)  errors.push('Teacher is empty');
+
+            const roomNum = parseInt(roomRaw);
+            if (isNaN(roomNum)) errors.push('Room must be a number');
+
+            if (!VALID_DAYS.includes(day)) errors.push('Day invalid — use Monday, Tuesday, etc.');
+
+            if (!startTime)             errors.push('Start_Time unreadable');
+            else if (!isValidTime30(startTime)) errors.push('Start_Time must be 07:00–21:00, on the hour or half-hour');
+
+            if (!endTime)               errors.push('End_Time unreadable');
+            else if (!isValidTime30(endTime))   errors.push('End_Time must be 07:00–21:00, on the hour or half-hour');
+
+            if (startTime && endTime && startTime >= endTime) errors.push('End_Time must be after Start_Time');
+
+            // ── Role check: coordinator can only import their own course ──
+            if (errors.length === 0 && coordinatorCourse && secMatch) {
+                const secCourse = secMatch[1].toUpperCase();
+                if (!canOwnSection(section)) {
+                    errors.push('You can only import schedules for ' + coordinatorCourse);
+                }
+            }
+
+            const isValid = errors.length === 0;
+
+            // ── Conflict check (only for valid rows, against already-loaded schedules) ──
+            let hasConflict = false;
+            let conflictNote = '';
+
+            if (isValid) {
+                const roomStr = String(roomNum);
+                const sM = timeToMins(startTime);
+                const eM = timeToMins(endTime);
+
+                // Room conflict
+                const roomSlots = allRoomSchedules[roomStr] || [];
+                const roomConflict = roomSlots.find(s => s.day === day && sM < timeToMins(s.end_time) && eM > timeToMins(s.start_time));
+                if (roomConflict) {
+                    hasConflict   = true;
+                    conflictNote  = 'Room ' + roomNum + ' occupied by "' + roomConflict.course_name + '" on ' + day;
+                }
+
+                // Section conflict across all rooms
+                if (!hasConflict) {
+                    const secConflict = findSectionConflict(section, day, sM, eM, roomStr, null);
+                    if (secConflict) {
+                        hasConflict  = true;
+                        conflictNote = 'Section ' + section + ' already in Room ' + secConflict.room + ' on ' + day;
+                    }
+                }
+            }
+
+            // ── Build course_name exactly like the manual form does ──
+            let fullCourseName = '';
+            if (isValid) {
+                const capType = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+                const capMM   = mm.charAt(0).toUpperCase() + mm.slice(1).toLowerCase();
+                fullCourseName = subject
+                    + ' [' + capMM + ']'
+                    + (capType !== 'None' ? ' (' + capType + ')' : '');
+            }
+
+            const rowData = {
+                rowNum: idx + 2, // 1-indexed + header
+                subject, type, mm, section, teacher,
+                room: String(roomNum),
+                day, startTime, endTime,
+                fullCourseName,
+                valid: isValid,
+                conflict: hasConflict,
+                conflictNote,
+                errors,
+            };
+            processedRows.push(rowData);
+
+            if (!isValid || hasConflict) warnCount++;
+            if (isValid && !hasConflict)  importReadyRows.push(rowData);
+        });
+
+        // ── Render preview table ──
+        processedRows.forEach((r) => {
+            const tr = document.createElement('tr');
+
+            let statusBadge, rowBg;
+            if (!r.valid) {
+                statusBadge = `<span title="${r.errors.join('; ')}" style="cursor:help;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">✕ Invalid</span>`;
+                rowBg = '#fef2f2';
+            } else if (r.conflict) {
+                statusBadge = `<span title="${r.conflictNote}" style="cursor:help;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">⚠ Conflict</span>`;
+                rowBg = '#fff7ed';
+            } else {
+                statusBadge = `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #86efac;">✓ Ready</span>`;
+                rowBg = '';
+            }
+
+            tr.style.background = rowBg;
+            tr.innerHTML = `
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.7rem;">${r.rowNum}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.subject)}">${escHtml(r.subject)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${escHtml(r.type)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${escHtml(r.mm)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${escHtml(r.section)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.teacher)}">${escHtml(r.teacher)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:center;">${escHtml(r.room)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${escHtml(r.day)}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${r.startTime ? to12hr(r.startTime) : '—'}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${r.endTime ? to12hr(r.endTime) : '—'}</td>
+                <td style="padding:6px 10px;border-bottom:1px solid var(--border);">${statusBadge}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Update UI
+        document.getElementById('importRowCount').textContent = importReadyRows.length;
+        document.getElementById('importStep3').style.display = '';
+
+        if (warnCount > 0) {
+            document.getElementById('importWarningBadge').style.display = '';
+            document.getElementById('importWarningCount').textContent = warnCount;
+            document.getElementById('importConflictNote').style.display = '';
+        } else {
+            document.getElementById('importWarningBadge').style.display  = 'none';
+            document.getElementById('importConflictNote').style.display  = 'none';
+        }
+
+        const hasReady = importReadyRows.length > 0;
+        document.getElementById('importConfirmBtn').disabled = !hasReady;
+        document.getElementById('importConfirmBtn').style.opacity = hasReady ? '1' : '0.5';
+        document.getElementById('importConfirmBtn').style.cursor  = hasReady ? 'pointer' : 'not-allowed';
+        document.getElementById('importConfirmLabel').textContent =
+            hasReady ? 'Import ' + importReadyRows.length + ' Schedule' + (importReadyRows.length !== 1 ? 's' : '') : 'No Valid Rows';
+    }
+
+    // ── Confirm Import ──
+    document.getElementById('importConfirmBtn').addEventListener('click', async () => {
+        if (importReadyRows.length === 0) return;
+
+        const btn = document.getElementById('importConfirmBtn');
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importing...';
+
+        const entries = importReadyRows.map(r => ({
+            room:        r.room,
+            course_name: r.fullCourseName,
+            section:     r.section,
+            faculty:     r.teacher,
+            day:         r.day,
+            start_time:  r.startTime + ':00',
+            end_time:    r.endTime   + ':00',
+        }));
+
+        try {
+            if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+                // Demo mode: push to localStorage
+                entries.forEach(e => {
+                    const key = 'schedules_' + e.room;
+                    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                    existing.push({ ...e, id: Date.now() + Math.random() });
+                    localStorage.setItem(key, JSON.stringify(existing));
+                    if (!allRoomSchedules[e.room]) allRoomSchedules[e.room] = [];
+                    allRoomSchedules[e.room].push({ ...e, id: Date.now() + Math.random() });
+                });
+                closeImportModal();
+                renderTimetable();
+                showToast('Imported ' + entries.length + ' schedule' + (entries.length !== 1 ? 's' : '') + ' successfully!', 'success');
+                return;
+            }
+
+            const { error } = await _supabase.from('schedules').insert(entries);
+            if (error) {
+                showToast('Import failed: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.innerHTML = '<i class="fa-solid fa-upload"></i> Retry Import';
+                return;
+            }
+
+            closeImportModal();
+            await loadSchedules();
+            showToast('✓ Imported ' + entries.length + ' schedule' + (entries.length !== 1 ? 's' : '') + ' successfully!', 'success');
+
+        } catch (err) {
+            showToast('Unexpected error: ' + err.message, 'error');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.innerHTML = '<i class="fa-solid fa-upload"></i> Retry Import';
+        }
+    });
+
     </script>
 
     <script>
