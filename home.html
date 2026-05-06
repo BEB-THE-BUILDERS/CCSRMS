@@ -1638,6 +1638,155 @@
         }
         body.dark-mode .free-room-chip { background: #14532d; color: #4ade80; border-color: #16a34a; }
         body.dark-mode .busy-room-chip { background: #450a0a; color: #f87171; border-color: #7f1d1d; }
+
+        /* ── AUDIT LOG MODAL ── */
+        #auditModal {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 3000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        #auditModal.show { display: flex; }
+        .audit-modal-card {
+            background: var(--white);
+            border-radius: 16px;
+            width: 95%; max-width: 720px;
+            max-height: 88vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .audit-modal-header {
+            background: var(--navy);
+            padding: 18px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .audit-modal-header h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem; font-weight: 700; color: white;
+            display: flex; align-items: center; gap: 9px;
+        }
+        .audit-modal-close {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white; width: 32px; height: 32px;
+            border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; transition: background 0.15s;
+        }
+        .audit-modal-close:hover { background: rgba(255,255,255,0.25); }
+        .audit-modal-toolbar {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            flex-shrink: 0;
+            background: var(--light-bg);
+        }
+        .audit-filter-select {
+            padding: 6px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+            color: var(--text); background: var(--white);
+            outline: none;
+        }
+        .audit-search-input {
+            flex: 1; min-width: 140px;
+            padding: 6px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+            color: var(--text); background: var(--white);
+            outline: none;
+        }
+        .audit-search-input:focus { border-color: var(--accent); }
+        .audit-modal-body {
+            flex: 1; overflow-y: auto;
+            padding: 0;
+        }
+        .audit-empty {
+            padding: 48px 24px; text-align: center;
+            color: var(--muted); font-size: 0.85rem;
+        }
+        .audit-empty i { font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.4; }
+        .audit-entry {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.1s;
+        }
+        .audit-entry:hover { background: var(--light-bg); }
+        .audit-badge {
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem;
+        }
+        .audit-badge.badge-add    { background: #dcfce7; color: #16a34a; }
+        .audit-badge.badge-edit   { background: #dbeafe; color: #1d4ed8; }
+        .audit-badge.badge-delete { background: #fee2e2; color: #dc2626; }
+        .audit-badge.badge-move   { background: #fef9c3; color: #92400e; }
+        .audit-badge.badge-replace{ background: #fdf4ff; color: #7e22ce; }
+        .audit-info { flex: 1; min-width: 0; }
+        .audit-action-line {
+            font-size: 0.82rem; font-weight: 700; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .audit-detail-line {
+            font-size: 0.75rem; color: var(--muted); margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .audit-meta {
+            flex-shrink: 0; text-align: right;
+            font-size: 0.7rem; color: var(--muted); white-space: nowrap;
+        }
+        .audit-user-chip {
+            display: inline-block;
+            background: #eff6ff; color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            border-radius: 20px;
+            padding: 1px 7px;
+            font-size: 0.68rem; font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .audit-modal-footer {
+            padding: 11px 18px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+            font-size: 0.75rem; color: var(--muted);
+        }
+        #auditLoadMoreBtn {
+            padding: 6px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: var(--white); color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s;
+        }
+        #auditLoadMoreBtn:hover { background: var(--light-bg); }
+        body.dark-mode .audit-modal-card { background: #1e293b; }
+        body.dark-mode .audit-modal-toolbar { background: #0f172a; border-color: #334155; }
+        body.dark-mode .audit-filter-select,
+        body.dark-mode .audit-search-input { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        body.dark-mode .audit-entry { border-color: #334155; }
+        body.dark-mode .audit-entry:hover { background: #0f172a; }
+        body.dark-mode .audit-action-line { color: #e2e8f0; }
+        body.dark-mode .audit-badge.badge-add    { background: #052e16; color: #4ade80; }
+        body.dark-mode .audit-badge.badge-edit   { background: #172554; color: #60a5fa; }
+        body.dark-mode .audit-badge.badge-delete { background: #450a0a; color: #f87171; }
+        body.dark-mode .audit-badge.badge-move   { background: #1c1a02; color: #fde047; }
+        body.dark-mode .audit-badge.badge-replace{ background: #2e1065; color: #d8b4fe; }
+        body.dark-mode .audit-user-chip { background: #172554; color: #93c5fd; border-color: #1e40af; }
+        body.dark-mode .audit-modal-footer { border-color: #334155; }
+        body.dark-mode #auditLoadMoreBtn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+        body.dark-mode #auditLoadMoreBtn:hover { background: #334155; }
     </style>
 </head>
 <body>
@@ -1709,6 +1858,12 @@
             <button class="sidebar-item" id="importScheduleBtn">
                 <i class="fa-solid fa-file-arrow-up"></i>
                 <span style="flex:1;">Import from Excel</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
+            </button>
+
+            <button class="sidebar-item" id="auditLogBtn">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span style="flex:1;">Audit Log</span>
                 <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
             </button>
 
@@ -2804,6 +2959,185 @@
         return (h%12||12)+':'+String(m).padStart(2,'0')+' '+(h<12?'AM':'PM');
     }
 
+    // ── AUDIT LOG ──
+    let _currentUserEmail = 'Unknown';
+
+    async function logAudit(action, scheduleId, room, details) {
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            // localStorage fallback for demo mode
+            const logs = JSON.parse(localStorage.getItem('audit_log') || '[]');
+            logs.unshift({
+                id: Date.now(),
+                action,
+                performed_by: _currentUserEmail,
+                schedule_id: String(scheduleId || ''),
+                room: String(room || ''),
+                details: details || {},
+                created_at: new Date().toISOString()
+            });
+            // keep max 500 entries in demo
+            localStorage.setItem('audit_log', JSON.stringify(logs.slice(0, 500)));
+            return;
+        }
+        try {
+            await _supabase.from('audit_log').insert({
+                action,
+                performed_by: _currentUserEmail,
+                schedule_id: String(scheduleId || ''),
+                room: String(room || ''),
+                details: details || {},
+            });
+        } catch(e) { console.warn('Audit log failed:', e); }
+    }
+
+    // ── AUDIT MODAL UI ──
+    let _auditAllEntries  = [];
+    let _auditDisplayed   = 0;
+    const AUDIT_PAGE_SIZE = 30;
+
+    function getAuditBadge(action) {
+        const a = (action || '').toLowerCase();
+        if (a.includes('added') || a.includes('insert'))   return { cls: 'badge-add',     icon: 'fa-plus' };
+        if (a.includes('edit') || a.includes('update'))    return { cls: 'badge-edit',    icon: 'fa-pen' };
+        if (a.includes('delet') || a.includes('remov'))    return { cls: 'badge-delete',  icon: 'fa-trash' };
+        if (a.includes('replac'))                          return { cls: 'badge-replace', icon: 'fa-arrows-rotate' };
+        if (a.includes('mov'))                             return { cls: 'badge-move',    icon: 'fa-arrow-right-arrow-left' };
+        return { cls: 'badge-edit', icon: 'fa-circle-dot' };
+    }
+
+    function formatAuditTime(iso) {
+        try {
+            const d = new Date(iso);
+            return d.toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' })
+                + ' ' + d.toLocaleTimeString('en-PH', { hour:'numeric', minute:'2-digit', hour12:true });
+        } catch(e) { return iso; }
+    }
+
+    function buildAuditEntryHTML(entry) {
+        const { cls, icon } = getAuditBadge(entry.action);
+        const d = entry.details || {};
+        const coursePart = d.course_name ? escHtml(d.course_name) : '';
+        const secPart    = d.section     ? ' · ' + escHtml(d.section) : '';
+        const roomPart   = entry.room    ? ' · Room ' + escHtml(entry.room) : '';
+        const dayPart    = d.day         ? ' · ' + escHtml(d.day) : '';
+        const timePart   = (d.start_time && d.end_time)
+            ? ' · ' + to12hr(d.start_time.slice(0,5)) + '–' + to12hr(d.end_time.slice(0,5))
+            : '';
+        const detailLine = (coursePart || secPart || roomPart)
+            ? (coursePart + secPart + roomPart + dayPart + timePart)
+            : (entry.schedule_id ? 'ID: ' + entry.schedule_id : '—');
+        const userChip = entry.performed_by
+            ? `<span class="audit-user-chip">${escHtml(entry.performed_by)}</span>`
+            : '';
+        return `
+        <div class="audit-entry">
+            <div class="audit-badge ${cls}"><i class="fa-solid ${icon}"></i></div>
+            <div class="audit-info">
+                <div class="audit-action-line">${escHtml(entry.action)}</div>
+                <div class="audit-detail-line" title="${escHtml(detailLine)}">${detailLine}</div>
+            </div>
+            <div class="audit-meta">
+                ${userChip}
+                <div>${formatAuditTime(entry.created_at)}</div>
+            </div>
+        </div>`;
+    }
+
+    function renderAuditEntries(entries, append) {
+        const body = document.getElementById('auditModalBody');
+        if (!append) body.innerHTML = '';
+        if (entries.length === 0 && !append) {
+            body.innerHTML = '<div class="audit-empty"><i class="fa-solid fa-clock-rotate-left"></i>No history found.</div>';
+            document.getElementById('auditCountLabel').textContent = '0 entries';
+            document.getElementById('auditLoadMoreBtn').style.display = 'none';
+            return;
+        }
+        body.insertAdjacentHTML('beforeend', entries.map(buildAuditEntryHTML).join(''));
+    }
+
+    function getFilteredAuditEntries() {
+        const search = (document.getElementById('auditSearchInput').value || '').toLowerCase();
+        const action = (document.getElementById('auditActionFilter').value || '').toLowerCase();
+        const room   = (document.getElementById('auditRoomFilter').value || '');
+        return _auditAllEntries.filter(e => {
+            const d = e.details || {};
+            const hay = [e.action, e.performed_by, e.room, e.schedule_id,
+                         d.course_name, d.section, d.faculty, d.day].join(' ').toLowerCase();
+            if (search && !hay.includes(search)) return false;
+            if (action && !e.action.toLowerCase().includes(action)) return false;
+            if (room && e.room !== room) return false;
+            return true;
+        });
+    }
+
+    function refreshAuditView() {
+        _auditDisplayed = 0;
+        const filtered = getFilteredAuditEntries();
+        const page = filtered.slice(0, AUDIT_PAGE_SIZE);
+        _auditDisplayed = page.length;
+        renderAuditEntries(page, false);
+        const total = filtered.length;
+        document.getElementById('auditCountLabel').textContent = total + ' entr' + (total === 1 ? 'y' : 'ies');
+        const moreBtn = document.getElementById('auditLoadMoreBtn');
+        moreBtn.style.display = _auditDisplayed < total ? 'inline-block' : 'none';
+    }
+
+    document.getElementById('auditLoadMoreBtn').addEventListener('click', () => {
+        const filtered = getFilteredAuditEntries();
+        const page = filtered.slice(_auditDisplayed, _auditDisplayed + AUDIT_PAGE_SIZE);
+        _auditDisplayed += page.length;
+        renderAuditEntries(page, true);
+        const moreBtn = document.getElementById('auditLoadMoreBtn');
+        moreBtn.style.display = _auditDisplayed < filtered.length ? 'inline-block' : 'none';
+    });
+
+    ['auditSearchInput','auditActionFilter','auditRoomFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('input', refreshAuditView);
+        document.getElementById(id).addEventListener('change', refreshAuditView);
+    });
+
+    async function openAuditModal() {
+        document.getElementById('auditModal').classList.add('show');
+        document.getElementById('auditModalBody').innerHTML =
+            '<div class="audit-empty"><i class="fa-solid fa-spinner fa-spin"></i><br>Loading history…</div>';
+
+        // Populate room filter
+        const roomSel = document.getElementById('auditRoomFilter');
+        const allRooms = Object.values(FLOORS).flat().map(String).sort((a,b)=>parseInt(a)-parseInt(b));
+        roomSel.innerHTML = '<option value="">All Rooms</option>' +
+            allRooms.map(r => `<option value="${r}">Room ${r}</option>`).join('');
+
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            _auditAllEntries = JSON.parse(localStorage.getItem('audit_log') || '[]');
+        } else {
+            try {
+                const { data, error } = await _supabase
+                    .from('audit_log')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(2000);
+                if (error) { showToast('Failed to load audit log', 'error'); return; }
+                _auditAllEntries = data || [];
+            } catch(e) {
+                showToast('Failed to load audit log', 'error'); return;
+            }
+        }
+        refreshAuditView();
+    }
+
+    document.getElementById('auditLogBtn').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+        openAuditModal();
+    });
+
+    document.getElementById('auditModalCloseBtn').addEventListener('click', () =>
+        document.getElementById('auditModal').classList.remove('show'));
+    document.getElementById('auditModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('auditModal'))
+            document.getElementById('auditModal').classList.remove('show');
+    });
+
     // ── AUTH ──
     (async () => {
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { init(); return; }
@@ -2811,6 +3145,7 @@
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
             const email = session.user.email;
+            _currentUserEmail = email;
             document.getElementById('userName').textContent = email;
             if (document.getElementById('userNameMobile'))
                 document.getElementById('userNameMobile').textContent = email;
@@ -3871,8 +4206,11 @@
             // Update the original record (first selected day) and insert extras
             const [firstDay, ...extraDays] = selectedDays;
             schedules = schedules.map(s => String(s.id)===String(id) ? {...s,...updatedFields, day: firstDay} : s);
+            logAudit('Schedule edited', id, currentRoom, { ...updatedFields, day: firstDay });
             for (const day of extraDays) {
-                schedules.push({ ...updatedFields, id: Date.now()+Math.random(), room: currentRoom, day });
+                const ne = { ...updatedFields, id: Date.now()+Math.random(), room: currentRoom, day };
+                schedules.push(ne);
+                logAudit('Schedule added', ne.id, currentRoom, ne);
             }
             allRoomSchedules[currentRoom] = schedules;
             localStorage.setItem('schedules_'+currentRoom, JSON.stringify(schedules));
@@ -3883,10 +4221,12 @@
         // Supabase: update original record, insert any extra days
         const { error } = await _supabase.from('schedules').update({...updatedFields, day: selectedDays[0]}).eq('id', id);
         if (error) { showToast('Failed to save changes','error'); return; }
+        logAudit('Schedule edited', id, currentRoom, { ...updatedFields, day: selectedDays[0] });
         if (selectedDays.length > 1) {
             const extras = selectedDays.slice(1).map(day => ({ room: currentRoom, ...updatedFields, day }));
-            const { error: ie } = await _supabase.from('schedules').insert(extras);
+            const { error: ie, data: extraData } = await _supabase.from('schedules').insert(extras).select();
             if (ie) { showToast('Saved main day but failed to add extra days','error'); loadSchedules(); return; }
+            (extraData || extras).forEach(entry => logAudit('Schedule added', entry.id, currentRoom, entry));
         }
         document.getElementById('editModal').classList.remove('show');
         showToast(selectedDays.length > 1 ? 'Schedule updated for '+selectedDays.length+' days!' : 'Schedule updated!','success');
@@ -3901,13 +4241,17 @@
         if (!pendingDeleteId) return;
         pushUndo('Schedule removed');
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
+            const deleted = schedules.find(s => String(s.id)===String(pendingDeleteId));
             schedules = schedules.filter(s => String(s.id)!==String(pendingDeleteId));
             allRoomSchedules[currentRoom] = schedules;
             localStorage.setItem('schedules_'+currentRoom, JSON.stringify(schedules));
+            logAudit('Schedule deleted', pendingDeleteId, currentRoom, deleted || {});
             renderTimetable(); showToast('Schedule removed','success'); pendingDeleteId=null; return;
         }
+        const delTarget = schedules.find(s => String(s.id)===String(pendingDeleteId));
         const { error } = await _supabase.from('schedules').delete().eq('id',pendingDeleteId);
         if (error) { showToast('Failed to delete','error'); return; }
+        logAudit('Schedule deleted', pendingDeleteId, currentRoom, delTarget || {});
         showToast('Schedule removed','success'); pendingDeleteId=null; loadSchedules();
     });
 
@@ -4329,6 +4673,7 @@
             for (const day of selectedDays) {
                 const newEntry = { id: Date.now() + Math.random(), room:currentRoom, course_name:fullCourseName, section, faculty, day, start_time:startTime+':00', end_time:endTime+':00' };
                 schedules.push(newEntry);
+                logAudit('Schedule added', newEntry.id, currentRoom, newEntry);
             }
             allRoomSchedules[currentRoom] = schedules;
             localStorage.setItem('schedules_'+currentRoom, JSON.stringify(schedules));
@@ -4343,9 +4688,10 @@
         const newEntries = selectedDays.map(day => ({
             room:currentRoom, course_name:fullCourseName, section, faculty, day, start_time:startTime+':00', end_time:endTime+':00'
         }));
-        const { error } = await _supabase.from('schedules').insert(newEntries);
+        const { error, data: insertedData } = await _supabase.from('schedules').insert(newEntries).select();
         btn.classList.remove('loading'); btn.disabled=false;
         if (error) { showToast('Failed to save: '+error.message,'error'); return; }
+        (insertedData || newEntries).forEach(entry => logAudit('Schedule added', entry.id, currentRoom, entry));
         document.getElementById('scheduleForm').reset();
         setSelectedDays([]);
         document.getElementById('scheduleModal').classList.remove('show');
@@ -4375,8 +4721,11 @@
                 String(s.id) !== String(conflictId) &&
                 String(s.id) !== String(dragMoveId)
             );
+            logAudit(dragMoveId ? 'Schedule moved (replaced)' : 'Schedule replaced', conflictId, currentRoom, { course_name: courseName, section, faculty });
             for (const d of daysToInsert) {
-                schedules.push({ room:currentRoom, course_name:courseName, section, faculty, day:d, start_time:startTime+':00', end_time:endTime+':00', id: Date.now()+Math.random() });
+                const ne = { room:currentRoom, course_name:courseName, section, faculty, day:d, start_time:startTime+':00', end_time:endTime+':00', id: Date.now()+Math.random() };
+                schedules.push(ne);
+                logAudit('Schedule added', ne.id, currentRoom, ne);
             }
             allRoomSchedules[currentRoom] = schedules;
             localStorage.setItem('schedules_'+currentRoom, JSON.stringify(schedules));
@@ -4391,11 +4740,13 @@
         for (const delId of toDelete) {
             const { error: de } = await _supabase.from('schedules').delete().eq('id', delId);
             if (de) { showToast('Failed to replace','error'); btn.classList.remove('loading'); btn.disabled=false; return; }
+            logAudit(dragMoveId ? 'Schedule moved (replaced)' : 'Schedule replaced', delId, currentRoom, { course_name: courseName, section, faculty });
         }
         const newEntries = daysToInsert.map(d => ({ room:currentRoom, course_name:courseName, section, faculty, day:d, start_time:startTime+':00', end_time:endTime+':00' }));
-        const { error: ie } = await _supabase.from('schedules').insert(newEntries);
+        const { error: ie, data: replacedData } = await _supabase.from('schedules').insert(newEntries).select();
         btn.classList.remove('loading'); btn.disabled=false;
         if (ie) { showToast('Failed to save new schedule','error'); return; }
+        (replacedData || newEntries).forEach(entry => logAudit('Schedule added', entry.id, currentRoom, entry));
         if (!dragMoveId) { document.getElementById('scheduleForm').reset(); setSelectedDays([]); }
         showToast(daysToInsert.length > 1 ? 'Schedule replaced & added for '+daysToInsert.length+' days!' : 'Schedule replaced!','success');
         loadSchedules();
@@ -4414,7 +4765,8 @@
         pushUndo('Schedule moved');
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
             // Remove from srcRoom, add to destRoom (may be same room, just different time)
-            const updated = { ...((allRoomSchedules[srcRoom]||[]).find(s=>String(s.id)===String(id))||{}), room: destRoom, start_time, end_time };
+            const srcEntry = (allRoomSchedules[srcRoom]||[]).find(s=>String(s.id)===String(id)) || {};
+            const updated = { ...srcEntry, room: destRoom, start_time, end_time };
             allRoomSchedules[srcRoom] = (allRoomSchedules[srcRoom]||[]).filter(s=>String(s.id)!==String(id));
             if (!allRoomSchedules[destRoom]) allRoomSchedules[destRoom]=[];
             // If same room just update in place
@@ -4424,6 +4776,7 @@
                 updated.id = Date.now();
                 allRoomSchedules[destRoom].push(updated);
             }
+            logAudit('Schedule moved', id, destRoom, { ...updated, from_room: srcRoom });
             localStorage.setItem('schedules_'+srcRoom, JSON.stringify(allRoomSchedules[srcRoom]));
             localStorage.setItem('schedules_'+destRoom, JSON.stringify(allRoomSchedules[destRoom]));
             schedules = allRoomSchedules[currentRoom]||[];
@@ -4432,6 +4785,7 @@
         // Supabase: update room + time
         const { error } = await _supabase.from('schedules').update({room:destRoom,start_time,end_time}).eq('id',id);
         if (error) { showToast('Failed to move schedule','error'); return; }
+        logAudit('Schedule moved', id, destRoom, { start_time, end_time, from_room: srcRoom, to_room: destRoom });
         showToast('Schedule moved!','success'); loadSchedules();
     });
 
@@ -5780,6 +6134,37 @@
         });
     }
     </script>
+
+    <!-- ── AUDIT LOG MODAL ── -->
+    <div id="auditModal">
+        <div class="audit-modal-card">
+            <div class="audit-modal-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Audit Log / Change History</h3>
+                <button class="audit-modal-close" id="auditModalCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="audit-modal-toolbar">
+                <input type="text" class="audit-search-input" id="auditSearchInput" placeholder="Search course, room, user…">
+                <select class="audit-filter-select" id="auditActionFilter">
+                    <option value="">All Actions</option>
+                    <option value="added">Added</option>
+                    <option value="edited">Edited</option>
+                    <option value="deleted">Deleted</option>
+                    <option value="moved">Moved</option>
+                    <option value="replaced">Replaced</option>
+                </select>
+                <select class="audit-filter-select" id="auditRoomFilter">
+                    <option value="">All Rooms</option>
+                </select>
+            </div>
+            <div class="audit-modal-body" id="auditModalBody">
+                <div class="audit-empty"><i class="fa-solid fa-clock-rotate-left"></i>Loading history…</div>
+            </div>
+            <div class="audit-modal-footer">
+                <span id="auditCountLabel">—</span>
+                <button id="auditLoadMoreBtn" style="display:none;">Load more</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ── Register Service Worker (PWA) ──
