@@ -998,6 +998,7 @@
         .toast.show { transform: translateY(0); opacity: 1; }
         .toast.success { background: #059669; }
         .toast.error   { background: #dc2626; }
+        .toast.info    { background: #1e3a8a; }
 
 
 
@@ -1559,6 +1560,14 @@
             <span class="nav-title">CCSRMS</span>
         </div>
         <div class="nav-right">
+            <!-- Coordinator + Realtime badges -->
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span id="coordinatorBadge" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:white;letter-spacing:0.3px;white-space:nowrap;"></span>
+                <div id="realtimeBadge" title="Real-time collaboration status" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;color:white;cursor:default;white-space:nowrap;">
+                    <span id="realtimeDot" style="width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.25);transition:background 0.4s,box-shadow 0.4s;display:inline-block;flex-shrink:0;"></span>
+                    <span id="realtimeLabel">Connecting...</span>
+                </div>
+            </div>
             <div class="user-info nav-user-desktop" style="text-align:right;">
                 <div class="user-name" id="userName">Admin</div>
                 <div class="user-role" id="userRole">Department Head</div>
@@ -2338,6 +2347,34 @@
     const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ── STATE ──
+    let coordinatorCourse = null; // 'BSCS' | 'BSIT' | 'BSEMC-DAT' | 'BSEMC-GD'
+
+    function getCourseFromEmail(email) {
+        if (!email) return null;
+        const e = email.toLowerCase();
+        if (e.includes('bsemc_dat') || e.includes('bsemc-dat')) return 'BSEMC-DAT';
+        if (e.includes('bsemc_gd')  || e.includes('bsemc-gd'))  return 'BSEMC-GD';
+        if (e.includes('bscs')) return 'BSCS';
+        if (e.includes('bsit')) return 'BSIT';
+        return null;
+    }
+
+    function lockSectionDropdowns(course) {
+        ['sectionCourse', 'editSectionCourse'].forEach(function(id) {
+            var sel = document.getElementById(id);
+            if (!sel || !course) return;
+            sel.value = course;
+            Array.from(sel.options).forEach(function(opt) {
+                opt.disabled = (opt.value !== course && opt.value !== '');
+                opt.hidden   = (opt.value !== course && opt.value !== '');
+            });
+            sel.disabled = true;
+            sel.style.opacity = '0.7';
+            sel.style.cursor  = 'not-allowed';
+            sel.title = 'Locked to ' + course;
+        });
+    }
+
     let currentFloor    = 1;
     let currentDay      = 'Monday';
     let currentRoom     = '101';
@@ -2450,6 +2487,14 @@
                 document.getElementById('userNameMobile').textContent = email;
             if (document.getElementById('sidebarFooterName'))
                 document.getElementById('sidebarFooterName').textContent = email;
+
+            // Detect coordinator role from email pattern
+            coordinatorCourse = getCourseFromEmail(email);
+            if (coordinatorCourse) {
+                lockSectionDropdowns(coordinatorCourse);
+                var badge = document.getElementById('coordinatorBadge');
+                if (badge) { badge.textContent = coordinatorCourse + ' Coordinator'; badge.style.display = 'inline-flex'; }
+            }
             // Check if user has accepted terms
             const termsAccepted = session.user.user_metadata?.terms_accepted;
             if (!termsAccepted) {
@@ -2496,7 +2541,92 @@
         }, { once: true });
     }
 
-    function init() { loadSchedules(); }
+    function init() { loadSchedules(); initRealtime(); }
+
+    // ── REALTIME COLLABORATION ──
+    var _realtimeChannel = null;
+
+    function initRealtime() {
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return;
+        if (_realtimeChannel) { _supabase.removeChannel(_realtimeChannel); }
+        _realtimeChannel = _supabase
+            .channel('schedules-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'schedules' }, function(payload) {
+                handleRealtimeChange(payload);
+            })
+            .subscribe(function(status) {
+                updateRealtimeIndicator(status);
+            });
+    }
+
+    function handleRealtimeChange(payload) {
+        var eventType = payload.eventType;
+        var newRow = payload.new;
+        var oldRow = payload.old;
+
+        if (eventType === 'INSERT' && newRow) {
+            var room = String(newRow.room);
+            if (!allRoomSchedules[room]) allRoomSchedules[room] = [];
+            if (!allRoomSchedules[room].find(function(s) { return String(s.id) === String(newRow.id); })) {
+                allRoomSchedules[room].push(newRow);
+            }
+            refreshAfterRealtime(room, 'New schedule added by another coordinator');
+        }
+        if (eventType === 'UPDATE' && newRow) {
+            var room = String(newRow.room);
+            if (!allRoomSchedules[room]) allRoomSchedules[room] = [];
+            allRoomSchedules[room] = allRoomSchedules[room].map(function(s) {
+                return String(s.id) === String(newRow.id) ? newRow : s;
+            });
+            if (oldRow && String(oldRow.room) !== room) {
+                var oldRoom = String(oldRow.room);
+                if (allRoomSchedules[oldRoom]) {
+                    allRoomSchedules[oldRoom] = allRoomSchedules[oldRoom].filter(function(s) {
+                        return String(s.id) !== String(oldRow.id);
+                    });
+                }
+            }
+            refreshAfterRealtime(room, 'Schedule updated by another coordinator');
+        }
+        if (eventType === 'DELETE' && oldRow) {
+            var room = String(oldRow.room);
+            if (allRoomSchedules[room]) {
+                allRoomSchedules[room] = allRoomSchedules[room].filter(function(s) {
+                    return String(s.id) !== String(oldRow.id);
+                });
+            }
+            refreshAfterRealtime(room, 'Schedule removed by another coordinator');
+        }
+    }
+
+    function refreshAfterRealtime(changedRoom, toastMsg) {
+        if (String(changedRoom) === String(currentRoom)) {
+            schedules = allRoomSchedules[currentRoom] || [];
+        }
+        renderTimetable();
+        if (currentTab !== 'room' && COURSE_TABS[currentTab]) renderCourseView(currentTab);
+        if (currentTab === 'major-minor') renderMajorMinorView();
+        showToast(toastMsg, 'info');
+    }
+
+    function updateRealtimeIndicator(status) {
+        var dot   = document.getElementById('realtimeDot');
+        var label = document.getElementById('realtimeLabel');
+        if (!dot || !label) return;
+        if (status === 'SUBSCRIBED') {
+            dot.style.background = '#10b981';
+            dot.style.boxShadow  = '0 0 0 3px rgba(16,185,129,0.25)';
+            label.textContent    = 'Live';
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            dot.style.background = '#ef4444';
+            dot.style.boxShadow  = '0 0 0 3px rgba(239,68,68,0.25)';
+            label.textContent    = 'Offline';
+        } else {
+            dot.style.background = '#f59e0b';
+            dot.style.boxShadow  = '0 0 0 3px rgba(245,158,11,0.25)';
+            label.textContent    = 'Connecting...';
+        }
+    }
 
     // ── FLOOR ──
     document.getElementById('floorGrid').addEventListener('click', (e) => {
