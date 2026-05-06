@@ -3082,20 +3082,6 @@
         moreBtn.style.display = _auditDisplayed < total ? 'inline-block' : 'none';
     }
 
-    document.getElementById('auditLoadMoreBtn').addEventListener('click', () => {
-        const filtered = getFilteredAuditEntries();
-        const page = filtered.slice(_auditDisplayed, _auditDisplayed + AUDIT_PAGE_SIZE);
-        _auditDisplayed += page.length;
-        renderAuditEntries(page, true);
-        const moreBtn = document.getElementById('auditLoadMoreBtn');
-        moreBtn.style.display = _auditDisplayed < filtered.length ? 'inline-block' : 'none';
-    });
-
-    ['auditSearchInput','auditActionFilter','auditRoomFilter'].forEach(id => {
-        document.getElementById(id).addEventListener('input', refreshAuditView);
-        document.getElementById(id).addEventListener('change', refreshAuditView);
-    });
-
     async function openAuditModal() {
         document.getElementById('auditModal').classList.add('show');
         document.getElementById('auditModalBody').innerHTML =
@@ -3125,17 +3111,34 @@
         refreshAuditView();
     }
 
-    document.getElementById('auditLogBtn').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.remove('open');
-        document.getElementById('sidebarOverlay').classList.remove('show');
-        openAuditModal();
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // ── AUDIT MODAL BUTTON LISTENERS (need DOM to be ready) ──
+        document.getElementById('auditLoadMoreBtn').addEventListener('click', () => {
+            const filtered = getFilteredAuditEntries();
+            const page = filtered.slice(_auditDisplayed, _auditDisplayed + AUDIT_PAGE_SIZE);
+            _auditDisplayed += page.length;
+            renderAuditEntries(page, true);
+            const moreBtn = document.getElementById('auditLoadMoreBtn');
+            moreBtn.style.display = _auditDisplayed < filtered.length ? 'inline-block' : 'none';
+        });
 
-    document.getElementById('auditModalCloseBtn').addEventListener('click', () =>
-        document.getElementById('auditModal').classList.remove('show'));
-    document.getElementById('auditModal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('auditModal'))
-            document.getElementById('auditModal').classList.remove('show');
+        ['auditSearchInput','auditActionFilter','auditRoomFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('input', refreshAuditView);
+            document.getElementById(id).addEventListener('change', refreshAuditView);
+        });
+
+        document.getElementById('auditLogBtn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('show');
+            openAuditModal();
+        });
+
+        document.getElementById('auditModalCloseBtn').addEventListener('click', () =>
+            document.getElementById('auditModal').classList.remove('show'));
+        document.getElementById('auditModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('auditModal'))
+                document.getElementById('auditModal').classList.remove('show');
+        });
     });
 
     // ── AUTH ──
