@@ -1577,7 +1577,7 @@
         <div class="nav-right">
             <!-- Coordinator + Realtime badges -->
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                <span id="coordinatorBadge" style="display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:700;color:white;letter-spacing:0.3px;white-space:nowrap;"></span>
+
                 <div id="realtimeBadge" title="Real-time collaboration status" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;color:white;cursor:default;white-space:nowrap;">
                     <span id="realtimeDot" style="width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.25);transition:background 0.4s,box-shadow 0.4s;display:inline-block;flex-shrink:0;"></span>
                     <span id="realtimeLabel">Connecting...</span>
@@ -2673,8 +2673,7 @@
             });
             if (coordinatorCourse) {
                 lockSectionDropdowns(coordinatorCourse);
-                var badge = document.getElementById('coordinatorBadge');
-                if (badge) { badge.textContent = coordinatorCourse + ' Coordinator'; badge.style.display = 'inline-flex'; }
+
             }
             // Check if user has accepted terms
             const termsAccepted = session.user.user_metadata?.terms_accepted;
