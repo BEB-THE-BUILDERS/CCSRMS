@@ -1811,7 +1811,18 @@
 
                     <!-- Find Free Room Panel -->
                     <div id="findFreePanel">
-                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <!-- Mode toggle pills -->
+                        <div style="display:flex;gap:6px;margin-bottom:12px;">
+                            <button id="modeExactBtn" onclick="setFindMode('exact')" style="padding:5px 14px;border-radius:20px;border:1.5px solid #16a34a;background:#16a34a;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;transition:all 0.15s;">
+                                <i class="fa-solid fa-clock"></i> Exact time range
+                            </button>
+                            <button id="modeDurBtn" onclick="setFindMode('duration')" style="padding:5px 14px;border-radius:20px;border:1.5px solid #86efac;background:transparent;color:#15803d;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.75rem;cursor:pointer;transition:all 0.15s;">
+                                <i class="fa-solid fa-hourglass-half"></i> By duration
+                            </button>
+                        </div>
+
+                        <!-- Mode A: Exact time range -->
+                        <div id="modeExactRow" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                             <div style="display:flex;align-items:center;gap:6px;">
                                 <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">Day:</label>
                                 <select id="findFreeDay" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
@@ -1835,6 +1846,36 @@
                                 <i class="fa-solid fa-magnifying-glass"></i> Search
                             </button>
                         </div>
+
+                        <!-- Mode B: By duration -->
+                        <div id="modeDurRow" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">Day:</label>
+                                <select id="findFreeDayDur" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                </select>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <label style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;">Duration:</label>
+                                <select id="findFreeDuration" style="padding:5px 10px;border:1.5px solid #86efac;border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                    <option value="30">30 min</option>
+                                    <option value="60">1 hour</option>
+                                    <option value="90" selected>1 hr 30 min</option>
+                                    <option value="120">2 hours</option>
+                                    <option value="150">2 hr 30 min</option>
+                                    <option value="180">3 hours</option>
+                                </select>
+                            </div>
+                            <button onclick="runFindByDuration()" style="padding:6px 16px;border:none;border-radius:7px;background:#16a34a;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
+                                <i class="fa-solid fa-magnifying-glass"></i> Find Slots
+                            </button>
+                        </div>
+
                         <div id="findFreeResults" class="find-free-results" style="display:none;"></div>
                     </div>
                         <div id="miniLegendBar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -5367,61 +5408,62 @@
         const startSel = document.getElementById('findFreeStart');
         const endSel   = document.getElementById('findFreeEnd');
         if (!startSel || !endSel) return;
-
+        // HOURS is defined in the main script; wait until DOM is ready
         function populate() {
             if (typeof HOURS === 'undefined') { setTimeout(populate, 100); return; }
-
-            // Fill start dropdown with all hours
             HOURS.forEach(h => {
-                const o = document.createElement('option');
-                o.value = h; o.textContent = to12hr(h);
-                startSel.appendChild(o);
+                const o1 = document.createElement('option');
+                o1.value = h; o1.textContent = to12hr(h);
+                startSel.appendChild(o1);
+                const o2 = document.createElement('option');
+                o2.value = h; o2.textContent = to12hr(h);
+                endSel.appendChild(o2);
             });
-
-            // Rebuild end dropdown showing only times AFTER the current start
-            function refreshEndOptions(startVal) {
-                const startMins = timeToMins(startVal);
-                const prevEnd   = endSel.value;
-                const prevMins  = prevEnd ? timeToMins(prevEnd) : 0;
-                endSel.innerHTML = '';
-                HOURS.forEach(h => {
-                    if (timeToMins(h) <= startMins) return; // hide anything <= start
-                    const o = document.createElement('option');
-                    o.value = h; o.textContent = to12hr(h);
-                    endSel.appendChild(o);
-                });
-                // Auto-set end to start + 90 min; keep previous only if it's still valid
-                const targetMins = startMins + 90;
-                let picked = null;
-                if (prevEnd && prevMins > startMins) {
-                    picked = prevEnd; // user's previous choice is still valid — keep it
-                } else {
-                    // Pick the option closest to +90 min
-                    const opts = [...endSel.options];
-                    if (opts.length) {
-                        picked = opts.reduce((best, o) => {
-                            return Math.abs(timeToMins(o.value) - targetMins) <
-                                   Math.abs(timeToMins(best.value) - targetMins) ? o : best;
-                        }, opts[0]).value;
-                    }
-                }
-                if (picked) endSel.value = picked;
-            }
-
-            // Default on load: 7:00 start, end auto = 8:30 (+90 min)
+            // Default: 7:00 → 9:00
             startSel.value = '07:00';
-            refreshEndOptions('07:00');
-
-            // Every time start changes → rebuild end list and auto-pick +90
-            startSel.addEventListener('change', () => refreshEndOptions(startSel.value));
+            endSel.value   = '09:00';
         }
         populate();
     })();
 
-    // Sync the Find Free Room Day dropdown to whatever day is currently selected
+    // Sync the Find Free Room Day dropdowns to whatever day is currently selected
     function syncFindFreeDay() {
-        const sel = document.getElementById('findFreeDay');
-        if (sel && typeof currentDay !== 'undefined') sel.value = currentDay;
+        const sel1 = document.getElementById('findFreeDay');
+        const sel2 = document.getElementById('findFreeDayDur');
+        if (sel1 && typeof currentDay !== 'undefined') sel1.value = currentDay;
+        if (sel2 && typeof currentDay !== 'undefined') sel2.value = currentDay;
+    }
+
+    // ── Mode toggle: exact vs duration ──
+    let findFreeMode = 'exact';
+    function setFindMode(mode) {
+        findFreeMode = mode;
+        const exactRow  = document.getElementById('modeExactRow');
+        const durRow    = document.getElementById('modeDurRow');
+        const exactBtn  = document.getElementById('modeExactBtn');
+        const durBtn    = document.getElementById('modeDurBtn');
+        const resultsEl = document.getElementById('findFreeResults');
+        if (mode === 'exact') {
+            exactRow.style.display = 'flex';
+            durRow.style.display   = 'none';
+            exactBtn.style.background    = '#16a34a';
+            exactBtn.style.color         = 'white';
+            exactBtn.style.borderColor   = '#16a34a';
+            durBtn.style.background      = 'transparent';
+            durBtn.style.color           = '#15803d';
+            durBtn.style.borderColor     = '#86efac';
+        } else {
+            exactRow.style.display = 'none';
+            durRow.style.display   = 'flex';
+            durBtn.style.background      = '#16a34a';
+            durBtn.style.color           = 'white';
+            durBtn.style.borderColor     = '#16a34a';
+            exactBtn.style.background    = 'transparent';
+            exactBtn.style.color         = '#15803d';
+            exactBtn.style.borderColor   = '#86efac';
+        }
+        resultsEl.style.display = 'none';
+        resultsEl.innerHTML = '';
     }
 
     // ── OPTION 1: Highlight Available (toggle mode) ──
@@ -5469,7 +5511,7 @@
             btn.classList.add('active');
             btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close Search';
             // Auto-run with current day on open
-            runFindFreeRoom();
+            if (findFreeMode === 'duration') runFindByDuration(); else runFindFreeRoom();
         }
     }
 
@@ -5540,6 +5582,112 @@
 
         resultsEl.innerHTML = html;
         resultsEl.style.display = 'flex';
+    }
+
+    // ── DURATION MODE: find any room+time slot that fits the class length ──
+    function runFindByDuration() {
+        const day        = document.getElementById('findFreeDayDur').value;
+        const durMins    = parseInt(document.getElementById('findFreeDuration').value);
+        const resultsEl  = document.getElementById('findFreeResults');
+
+        // All rooms across all floors
+        const allRoomNums = Object.values(FLOORS).flat().map(r => String(r));
+
+        // For each room, find all contiguous free windows >= durMins on this day
+        const roomSlots = []; // { room, startMins, endMins }
+
+        allRoomNums.forEach(room => {
+            const occupied = (allRoomSchedules[room] || [])
+                .filter(s => s.day === day)
+                .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
+                .sort((a, b) => a.sM - b.sM);
+
+            // Build list of free windows between HOURS[0] and HOURS[last]
+            const dayStart = timeToMins(HOURS[0]);
+            const dayEnd   = timeToMins(HOURS[HOURS.length - 1]);
+
+            // Merge occupied slots to handle overlaps, then find gaps
+            const merged = [];
+            occupied.forEach(o => {
+                if (!merged.length || o.sM >= merged[merged.length-1].eM) {
+                    merged.push({ ...o });
+                } else {
+                    merged[merged.length-1].eM = Math.max(merged[merged.length-1].eM, o.eM);
+                }
+            });
+
+            // Gaps: before first, between blocks, after last
+            const boundaries = [
+                { eM: dayStart },
+                ...merged,
+                { sM: dayEnd }
+            ];
+            for (let i = 0; i < boundaries.length - 1; i++) {
+                const gapStart = boundaries[i].eM;
+                const gapEnd   = boundaries[i + 1].sM !== undefined ? boundaries[i + 1].sM : dayEnd;
+                if (gapEnd - gapStart >= durMins) {
+                    // This gap can fit the class — find all possible start times (every 30 min step)
+                    for (let t = gapStart; t + durMins <= gapEnd; t += 30) {
+                        // Only include slots that align with an HOURS slot
+                        const hourStr = HOURS.find(h => timeToMins(h) === t);
+                        if (hourStr) {
+                            roomSlots.push({ room, startMins: t, endMins: t + durMins });
+                        }
+                    }
+                }
+            }
+        });
+
+        // Group results by room, then by start time
+        const byRoom = {};
+        roomSlots.forEach(s => {
+            if (!byRoom[s.room]) byRoom[s.room] = [];
+            byRoom[s.room].push(s);
+        });
+
+        const durLabel = durMins >= 60
+            ? (durMins % 60 === 0 ? (durMins/60)+'h' : Math.floor(durMins/60)+'h '+(durMins%60)+'min')
+            : durMins+'min';
+
+        let html = '';
+
+        if (Object.keys(byRoom).length === 0) {
+            html = `<div style="font-size:0.82rem;color:#b91c1c;font-weight:600;padding:4px 0;">
+                        <i class="fa-solid fa-circle-xmark"></i> No room has a free ${durLabel} slot on ${day}.
+                    </div>`;
+        } else {
+            html += `<div style="width:100%;font-size:0.75rem;font-weight:700;color:#15803d;margin-bottom:4px;">
+                        <i class="fa-solid fa-circle-check"></i> Rooms with a free ${durLabel} slot on ${day} — click a time to jump:
+                     </div>`;
+
+            Object.keys(byRoom).sort((a,b) => parseInt(a)-parseInt(b)).forEach(room => {
+                const slots = byRoom[room];
+                html += `<div style="width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 10px;background:var(--light-bg);border:1.5px solid #86efac;border-radius:9px;margin-bottom:2px;">
+                            <span style="font-size:0.78rem;font-weight:700;color:#15803d;white-space:nowrap;min-width:64px;">
+                                <i class="fa-solid fa-door-open"></i> Room ${room}
+                            </span>`;
+                slots.forEach(s => {
+                    const startH = HOURS.find(h => timeToMins(h) === s.startMins) || '';
+                    const endH   = HOURS.find(h => timeToMins(h) === s.endMins)   || '';
+                    const endLabel = endH ? to12hr(endH) : minsToTime(s.endMins);
+                    html += `<div class="free-room-chip" style="font-size:0.73rem;padding:4px 10px;"
+                                  onclick="jumpToRoom('${room}','${day}','${startH}')">
+                                 ${to12hr(startH)} – ${endLabel}
+                             </div>`;
+                });
+                html += `</div>`;
+            });
+        }
+
+        resultsEl.innerHTML = html;
+        resultsEl.style.display = 'flex';
+        resultsEl.style.flexDirection = 'column';
+    }
+
+    // helper: convert minutes back to HH:MM string for display
+    function minsToTime(m) {
+        const h = Math.floor(m/60), mm = m%60;
+        return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;
     }
 
     // Jump to a specific room on a specific floor and day, then highlight the slot
