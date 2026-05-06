@@ -2644,7 +2644,7 @@
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { init(); return; }
         try {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) { window.location.href = 'loginpage.html'; return; }
+            if (!session) { window.location.href = 'index.html'; return; }
             const email = session.user.email;
             document.getElementById('userName').textContent = email;
             if (document.getElementById('userNameMobile'))
@@ -4360,7 +4360,7 @@
         closeSidebar();
         await _supabase.auth.signOut();
         localStorage.clear();
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     });
 
     // Sync sidebar footer name with navbar username
@@ -4721,7 +4721,7 @@
             try {
                 // Re-authenticate with current password first
                 const { data: { session } } = await _supabase.auth.getSession();
-                if (!session) { window.location.href = 'loginpage.html'; return; }
+                if (!session) { window.location.href = 'index.html'; return; }
 
                 const { error: authErr } = await _supabase.auth.signInWithPassword({
                     email: session.user.email, password: current
