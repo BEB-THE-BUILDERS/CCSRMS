@@ -3048,21 +3048,21 @@
         'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
     };
 
-    // ── LOAD ALL SCHEDULES (across every floor) for course/major-minor tabs ──
+    // ── LOAD ALL SCHEDULES (all floors) for course/major-minor tabs ──
     async function loadAllSchedules() {
         const allRooms = Object.values(FLOORS).flat().map(String);
 
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-            // Demo / localStorage mode — load every room from every floor
+            // Demo / localStorage mode
             allRooms.forEach(r => {
-                if (!allRoomSchedules[r]) {
+                if (!(r in allRoomSchedules)) {
                     allRoomSchedules[r] = JSON.parse(localStorage.getItem('schedules_' + r) || '[]');
                 }
             });
             return;
         }
 
-        // Supabase mode — fetch every room we don't have yet in one query
+        // Supabase mode — only fetch rooms not already loaded
         const missing = allRooms.filter(r => !(r in allRoomSchedules));
         if (missing.length === 0) return;
 
