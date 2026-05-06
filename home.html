@@ -5367,20 +5367,53 @@
         const startSel = document.getElementById('findFreeStart');
         const endSel   = document.getElementById('findFreeEnd');
         if (!startSel || !endSel) return;
-        // HOURS is defined in the main script; wait until DOM is ready
+
         function populate() {
             if (typeof HOURS === 'undefined') { setTimeout(populate, 100); return; }
+
+            // Fill start dropdown with all hours
             HOURS.forEach(h => {
-                const o1 = document.createElement('option');
-                o1.value = h; o1.textContent = to12hr(h);
-                startSel.appendChild(o1);
-                const o2 = document.createElement('option');
-                o2.value = h; o2.textContent = to12hr(h);
-                endSel.appendChild(o2);
+                const o = document.createElement('option');
+                o.value = h; o.textContent = to12hr(h);
+                startSel.appendChild(o);
             });
-            // Default: 7:00 → 9:00
+
+            // Rebuild end dropdown showing only times AFTER the current start
+            function refreshEndOptions(startVal) {
+                const startMins = timeToMins(startVal);
+                const prevEnd   = endSel.value;
+                const prevMins  = prevEnd ? timeToMins(prevEnd) : 0;
+                endSel.innerHTML = '';
+                HOURS.forEach(h => {
+                    if (timeToMins(h) <= startMins) return; // hide anything <= start
+                    const o = document.createElement('option');
+                    o.value = h; o.textContent = to12hr(h);
+                    endSel.appendChild(o);
+                });
+                // Auto-set end to start + 90 min; keep previous only if it's still valid
+                const targetMins = startMins + 90;
+                let picked = null;
+                if (prevEnd && prevMins > startMins) {
+                    picked = prevEnd; // user's previous choice is still valid — keep it
+                } else {
+                    // Pick the option closest to +90 min
+                    const opts = [...endSel.options];
+                    if (opts.length) {
+                        picked = opts.reduce((best, o) => {
+                            return Math.abs(timeToMins(o.value) - targetMins) <
+                                   Math.abs(timeToMins(best.value) - targetMins) ? o : best;
+                        }, opts[0]).value;
+                    }
+                }
+                if (picked) endSel.value = picked;
+            }
+
+            // Default on load: 7:00 start, end auto = 8:30 (+90 min)
             startSel.value = '07:00';
-            endSel.value   = '09:00';
+            refreshEndOptions('07:00');
+
+            // Every time start changes → rebuild end list and auto-pick +90
+            startSel.addEventListener('change', () => refreshEndOptions(startSel.value));
         }
         populate();
     })();
