@@ -4566,6 +4566,8 @@
         document.getElementById('sectionYear').value   = '';
         document.getElementById('sectionBlock').value  = '';
         document.getElementById('faculty').value     = '';
+        // Re-apply coordinator course lock if active (reset above clears the selection)
+        if (coordinatorCourse) lockSectionDropdowns(coordinatorCourse);
         // Pre-select the currently viewed day
         setSelectedDays(currentDay ? [currentDay] : []);
         document.getElementById('dayOfWeekError').style.display = 'none';
