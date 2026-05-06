@@ -4992,10 +4992,13 @@
             const subject   = String(row['Subject']     || '').trim();
             const type      = String(row['Type']        || '').trim();
             const mm        = String(row['Major_Minor'] || '').trim();
-            const section   = String(row['Section']     || '').trim();
+            // Auto-normalize section to uppercase: "bsit 1-b" -> "BSIT 1-B"
+            const section   = String(row['Section']     || '').trim().toUpperCase();
             const teacher   = String(row['Teacher']     || '').trim();
             const roomRaw   = String(row['Room']        || '').trim();
-            const day       = String(row['Day']         || '').trim();
+            // Normalize day to Title Case: "monday" -> "Monday"
+            const dayRaw    = String(row['Day']         || '').trim();
+            const day       = dayRaw.charAt(0).toUpperCase() + dayRaw.slice(1).toLowerCase();
             const startRaw  = row['Start_Time'];
             const endRaw    = row['End_Time'];
 
@@ -5006,27 +5009,27 @@
             const errors = [];
 
             if (!subject)   errors.push('Subject is empty');
-            if (!VALID_TYPES.includes(type.toLowerCase()))  errors.push('Type must be Lecture, Laboratory, or None');
-            if (!VALID_MM.includes(mm.toLowerCase()))       errors.push('Major_Minor must be Major or Minor');
+            if (!VALID_TYPES.includes(type.toLowerCase()))  errors.push('Type must be Lecture, Laboratory, or None (got: "' + type + '")');
+            if (!VALID_MM.includes(mm.toLowerCase()))       errors.push('Major_Minor must be Major or Minor (got: "' + mm + '")');
 
-            // Section format: COURSE YEAR-BLOCK
+            // Section format: COURSE YEAR-BLOCK — already uppercased
             const secMatch = section.trim().match(/^(\S+)\s+(\d+)-([A-Z])$/i);
-            if (!secMatch) errors.push('Section format invalid (e.g. BSCS 2-A)');
+            if (!secMatch) errors.push('Section must be like "BSCS 2-A" (got: "' + section + '")');
 
-            if (!teacher)  errors.push('Teacher is empty');
+            if (!teacher)  errors.push('Teacher name is empty');
 
             const roomNum = parseInt(roomRaw);
-            if (isNaN(roomNum)) errors.push('Room must be a number');
+            if (isNaN(roomNum)) errors.push('Room must be a number (got: "' + roomRaw + '")');
 
-            if (!VALID_DAYS.includes(day)) errors.push('Day invalid — use Monday, Tuesday, etc.');
+            if (!VALID_DAYS.includes(day)) errors.push('Day must be Monday–Saturday (got: "' + day + '")');
 
-            if (!startTime)             errors.push('Start_Time unreadable');
-            else if (!isValidTime30(startTime)) errors.push('Start_Time must be 07:00–21:00, on the hour or half-hour');
+            if (!startTime)             errors.push('Start_Time could not be read (got: "' + startRaw + '") — use HH:MM format');
+            else if (!isValidTime30(startTime)) errors.push('Start_Time ' + startTime + ' must be 07:00–21:00, on the hour or :30');
 
-            if (!endTime)               errors.push('End_Time unreadable');
-            else if (!isValidTime30(endTime))   errors.push('End_Time must be 07:00–21:00, on the hour or half-hour');
+            if (!endTime)               errors.push('End_Time could not be read (got: "' + endRaw + '") — use HH:MM format');
+            else if (!isValidTime30(endTime))   errors.push('End_Time ' + endTime + ' must be 07:00–21:00, on the hour or :30');
 
-            if (startTime && endTime && startTime >= endTime) errors.push('End_Time must be after Start_Time');
+            if (startTime && endTime && startTime >= endTime) errors.push('End_Time (' + endTime + ') must be after Start_Time (' + startTime + ')');
 
             // ── Role check: coordinator can only import their own course ──
             if (errors.length === 0 && coordinatorCourse && secMatch) {
@@ -5094,35 +5097,55 @@
 
         // ── Render preview table ──
         processedRows.forEach((r) => {
-            const tr = document.createElement('tr');
+            const tr  = document.createElement('tr');
+            const trR = document.createElement('tr'); // reason row
 
-            let statusBadge, rowBg;
+            let statusCell, rowBg, reasonHtml = '';
+
             if (!r.valid) {
-                statusBadge = `<span title="${r.errors.join('; ')}" style="cursor:help;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">✕ Invalid</span>`;
                 rowBg = '#fef2f2';
+                statusCell = `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;">✕ Invalid</div>`;
+                reasonHtml = r.errors.map(e =>
+                    `<div style="display:flex;align-items:flex-start;gap:5px;margin-top:3px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#dc2626;font-size:0.65rem;margin-top:2px;flex-shrink:0;"></i>
+                        <span style="font-size:0.72rem;color:#b91c1c;">${escHtml(e)}</span>
+                    </div>`
+                ).join('');
             } else if (r.conflict) {
-                statusBadge = `<span title="${r.conflictNote}" style="cursor:help;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">⚠ Conflict</span>`;
                 rowBg = '#fff7ed';
+                statusCell = `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">⚠ Conflict</div>`;
+                reasonHtml = `<div style="display:flex;align-items:flex-start;gap:5px;margin-top:3px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;font-size:0.65rem;margin-top:2px;flex-shrink:0;"></i>
+                    <span style="font-size:0.72rem;color:#92400e;">${escHtml(r.conflictNote)}</span>
+                </div>`;
             } else {
-                statusBadge = `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #86efac;">✓ Ready</span>`;
                 rowBg = '';
+                statusCell = `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #86efac;">✓ Ready</div>`;
             }
 
+            const colCount = 11;
             tr.style.background = rowBg;
             tr.innerHTML = `
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.7rem;">${r.rowNum}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.subject)}">${escHtml(r.subject)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${escHtml(r.type)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${escHtml(r.mm)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${escHtml(r.section)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.teacher)}">${escHtml(r.teacher)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:center;">${escHtml(r.room)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${escHtml(r.day)}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${r.startTime ? to12hr(r.startTime) : '—'}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;">${r.endTime ? to12hr(r.endTime) : '—'}</td>
-                <td style="padding:6px 10px;border-bottom:1px solid var(--border);">${statusBadge}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);font-size:0.7rem;">${r.rowNum}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};font-weight:600;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.subject)}">${escHtml(r.subject)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);">${escHtml(r.type)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);">${escHtml(r.mm)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${escHtml(r.section)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.teacher)}">${escHtml(r.teacher)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};text-align:center;">${escHtml(r.room)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${escHtml(r.day)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${r.startTime ? to12hr(r.startTime) : '—'}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${r.endTime ? to12hr(r.endTime) : '—'}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};">${statusCell}</td>
             `;
             tbody.appendChild(tr);
+
+            // Inline reason row — shown directly under the data row, no hover needed
+            if (reasonHtml) {
+                trR.style.background = rowBg;
+                trR.innerHTML = `<td colspan="${colCount}" style="padding:4px 10px 8px 28px;border-bottom:1px solid var(--border);">${reasonHtml}</td>`;
+                tbody.appendChild(trR);
+            }
         });
 
         // Update UI
