@@ -1198,6 +1198,7 @@
 
         /* ── DRAG AND DROP ── */
         .scheduled-slot[draggable="true"] { cursor: grab; }
+        .scheduled-slot:not([draggable="true"]) { cursor: default; }
         .scheduled-slot.dragging { opacity: 0.4; border: 2px dashed var(--accent) !important; }
         .timetable td.drag-over { background: #dbeafe !important; border: 2px dashed var(--accent) !important; }
         .timetable td.drag-over-invalid { background: #fee2e2 !important; border: 2px dashed var(--danger) !important; }
@@ -2359,6 +2360,18 @@
         return null;
     }
 
+    // Returns true if the logged-in coordinator is allowed to edit/move/delete this slot
+    function canOwnSection(section) {
+        if (!coordinatorCourse) return true; // no role detected = full access (admin / demo)
+        if (!section) return false;
+        const sec = section.trim().toUpperCase();
+        const c   = coordinatorCourse.toUpperCase();
+        // BSEMC-DAT and BSEMC-GD must be checked before plain BSEMC
+        if (c === 'BSEMC-DAT') return sec.startsWith('BSEMC-DAT');
+        if (c === 'BSEMC-GD')  return sec.startsWith('BSEMC-GD');
+        return sec.startsWith(c);
+    }
+
     function lockSectionDropdowns(course) {
         ['sectionCourse', 'editSectionCourse'].forEach(function(id) {
             var sel = document.getElementById(id);
@@ -3191,7 +3204,7 @@
                         : courseKey.startsWith('BSEMC') ? 'slot-bsemc-dat'
                         : 'slot-other';
                     td.className          = 'scheduled-slot ' + slotColorClass;
-                    td.draggable          = true;
+                    td.draggable          = canOwnSection(slot.section); // only draggable if coordinator owns it
                     td.rowSpan            = span;
                     td.dataset.scheduleId = slot.id;
                     td.dataset.room       = room;
@@ -3247,6 +3260,10 @@
                 document.getElementById('detailFaculty').textContent = s.faculty;
                 document.getElementById('detailDay').textContent = s.day;
                 document.getElementById('detailTime').textContent = to12hr(s.start_time.slice(0,5))+' – '+to12hr(s.end_time.slice(0,5));
+                // Show/hide Edit & Delete based on ownership
+                const canEdit = canOwnSection(s.section);
+                document.getElementById('detailEditBtn').style.display   = canEdit ? '' : 'none';
+                document.getElementById('detailDeleteBtn').style.display = canEdit ? '' : 'none';
                 document.getElementById('detailsModal').classList.add('show');
             });
         });
@@ -3254,6 +3271,15 @@
         // ── DRAG SOURCE ──
         tbody.querySelectorAll('.scheduled-slot[draggable]').forEach(slot => {
             slot.addEventListener('dragstart', (e) => {
+                // Block drag if this slot belongs to another coordinator's course
+                const draggedRoom    = slot.dataset.room;
+                const draggedId      = slot.dataset.scheduleId;
+                const draggedSlot    = (allRoomSchedules[draggedRoom]||[]).find(s => String(s.id)===String(draggedId));
+                if (draggedSlot && !canOwnSection(draggedSlot.section)) {
+                    e.preventDefault();
+                    showToast('You can only move your own course\'s schedules', 'error');
+                    return;
+                }
                 dragState.id      = slot.dataset.scheduleId;
                 dragState.room    = slot.dataset.room;
                 dragState.startM  = parseInt(slot.dataset.startMins);
@@ -3304,6 +3330,11 @@
 
                 const dragged = (allRoomSchedules[srcRoom]||[]).find(s => String(s.id)===String(selfId));
                 if (!dragged) return;
+                // Ownership check on drop
+                if (!canOwnSection(dragged.section)) {
+                    showToast('You can only move your own course\'s schedules', 'error');
+                    return;
+                }
 
                 // Set currentRoom context to destination
                 currentRoom = destRoom;
@@ -3367,6 +3398,10 @@
             document.getElementById('detailsModal').classList.remove('show');
     });
     document.getElementById('detailDeleteBtn').addEventListener('click', () => {
+        const _sDel = schedules.find(x => String(x.id)===String(currentDetailId));
+        if (_sDel && !canOwnSection(_sDel.section)) {
+            showToast('You can only delete your own course\'s schedules', 'error'); return;
+        }
         document.getElementById('detailsModal').classList.remove('show');
         pendingDeleteId = currentDetailId;
         const s = schedules.find(x => String(x.id)===String(pendingDeleteId));
@@ -3377,6 +3412,9 @@
     document.getElementById('detailEditBtn').addEventListener('click', () => {
         const s = schedules.find(x => String(x.id)===String(currentDetailId));
         if (!s) return;
+        if (!canOwnSection(s.section)) {
+            showToast('You can only edit your own course\'s schedules', 'error'); return;
+        }
         document.getElementById('detailsModal').classList.remove('show');
         const typeMatch = s.course_name.match(/ \((Lecture|Laboratory|None)\)/);
         const majorMinorMatch = s.course_name.match(/ \[(Major|Minor)\]/);
