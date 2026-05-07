@@ -1152,6 +1152,13 @@
 
         .conflict-slot-card strong { font-size: 1rem; display: block; margin-bottom: 2px; }
         .conflict-slot-card .slot-time { font-weight: 700; color: var(--accent); }
+        .merge-badge {
+            display:inline-flex;align-items:center;gap:3px;
+            background:#fef9c3;color:#854d0e;border:1px solid #fde047;
+            border-radius:4px;padding:1px 5px;font-size:0.65rem;font-weight:700;
+            margin-top:2px;
+        }
+        body.dark-mode .merge-badge { background:#422006;color:#fde68a;border-color:#92400e; }
 
 
 
@@ -2319,6 +2326,27 @@
                         </select>
                     </div>
                 </div>
+                <!-- Merged class toggle -->
+                <div class="form-row" id="mergeToggleRow" style="align-items:center;gap:10px;">
+                    <label style="white-space:nowrap;">Merged Class:</label>
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;font-size:0.8rem;font-weight:600;color:var(--muted);">
+                            <div id="mergeTrack" style="width:34px;height:18px;border-radius:9px;background:#cbd5e1;position:relative;transition:background 0.2s;flex-shrink:0;cursor:pointer;">
+                                <div id="mergeThumb" style="width:14px;height:14px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+                            </div>
+                            <span id="mergeToggleText">Off</span>
+                        </label>
+                        <select id="sectionBlock2" style="display:none;flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                            <option value="" disabled selected>2nd Block</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-row">
                     <label>Professor:</label>
                     <input type="text" id="faculty" placeholder="e.g. Engr. Juan dela Cruz" required>
@@ -2460,6 +2488,27 @@
                         </select>
                         <select id="editSectionBlock" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
                             <option value="" disabled selected>Block</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Merged class toggle -->
+                <div class="form-row" style="align-items:center;gap:10px;">
+                    <label style="white-space:nowrap;">Merged Class:</label>
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;font-size:0.8rem;font-weight:600;color:var(--muted);">
+                            <div id="editMergeTrack" style="width:34px;height:18px;border-radius:9px;background:#cbd5e1;position:relative;transition:background 0.2s;flex-shrink:0;cursor:pointer;">
+                                <div id="editMergeThumb" style="width:14px;height:14px;border-radius:50%;background:white;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+                            </div>
+                            <span id="editMergeToggleText">Off</span>
+                        </label>
+                        <select id="editSectionBlock2" style="display:none;flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                            <option value="" disabled selected>2nd Block</option>
                             <option value="A">A</option>
                             <option value="B">B</option>
                             <option value="C">C</option>
@@ -3492,23 +3541,28 @@
 
         // Parse section → { year, block }
         function parseSection(sec) {
-            // Match patterns like "BSCS 1-A", "BSIT 2-B", "BSEMC-DAT 3-C", "BSEMC-GD 4-A"
+            // Match "BSCS 1-A" or "BSCS 1-A/B" (merged)
             const escaped = prefix.replace(/-/g, '\\-');
-            const m = (sec||'').trim().match(new RegExp('^' + escaped + '\\s+(\\d+)-([A-Z])$', 'i'));
-            return m ? { year: parseInt(m[1]), block: m[2].toUpperCase() } : null;
+            const m = (sec||'').trim().match(new RegExp('^' + escaped + '\\s+(\\d+)-([A-F])(?:\\/([A-F]))?$', 'i'));
+            if (!m) return null;
+            const blocks = m[3] ? [m[2].toUpperCase(), m[3].toUpperCase()] : [m[2].toUpperCase()];
+            return { year: parseInt(m[1]), blocks };
         }
 
         // Group: year → block → day → [schedules]
+        // Merged classes (e.g. BSCS 1-A/B) appear in BOTH blocks
         const grouped = {};
         courseSchedules.forEach(s => {
             const p = parseSection(s.section);
             if (!p) return;
             if (!grouped[p.year]) grouped[p.year] = {};
-            if (!grouped[p.year][p.block]) grouped[p.year][p.block] = {};
-            days.forEach(d => { if (!grouped[p.year][p.block][d]) grouped[p.year][p.block][d] = []; });
-            if (days.includes(s.day)) {
-                grouped[p.year][p.block][s.day].push(s);
-            }
+            p.blocks.forEach(block => {
+                if (!grouped[p.year][block]) grouped[p.year][block] = {};
+                days.forEach(d => { if (!grouped[p.year][block][d]) grouped[p.year][block][d] = []; });
+                if (days.includes(s.day)) {
+                    grouped[p.year][block][s.day].push({ ...s, _isMerged: p.blocks.length > 1, _mergedWith: p.blocks.filter(b => b !== block) });
+                }
+            });
         });
 
         // Sort each day's slots by start time
@@ -3544,7 +3598,7 @@
                     const type = typeM ? (typeM[1] === 'Lecture' ? 'Lec' : 'Lab') : '';
                     const key = name + '||' + (s.faculty||'') + '||' + s.room + '||' + s.start_time + '||' + s.end_time;
                     if (!mergedMap[key]) {
-                        mergedMap[key] = { name, type, faculty: s.faculty||'—', room: s.room, start_time: s.start_time, end_time: s.end_time, days: [] };
+                        mergedMap[key] = { name, type, faculty: s.faculty||'—', room: s.room, start_time: s.start_time, end_time: s.end_time, days: [], isMerged: s._isMerged, mergedWith: s._mergedWith||[] };
                     }
                     if (!mergedMap[key].days.includes(s.day)) mergedMap[key].days.push(s.day);
                 });
@@ -3578,7 +3632,7 @@
                         const dayLabel = r.days.sort((a,b) => DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b)).map(d => DAY_SHORT[d]||d).join('-');
                         const firstDay = r.days.sort((a,b) => DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b))[0];
                         html += `<tr class="bscs-table-row" data-room="${escHtml(String(r.room))}" data-day="${escHtml(firstDay)}" data-start="${escHtml(r.start_time.slice(0,5))}" style="cursor:pointer;transition:background 0.15s;" title="Click to view on timetable">
-                            <td><span style="font-weight:600;">${escHtml(r.name)}</span>${r.type ? ` <span style="display:inline-block;margin-left:5px;padding:1px 6px;border-radius:4px;font-size:0.7rem;font-weight:700;background:${r.type==='Lec'?'#eff6ff':'#f0fdf4'};color:${r.type==='Lec'?'#1d4ed8':'#15803d'};border:1px solid ${r.type==='Lec'?'#bfdbfe':'#86efac'};">${r.type}</span>` : ''}</td>
+                            <td><span style="font-weight:600;">${escHtml(r.name)}</span>${r.type ? ` <span style="display:inline-block;margin-left:5px;padding:1px 6px;border-radius:4px;font-size:0.7rem;font-weight:700;background:${r.type==='Lec'?'#eff6ff':'#f0fdf4'};color:${r.type==='Lec'?'#1d4ed8':'#15803d'};border:1px solid ${r.type==='Lec'?'#bfdbfe':'#86efac'};">${r.type}</span>` : ''}${r.isMerged ? ` <span class="merge-badge"><i class="fa-solid fa-code-merge" style="font-size:0.6rem;"></i> w/ Block ${r.mergedWith.join('+')}</span>` : ''}</td>
                             <td style="text-align:center;">${escHtml(r.faculty)}</td>
                             <td style="text-align:center;">${escHtml(dayLabel)}</td>
                             <td style="text-align:center;">${to12hr(r.start_time.slice(0,5))}</td>
@@ -3910,11 +3964,16 @@
                     const _typeShort = _typeMatch ? (_typeMatch[1] === 'Lecture' ? 'Lec' : 'Lab') : '';
                     const _typeLabel = _typeShort ? ' <span style="opacity:0.75;font-size:0.65rem;">('+_typeShort+')</span>' : '';
                     const _dispName  = escHtml(_rawName.replace(/\s*\[.*?\]/g, '').replace(/\s*\(.*?\)/g, '').trim());
+                    const _isMergedSection = /\//.test(slot.section);
+                    const _mergedLabel = _isMergedSection
+                        ? '<br><span class="merge-badge"><i class="fa-solid fa-code-merge" style="font-size:0.6rem;"></i> Merged</span>'
+                        : '';
                     td.innerHTML =
                         '<div class="class-info">'+
                             '<strong>'+_dispName+_typeLabel+'</strong>'+
                             escHtml(slot.section)+'<br>'+
                             escHtml(slot.faculty)+
+                            _mergedLabel+
                         '</div>'+
                         '<span class="slot-id" data-id="'+slot.id+'" style="display:none"></span>';
                     tr.appendChild(td);
@@ -4119,14 +4178,18 @@
         document.getElementById('editCourseType').disabled = isMinor;
         document.getElementById('editCourseType').style.opacity = isMinor ? '0.5' : '1';
         document.getElementById('editCourseType').style.cursor = isMinor ? 'not-allowed' : '';
-        // Parse stored section e.g. "BSCS 2-A" into parts
-        const secParts = (s.section || '').match(/^(\S+)\s+(\d+)-([A-Z])$/);
+        // Parse stored section e.g. "BSCS 2-A" or "BSCS 2-A/B" into parts
+        const secParts = (s.section || '').match(/^(\S+)\s+(\d+)-([A-F])(?:\/([A-F]))?$/);
         const scEl = document.getElementById('editSectionCourse');
         const syEl = document.getElementById('editSectionYear');
         const sbEl = document.getElementById('editSectionBlock');
         scEl.value = secParts ? secParts[1] : ''; if (!scEl.value) scEl.selectedIndex = 0;
         syEl.value = secParts ? secParts[2] : ''; if (!syEl.value) syEl.selectedIndex = 0;
         sbEl.value = secParts ? secParts[3] : ''; if (!sbEl.value) sbEl.selectedIndex = 0;
+        // Handle merged block
+        const block2 = secParts ? secParts[4] : null;
+        setEditMerge(!!block2);
+        if (block2) document.getElementById('editSectionBlock2').value = block2;
         document.getElementById('editFaculty').value    = s.faculty;
         setEditDays([s.day]);
         document.getElementById('editDayError').style.display = 'none';
@@ -4169,7 +4232,9 @@
         const editSecCourse = document.getElementById('editSectionCourse').value;
         const editSecYear   = document.getElementById('editSectionYear').value;
         const editSecBlock  = document.getElementById('editSectionBlock').value;
-        const section       = editSecCourse && editSecYear && editSecBlock ? editSecCourse+' '+editSecYear+'-'+editSecBlock : '';
+        const editSecBlock2 = editMergeActive ? document.getElementById('editSectionBlock2').value : '';
+        const editBlockStr  = editSecBlock2 ? editSecBlock+'/'+editSecBlock2 : editSecBlock;
+        const section       = editSecCourse && editSecYear && editBlockStr ? editSecCourse+' '+editSecYear+'-'+editBlockStr : '';
         const faculty    = document.getElementById('editFaculty').value.trim();
         const selectedDays = getEditSelectedDays();
         const startTime  = document.getElementById('editStartTime').value;
@@ -4177,6 +4242,8 @@
 
         if (selectedDays.length === 0) { document.getElementById('editDayError').style.display = 'block'; return; }
         if (!courseName||!section||!faculty||!startTime||!endTime) { showToast('Please fill in all fields','error'); return; }
+        if (editMergeActive && !editSecBlock2) { showToast('Please select the 2nd block for merged class','error'); return; }
+        if (editMergeActive && editSecBlock2 === editSecBlock) { showToast('Merged blocks must be different','error'); return; }
         if (!editCourseMajorMinor) { showToast('Please select Major or Minor','error'); return; }
         if (!editCourseType) { showToast('Please select a class type (Lec/Lab)','error'); return; }
         if (!editSecCourse||!editSecYear||!editSecBlock) { showToast('Please complete the section fields','error'); return; }
@@ -4535,6 +4602,30 @@
         if (typeof validateEndTime === 'function') validateEndTime();
     }
 
+    // ── MERGED CLASS TOGGLE (ADD MODAL) ──
+    let mergeActive = false;
+    function setMerge(active) {
+        mergeActive = active;
+        document.getElementById('mergeTrack').style.background  = active ? '#3b82f6' : '#cbd5e1';
+        document.getElementById('mergeThumb').style.left        = active ? '18px'   : '2px';
+        document.getElementById('sectionBlock2').style.display  = active ? ''       : 'none';
+        document.getElementById('mergeToggleText').textContent  = active ? 'On'     : 'Off';
+        if (!active) document.getElementById('sectionBlock2').value = '';
+    }
+    document.getElementById('mergeTrack').addEventListener('click', () => setMerge(!mergeActive));
+
+    // ── MERGED CLASS TOGGLE (EDIT MODAL) ──
+    let editMergeActive = false;
+    function setEditMerge(active) {
+        editMergeActive = active;
+        document.getElementById('editMergeTrack').style.background  = active ? '#3b82f6' : '#cbd5e1';
+        document.getElementById('editMergeThumb').style.left        = active ? '18px'   : '2px';
+        document.getElementById('editSectionBlock2').style.display  = active ? ''       : 'none';
+        document.getElementById('editMergeToggleText').textContent  = active ? 'On'     : 'Off';
+        if (!active) document.getElementById('editSectionBlock2').value = '';
+    }
+    document.getElementById('editMergeTrack').addEventListener('click', () => setEditMerge(!editMergeActive));
+
     // ── DAY TOGGLE BUTTON LOGIC ──
     document.getElementById('dayOfWeekGroup').addEventListener('click', (e) => {
         const btn = e.target.closest('.day-toggle-btn');
@@ -4566,6 +4657,7 @@
         document.getElementById('sectionYear').value   = '';
         document.getElementById('sectionBlock').value  = '';
         document.getElementById('faculty').value     = '';
+        setMerge(false);
         // Re-apply coordinator course lock if active (reset above clears the selection)
         if (coordinatorCourse) lockSectionDropdowns(coordinatorCourse);
         // Pre-select the currently viewed day
@@ -4622,7 +4714,9 @@
         const sectionCourse = document.getElementById('sectionCourse').value;
         const sectionYear   = document.getElementById('sectionYear').value;
         const sectionBlock  = document.getElementById('sectionBlock').value;
-        const section       = sectionCourse && sectionYear && sectionBlock ? sectionCourse+' '+sectionYear+'-'+sectionBlock : '';
+        const sectionBlock2 = mergeActive ? document.getElementById('sectionBlock2').value : '';
+        const blockStr      = sectionBlock2 ? sectionBlock+'/'+sectionBlock2 : sectionBlock;
+        const section       = sectionCourse && sectionYear && blockStr ? sectionCourse+' '+sectionYear+'-'+blockStr : '';
         const faculty    = document.getElementById('faculty').value.trim();
         const selectedDays = getSelectedDays();
         const startTime  = document.getElementById('startTime').value;
@@ -4634,15 +4728,16 @@
             return;
         }
         if (!courseName||!section||!faculty||!startTime||!endTime) { showToast('Please fill in all fields','error'); return; }
+        if (mergeActive && !sectionBlock2) { showToast('Please select the 2nd block for merged class','error'); return; }
+        if (mergeActive && sectionBlock2 === sectionBlock) { showToast('Merged blocks must be different','error'); return; }
         if (!courseMajorMinor) { showToast('Please select Major or Minor','error'); return; }
         if (!courseType) { showToast('Please select a class type (Lec/Lab)','error'); return; }
         if (startTime>=endTime) { showToast('End time must be after start time','error'); return; }
 
-        const sM=timeToMins(startTime), eM=timeToMins(endTime);
+        const sM = timeToMins(startTime), eM = timeToMins(endTime);
         const fullCourseName = courseName+(courseMajorMinor?' ['+courseMajorMinor+']':'')+(courseType&&courseType!=='None'?' ('+courseType+')':'');
 
         // Check conflicts for ALL selected days — room conflict AND section conflict across all rooms
-        let conflictDay = null, conflictSlot = null, conflictType = null;
         for (const day of selectedDays) {
             // 1. Room conflict: same room, same day, overlapping time
             const roomSchedules = allRoomSchedules[currentRoom] || [];
