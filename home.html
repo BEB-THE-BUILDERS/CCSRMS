@@ -276,7 +276,18 @@
         .bcb-conflict-row {
             background: #fff5f5; border: 1px solid #fecaca; border-radius: 7px;
             padding: 7px 10px; font-size: 0.76rem; color: #991b1b;
+            cursor: pointer; transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
         }
+        .bcb-conflict-row:hover {
+            background: #fee2e2; border-color: #f87171;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.15);
+        }
+        .bcb-conflict-row .bcb-goto-hint {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 0.68rem; font-weight: 700; color: #dc2626;
+            margin-top: 5px; opacity: 0.7;
+        }
+        .bcb-conflict-row:hover .bcb-goto-hint { opacity: 1; }
         .bcb-conflict-row strong { color: #7f1d1d; }
         .bcb-conflict-row .bcb-subjects { margin-top: 3px; display: flex; flex-direction: column; gap: 2px; }
         .bcb-subject-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -287,8 +298,10 @@
         }
         body.dark-mode #blockConflictBanner { background: #1c0a0a; border-color: #7f1d1d; color: #fca5a5; }
         body.dark-mode .bcb-conflict-row { background: #1c0a0a; border-color: #7f1d1d; color: #fca5a5; }
+        body.dark-mode .bcb-conflict-row:hover { background: #2d0c0c; border-color: #ef4444; }
         body.dark-mode .bcb-conflict-row strong { color: #fca5a5; }
         body.dark-mode .bcb-room-badge { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
+        body.dark-mode .bcb-conflict-row .bcb-goto-hint { color: #f87171; }
 
         /* ── CONFLICT BADGE ON TIMETABLE SLOT ── */
         .slot-conflict-badge {
@@ -4369,15 +4382,25 @@
             const timeB = to12hr(b.start_time.slice(0,5)) + ' – ' + to12hr(b.end_time.slice(0,5));
             const nameA = escHtml(a.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim());
             const nameB = escHtml(b.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim());
-            return `<div class="bcb-conflict-row">
+            return `<div class="bcb-conflict-row"
+                        data-slot-a-id="${escHtml(String(a.id))}" data-slot-a-room="${escHtml(String(a.room))}"
+                        data-slot-b-id="${escHtml(String(b.id))}" data-slot-b-room="${escHtml(String(b.room))}"
+                        data-day="${escHtml(day)}"
+                        onclick="navigateToBannerConflict(this)">
                 <strong>${escHtml(section)} · ${escHtml(day)}</strong>
                 <div class="bcb-subjects">
                     <div class="bcb-subject-line"><span class="bcb-room-badge">Room ${a.room}</span> ${nameA} <span style="opacity:0.7;">${timeA}</span></div>
                     <div style="font-size:0.68rem;color:#dc2626;padding-left:2px;font-weight:700;">⟷ overlaps with</div>
                     <div class="bcb-subject-line"><span class="bcb-room-badge">Room ${b.room}</span> ${nameB} <span style="opacity:0.7;">${timeB}</span></div>
                 </div>
+                <div class="bcb-goto-hint"><i class="fa-solid fa-arrow-right"></i> Click to go to conflict &amp; suggest a fix</div>
             </div>`;
         }).join('');
+
+        // Wire up each row after rendering
+        body.querySelectorAll('.bcb-conflict-row').forEach(row => {
+            row.addEventListener('click', () => navigateToBannerConflict(row));
+        });
     }
 
     // ── TIMETABLE ──
@@ -4481,13 +4504,19 @@
         // Update block conflict banner
         renderBlockConflictBanner();
 
-        // ── SLOT CLICK → details modal ──
+        // ── SLOT CLICK → details modal (or suggest modal if block-conflict slot) ──
         tbody.querySelectorAll('.scheduled-slot').forEach(td => {
             td.addEventListener('click', () => {
                 const id   = td.querySelector('.slot-id').dataset.id;
                 const room = td.dataset.room;
                 const s    = (allRoomSchedules[room]||[]).find(x => String(x.id)===String(id));
                 if (!s) return;
+
+                // If this slot has a block conflict badge, open suggest-move directly
+                if (td.querySelector('.slot-conflict-badge')) {
+                    openSuggestMoveForSlot(id, room);
+                    return;
+                }
                 currentDetailId = String(s.id);
                 currentRoom     = room;
                 schedules       = allRoomSchedules[room] || [];
@@ -7196,6 +7225,175 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
     function minsToTime(m) {
         const h = Math.floor(m/60), mm = m%60;
         return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;
+    }
+
+    // ── BANNER CONFLICT CLICK → navigate to slot then auto-open suggest ──
+    function navigateToBannerConflict(rowEl) {
+        const slotAId   = rowEl.dataset.slotAId;
+        const slotARoom = rowEl.dataset.slotARoom;
+        const slotBId   = rowEl.dataset.slotBId;
+        const slotBRoom = rowEl.dataset.slotBRoom;
+        const day       = rowEl.dataset.day;
+
+        // Pick slot A as the primary one to navigate to
+        const slotId   = slotAId;
+        const room     = slotARoom;
+
+        // Find the actual schedule entry
+        let targetSlot = null;
+        for (const [r, slots] of Object.entries(allRoomSchedules)) {
+            const found = slots.find(s => String(s.id) === String(slotId));
+            if (found) { targetSlot = { ...found, room: r }; break; }
+        }
+        if (!targetSlot) return;
+
+        const startTime = targetSlot.start_time.slice(0, 5);
+
+        // Collapse the banner so the timetable is visible
+        document.getElementById('blockConflictBanner').classList.add('collapsed');
+
+        // Determine which floor the room is on
+        let targetFloor = currentFloor;
+        Object.entries(FLOORS).forEach(([f, rooms]) => {
+            if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
+        });
+
+        // Switch floor if needed
+        if (targetFloor !== currentFloor) {
+            currentFloor = targetFloor;
+            currentRoom  = String(FLOORS[currentFloor][0]);
+            document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.floor == currentFloor);
+            });
+        }
+
+        // Switch day if needed
+        if (day !== currentDay) {
+            currentDay = day;
+            document.querySelectorAll('#dayGrid .floor-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.day === day);
+            });
+        }
+
+        // Load schedules then scroll & highlight, then auto-open suggest modal
+        loadSchedules().then(() => {
+            setTimeout(() => {
+                // Find the rendered cell for this slot
+                let target = null;
+                document.querySelectorAll('#timetableBody .scheduled-slot').forEach(td => {
+                    const idEl = td.querySelector('.slot-id');
+                    if (idEl && String(idEl.dataset.id) === String(slotId)) target = td;
+                });
+
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Flash highlight — use the existing bscsFlash-style animation inline
+                    target.style.transition = 'outline 0.1s, box-shadow 0.1s';
+                    target.style.outline    = '3px solid #ef4444';
+                    target.style.boxShadow  = '0 0 0 6px rgba(239,68,68,0.25)';
+                    setTimeout(() => {
+                        target.style.outline   = '';
+                        target.style.boxShadow = '';
+                    }, 1800);
+
+                    // After a short pause, open the suggest-move modal for this slot
+                    setTimeout(() => {
+                        openSuggestMoveForSlot(slotId, room);
+                    }, 400);
+                }
+            }, 120);
+        });
+    }
+
+    // Open the conflict modal in "suggest" mode directly for a given slot
+    function openSuggestMoveForSlot(slotId, room) {
+        // Find the slot entry
+        let entry = null;
+        for (const [r, slots] of Object.entries(allRoomSchedules)) {
+            const found = slots.find(s => String(s.id) === String(slotId));
+            if (found) { entry = { ...found, room: r }; break; }
+        }
+        if (!entry) return;
+
+        const conflictRoom = entry.room;
+        const durMins = timeToMins(entry.end_time) - timeToMins(entry.start_time);
+        const day     = entry.day;
+
+        // Build free windows in the same room on the same day
+        const roomSlots = (allRoomSchedules[conflictRoom] || [])
+            .filter(s => s.day === day)
+            .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
+            .sort((a, b) => a.sM - b.sM);
+
+        const DAY_START = timeToMins('07:00');
+        const DAY_END   = timeToMins('21:00');
+
+        const windows = [];
+        let cursor = DAY_START;
+        roomSlots.forEach(({ sM, eM }) => {
+            if (sM > cursor) windows.push({ start: cursor, end: sM });
+            cursor = Math.max(cursor, eM);
+        });
+        if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
+
+        const freeSlots = [];
+        windows.forEach(({ start, end }) => {
+            const aligned = Math.ceil(start / 30) * 30;
+            for (let t = aligned; t + durMins <= end; t += 30) {
+                if (t === timeToMins(entry.start_time)) continue;
+                const secConflict = findSectionConflict(entry.section, day, t, t + durMins, conflictRoom, entry.id);
+                if (!secConflict) freeSlots.push({ start: t, end: t + durMins });
+            }
+        });
+
+        // Populate the conflict modal — no pendingNewEntry needed (banner-initiated)
+        const timeStr = to12hr(entry.start_time.slice(0,5)) + ' – ' + to12hr(entry.end_time.slice(0,5));
+        document.getElementById('conflictSlotCard').innerHTML =
+            '<strong>'+escHtml(entry.course_name)+'</strong> '+
+            escHtml(entry.section)+'<br>'+escHtml(entry.faculty)+'<br>'+
+            '<span class="slot-time">'+timeStr+'</span>'+
+            '<br><span style="font-size:0.75rem;color:#f59e0b;">Block conflict on: '+escHtml(day)+'</span>';
+
+        // Show suggest panel immediately
+        document.getElementById('conflictSuggestName').textContent =
+            entry.course_name.replace(/\s*\[.*?\]/,'').replace(/\s*\(.*?\)/,'').trim();
+
+        const listEl = document.getElementById('conflictSuggestList');
+        const noneEl = document.getElementById('conflictSuggestNone');
+
+        if (freeSlots.length === 0) {
+            listEl.innerHTML = '';
+            noneEl.style.display = 'block';
+            listEl.style.display = 'none';
+        } else {
+            noneEl.style.display = 'none';
+            listEl.style.display = 'flex';
+            listEl.innerHTML = freeSlots.slice(0, 8).map((slot, i) =>
+                `<div class="conflict-suggest-slot" data-idx="${i}">
+                    <span>
+                        <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
+                        <span class="css-room">· Room ${conflictRoom} · ${day}</span>
+                    </span>
+                    <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
+                </div>`
+            ).join('');
+
+            listEl.querySelectorAll('.css-move-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const idx  = parseInt(btn.dataset.idx);
+                    const slot = freeSlots[idx];
+                    // Banner-initiated move: no pendingNewEntry, just move the conflicting slot
+                    pendingNewEntry = null;
+                    await applyConflictMove(entry, conflictRoom, slot.start, slot.end);
+                });
+            });
+        }
+
+        // Show modal with suggest panel open, hide main action buttons
+        document.getElementById('conflictSuggestPanel').style.display = 'block';
+        document.getElementById('conflictMainBtns').style.display     = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'none';
+        document.getElementById('conflictModal').classList.add('show');
     }
 
     // Jump to a specific room on a specific floor and day, then highlight the slot
