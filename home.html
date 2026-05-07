@@ -154,6 +154,22 @@
         }
         body.dark-mode #darkModeToggle i { color: #fbbf24; }
 
+        /* ── NEW X CLOSE BUTTONS – DARK MODE ── */
+        body.dark-mode #deleteCloseBtn,
+        body.dark-mode #conflictCloseBtn,
+        body.dark-mode #editCloseBtn,
+        body.dark-mode #moveCloseBtn {
+            background: #334155 !important;
+            color: #94a3b8 !important;
+        }
+        body.dark-mode #deleteCloseBtn:hover,
+        body.dark-mode #conflictCloseBtn:hover,
+        body.dark-mode #editCloseBtn:hover,
+        body.dark-mode #moveCloseBtn:hover {
+            background: #475569 !important;
+            color: #e2e8f0 !important;
+        }
+
         /* ── PRESENCE AVATARS ── */
         .presence-avatar {
             width: 30px;
@@ -213,6 +229,24 @@
             border-bottom-color: rgba(15,23,42,0.92);
         }
         .presence-avatar:hover .presence-tooltip { opacity: 1; }
+        .presence-avatar[data-self="true"] {
+            box-shadow: 0 0 0 2.5px white, 0 0 0 4.5px rgba(255,255,255,0.55);
+            order: -1;
+        }
+        .presence-overflow {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.62rem; font-weight: 700;
+            color: white;
+            margin-left: -8px;
+            flex-shrink: 0;
+            cursor: default;
+            position: relative;
+        }
+        .presence-overflow .presence-tooltip { min-width: 120px; text-align: center; }
         #presenceAvatars { display: flex; align-items: center; margin-right: 4px; }
 
         /* ── DARK MODE: IMPORT MODAL ── */
@@ -1798,27 +1832,6 @@
             .user-info { max-width: 90px; }
         }
 
-        /* ── AVAILABILITY FEATURE ── */
-        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col) {
-            background: #f0fdf4;
-            border-color: #86efac !important;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col):hover {
-            background: #dcfce7;
-        }
-        .avail-mode .timetable td:not(.scheduled-slot):not(.time-col)::after {
-            content: '+';
-            font-size: 1rem;
-            font-weight: 700;
-            color: #16a34a;
-            opacity: 0.6;
-        }
-        .avail-mode .scheduled-slot {
-            opacity: 0.45;
-            pointer-events: none;
-        }
         .avail-btn {
             display: flex; align-items: center; gap: 6px;
             padding: 6px 14px;
@@ -1833,11 +1846,7 @@
             transition: all 0.2s;
         }
         .avail-btn:hover { background: #dcfce7; }
-        .avail-btn.active { background: var(--success); color: white; border-color: var(--success); }
-        body.dark-mode .avail-btn { background: #052e16; color: #4ade80; border-color: #16a34a; }
-        body.dark-mode .avail-btn.active { background: #16a34a; color: white; }
-        body.dark-mode .avail-mode .timetable td:not(.scheduled-slot):not(.time-col) { background: #052e16; border-color: #16a34a !important; }
-        body.dark-mode .avail-mode .timetable td:not(.scheduled-slot):not(.time-col):hover { background: #14532d; }
+
 
         /* ── FIND FREE ROOM PANEL ── */
         #findFreePanel {
@@ -2124,22 +2133,14 @@
             </button>
         </div>
     </div>
+    <!-- Hidden floor grid (kept for JS compatibility, floor selection not needed) -->
+    <div id="floorGrid" style="display:none;"></div>
+
     <main class="dashboard">
         <div class="grid">
-            <section class="card">
-                <div class="card-title"><i class="fa-solid fa-building"></i> Select Floor</div>
-                <div class="floor-grid" id="floorGrid">
-                    <button class="floor-btn active" data-floor="1">1st Floor</button>
-                    <button class="floor-btn" data-floor="2">2nd Floor</button>
-                    <button class="floor-btn" data-floor="3">3rd Floor</button>
-                    <button class="floor-btn" data-floor="4">4th Floor</button>
-                    <button class="floor-btn" data-floor="5">5th Floor</button>
-                    <button class="floor-btn" data-floor="6">6th Floor</button>
-                </div>
-            </section>
-            <section class="card">
+            <section class="card" style="grid-column: 1 / -1;">
                 <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Select Day</div>
-                <div class="floor-grid" id="dayGrid">
+                <div class="floor-grid" id="dayGrid" style="grid-template-columns: repeat(6, 1fr);">
                     <button class="floor-btn active" data-day="Monday">Monday</button>
                     <button class="floor-btn" data-day="Tuesday">Tuesday</button>
                     <button class="floor-btn" data-day="Wednesday">Wednesday</button>
@@ -2186,13 +2187,9 @@
                     <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
                         <div style="display:flex;align-items:center;gap:8px;">
                             <i class="fa-solid fa-calendar-week"></i>
-                            <span id="scheduleTitle">1st Floor — Weekly Schedule</span>
+                            <span id="scheduleTitle">CCS Rooms — Weekly Schedule</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <!-- Highlight Available toggle -->
-                            <button class="avail-btn" id="availModeBtn" onclick="toggleAvailMode()" title="Highlight all free slots on this floor">
-                                <i class="fa-solid fa-circle-check"></i> Highlight Available
-                            </button>
                             <!-- Find Free Room button -->
                             <button class="avail-btn" id="findFreeBtn" onclick="toggleFindFreePanel()" title="Search for a free room at a specific time">
                                 <i class="fa-solid fa-magnifying-glass"></i> Find Free Room
@@ -2516,7 +2513,7 @@
             <div class="schedule-modal-header">
                 <div class="schedule-modal-icon"><i class="fa-solid fa-calendar-plus"></i></div>
                 <div>
-                    <div class="schedule-modal-title" id="scheduleModalTitle">Schedule Room 101</div>
+                    <div class="schedule-modal-title" id="scheduleModalTitle">Schedule Room 407</div>
                     <div class="schedule-modal-sub" id="scheduleModalSub" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:18px;"></div>
                 </div>
             </div>
@@ -2652,7 +2649,7 @@
     <!-- Block Conflict New Schedule Modal -->
     <div id="blockConflictNewModal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px;">
         <div style="background:var(--white);border-radius:16px;max-width:440px;width:100%;padding:0;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-            <div style="background:#7f1d1d;padding:18px 20px 14px;display:flex;align-items:center;gap:12px;">
+            <div style="background:#7f1d1d;padding:18px 20px 14px;display:flex;align-items:center;gap:12px;position:relative;">
                 <div style="width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <i class="fa-solid fa-triangle-exclamation" style="color:#fca5a5;font-size:1rem;"></i>
                 </div>
@@ -2660,6 +2657,7 @@
                     <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem;color:white;">Block Schedule Conflict</div>
                     <div style="font-size:0.75rem;color:rgba(255,255,255,0.7);margin-top:2px;">This block already has a class at this time</div>
                 </div>
+                <button onclick="document.getElementById('blockConflictNewModal').style.display='none'" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s;" title="Close" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div style="padding:18px 20px;">
                 <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">
@@ -2688,7 +2686,8 @@
 
     <!-- Delete Confirm Modal -->
     <div class="modal-overlay" id="deleteModal">
-        <div class="modal">
+        <div class="modal" style="position:relative;">
+            <button id="deleteCloseBtn" onclick="document.getElementById('deleteModal').classList.remove('show')" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             <h3>Delete Schedule</h3>
             <p id="deleteModalMsg">Are you sure you want to remove this class from the schedule?</p>
             <div class="modal-btns">
@@ -2703,7 +2702,8 @@
 
     <!-- Conflict Modal -->
     <div class="modal-overlay" id="conflictModal">
-        <div class="modal conflict-modal" style="max-width:480px;width:94%;">
+        <div class="modal conflict-modal" style="max-width:480px;width:94%;position:relative;">
+            <button id="conflictCloseBtn" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             <div class="conflict-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3>Time Slot Occupied</h3>
             <p style="margin-bottom:8px;">This slot is already taken by:</p>
@@ -2765,11 +2765,12 @@
 
     <!-- Edit Modal -->
     <div class="modal-overlay" id="editModal">
-        <div class="modal" style="max-width:460px;">
+        <div class="modal" style="max-width:460px;position:relative;">
+            <button id="editCloseBtn" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             <h3 style="margin-bottom:4px;"><i class="fa-solid fa-pen" style="color:#16a34a;margin-right:8px;"></i>Edit Schedule</h3>
             <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:18px;margin-bottom:16px;font-size:0.78rem;color:var(--muted);" id="editModalSub"><span id="editSubtitle"></span></div>
             <div style="display:flex;flex-direction:column;gap:10px;">
-                <div class="form-row"><label>Class Name:</label><input type="text" id="editCourseName" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"></div>
+                <div class="form-row"><label>Class Name:</label><div class="subject-autocomplete-wrap"><input type="text" id="editCourseName" autocomplete="off" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><div class="subject-autocomplete-dropdown" id="editSubjectAcDropdown"><div id="editSubjectAcList"></div><div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#3b82f6;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div></div></div></div>
                 <div class="form-row"><label>Class Type:</label><div style="display:flex;gap:6px;flex:1;"><select id="editCourseMajorMinor" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Major/Minor</option><option value="Major">Major</option><option value="Minor">Minor</option></select><select id="editCourseType" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Lec/Lab</option><option value="Lecture">Lecture</option><option value="Laboratory">Laboratory</option><option value="None">None</option></select></div></div>
                 <div class="form-row">
                     <label>Section:</label>
@@ -2845,7 +2846,8 @@
 
     <!-- Move Confirm Modal -->
     <div class="modal-overlay" id="moveModal">
-        <div class="modal" style="text-align:center;max-width:440px;">
+        <div class="modal" style="text-align:center;max-width:440px;position:relative;">
+            <button id="moveCloseBtn" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" title="Close"><i class="fa-solid fa-xmark"></i></button>
             <div style="width:52px;height:52px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.3rem;color:#3b82f6;border:2px solid #93c5fd;"><i class="fa-solid fa-arrows-up-down-left-right"></i></div>
             <h3>Move Schedule</h3>
             <p style="margin:8px 0 4px;">Move this class to the new time slot?</p>
@@ -2921,7 +2923,8 @@
     <!-- Terms & Conditions Modal -->
     <div id="termsModal">
         <div class="terms-card">
-            <div class="terms-header">
+            <div class="terms-header" style="position:relative;">
+                <button id="termsCloseBtn" style="position:absolute;top:0;right:0;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s;" title="Close" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><i class="fa-solid fa-xmark"></i></button>
                 <h2><i class="fa-solid fa-file-contract" style="margin-right:8px;opacity:0.8;"></i>Terms and Conditions</h2>
                 <p>Please read carefully and scroll to the bottom to accept before using CCSRMS.</p>
             </div>
@@ -3212,7 +3215,7 @@
 
     let currentFloor    = 1;
     let currentDay      = 'Monday';
-    let currentRoom     = '101';
+    let currentRoom     = '407';
     let schedules       = [];
     let pendingDeleteId = null;
     let pendingNewEntry = null;
@@ -3260,13 +3263,9 @@
         if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
     });
 
-    const FLOORS = {};
-    for (let f = 1; f <= 6; f++) {
-        FLOORS[f] = [];
-        for (let r = 1; r <= 20; r++) {
-            FLOORS[f].push(f * 100 + r);
-        }
-    }
+    const FLOORS = {
+        1: [407,408,409,410,411,412,413,503,504,505,506,507,508,509,510,517,518,519,520,521,525]
+    };
     const HOURS   = [];
     for (let m = 7*60; m <= 21*60; m += 30) {
         HOURS.push(String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'));
@@ -3648,35 +3647,59 @@
         var container = document.getElementById('presenceAvatars');
         if (!container) return;
         var myEmail = _currentUserEmail || '';
-        // Collect one entry per unique email (other than self), keep latest
+
+        // Collect one entry per unique email (dedupe multiple tabs), keep latest
         var byEmail = {};
         Object.values(stateMap).forEach(function(presences) {
             var p = Array.isArray(presences) ? presences[0] : presences;
             if (!p || !p.email) return;
-            if (p.email === myEmail) return; // skip self
             if (!byEmail[p.email] || p.online_at > byEmail[p.email].online_at) {
                 byEmail[p.email] = p;
             }
         });
 
-        var emails = Object.keys(byEmail);
-        if (emails.length === 0) { container.innerHTML = ''; return; }
+        var allEmails = Object.keys(byEmail);
+        if (allEmails.length === 0) { container.innerHTML = ''; return; }
 
-        container.innerHTML = emails.map(function(email, idx) {
+        // Sort: self first, then others sorted by join time
+        allEmails.sort(function(a, b) {
+            if (a === myEmail) return -1;
+            if (b === myEmail) return 1;
+            return (byEmail[a].online_at || '').localeCompare(byEmail[b].online_at || '');
+        });
+
+        var MAX_VISIBLE = 4;
+        var visible  = allEmails.slice(0, MAX_VISIBLE);
+        var overflow = allEmails.slice(MAX_VISIBLE);
+
+        var html = visible.map(function(email, idx) {
             var p      = byEmail[email];
             var color  = presenceColor(email);
             var initls = presenceInitials(email);
+            var isSelf    = (email === myEmail);
             var isEditing = !!p.editing_room;
-            var tip = email.split('@')[0];
+            var tip = isSelf ? 'You (' + email.split('@')[0] + ')' : email.split('@')[0];
             if (p.role)         tip += ' (' + p.role + ')';
             if (p.editing_room) tip += ' — editing Room ' + p.editing_room;
-            return '<div class="presence-avatar" data-editing="' + isEditing + '" '
-                 + 'style="background:' + color + ';z-index:' + (10 - idx) + ';" '
-                 + 'title="">'
+            return '<div class="presence-avatar"'
+                 + ' data-editing="' + isEditing + '"'
+                 + ' data-self="' + isSelf + '"'
+                 + ' style="background:' + color + ';z-index:' + (MAX_VISIBLE + 2 - idx) + ';"'
+                 + ' title="">'
                  + initls
                  + '<span class="presence-tooltip">' + tip + '</span>'
                  + '</div>';
         }).join('');
+
+        if (overflow.length > 0) {
+            var overflowTip = overflow.map(function(e) { return e.split('@')[0]; }).join(', ');
+            html += '<div class="presence-overflow" style="z-index:1;">'
+                  + '+' + overflow.length
+                  + '<span class="presence-tooltip">Also online: ' + overflowTip + '</span>'
+                  + '</div>';
+        }
+
+        container.innerHTML = html;
     }
 
     function broadcastPresence(extraState) {
@@ -3836,7 +3859,7 @@
 
         // Update title
         document.getElementById('scheduleTitle').textContent =
-            (floorNames[currentFloor]||currentFloor+'th') + ' Floor — ' + currentDay + ' Schedule';
+            'CCS Rooms — ' + currentDay + ' Schedule';
 
         // Populate print room dropdown
         const printRoomSel = document.getElementById('printRoomSelect');
@@ -5550,6 +5573,32 @@
         document.getElementById('moveModal').classList.remove('show');
         pendingMoveData = null;
     });
+
+    // ── X CLOSE BUTTONS (added for all modals missing them) ──
+    document.getElementById('deleteCloseBtn').addEventListener('click', () =>
+        document.getElementById('deleteModal').classList.remove('show'));
+
+    document.getElementById('conflictCloseBtn').addEventListener('click', () => {
+        document.getElementById('conflictModal').classList.remove('show');
+        document.getElementById('conflictSuggestPanel').style.display = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'none';
+        document.getElementById('conflictMainBtns').style.display     = 'flex';
+        pendingNewEntry = null;
+    });
+
+    document.getElementById('editCloseBtn').addEventListener('click', () =>
+        document.getElementById('editModal').classList.remove('show'));
+
+    document.getElementById('moveCloseBtn').addEventListener('click', () => {
+        document.getElementById('moveModal').classList.remove('show');
+        pendingMoveData = null;
+    });
+
+    // Terms modal X close (view mode from sidebar)
+    document.getElementById('termsCloseBtn').addEventListener('click', () => {
+        document.getElementById('termsModal').classList.remove('show');
+        document.getElementById('termsModal').style.display = 'none';
+    });
     document.getElementById('moveConfirmBtn').addEventListener('click', async () => {
         document.getElementById('moveModal').classList.remove('show');
         if (!pendingMoveData) return;
@@ -5736,124 +5785,135 @@
         const WEEK = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const roomSlots = allRoomSchedules[room] || [];
 
-        // Build map: day -> { startMins -> slot }
-        const dayMap = {};
-        WEEK.forEach(d => { dayMap[d] = {}; });
-        roomSlots.forEach(s => {
-            const d = s.day;
-            if (!dayMap[d]) return;
-            const sM = timeToMins(s.start_time);
-            dayMap[d][sM] = { ...s, startMins: sM, endMins: timeToMins(s.end_time) };
-        });
-
         function slotColors(section) {
             const k = (section||'').trim().toUpperCase();
-            if (k.startsWith('BSCS'))     return { bg:'#eff6ff', border:'#93c5fd', text:'#1e3a8a' };
-            if (k.startsWith('BSIT'))     return { bg:'#f0fdf4', border:'#86efac', text:'#14532d' };
-            if (k.startsWith('BSEMC-GD')) return { bg:'#fff7ed', border:'#fdba74', text:'#7c2d12' };
-            if (k.startsWith('BSEMC'))    return { bg:'#fff1f2', border:'#fca5a5', text:'#881337' };
-            return                               { bg:'#f8fafc', border:'#cbd5e1', text:'#1e293b' };
+            if (k.startsWith('BSCS'))     return { bg:'#eff6ff', border:'#93c5fd', text:'#1e3a8a', dot:'#3b82f6' };
+            if (k.startsWith('BSIT'))     return { bg:'#f0fdf4', border:'#86efac', text:'#14532d', dot:'#22c55e' };
+            if (k.startsWith('BSEMC-GD')) return { bg:'#fff7ed', border:'#fdba74', text:'#7c2d12', dot:'#f97316' };
+            if (k.startsWith('BSEMC'))    return { bg:'#fff1f2', border:'#fca5a5', text:'#881337', dot:'#ef4444' };
+            return                               { bg:'#f8fafc', border:'#cbd5e1', text:'#1e293b', dot:'#94a3b8' };
         }
 
-        const timeSlots = HOURS.slice(0, -1);
-        // used[dayIdx][rowIdx] = true when covered by a rowspan above
-        const used = {};
+        // Group slots: merge same course+section+faculty+time across days
+        // Key: course_name|section|faculty|start_time|end_time
+        const grouped = {};
+        roomSlots.forEach(s => {
+            if (!WEEK.includes(s.day)) return;
+            const rawName   = s.course_name || '';
+            const typeMatch = rawName.match(/\((Lecture|Laboratory)\)/);
+            const typeShort = typeMatch ? (typeMatch[1] === 'Lecture' ? 'Lec' : 'Lab') : '';
+            const dispName  = rawName.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim();
+            const key = dispName + '|' + (s.section||'') + '|' + (s.faculty||'') + '|' + (s.start_time||'').slice(0,5) + '|' + (s.end_time||'').slice(0,5) + '|' + typeShort;
+            if (!grouped[key]) {
+                grouped[key] = {
+                    dispName, typeShort, section: s.section||'', faculty: s.faculty||'',
+                    start_time: (s.start_time||'').slice(0,5), end_time: (s.end_time||'').slice(0,5),
+                    days: []
+                };
+            }
+            if (!grouped[key].days.includes(s.day)) grouped[key].days.push(s.day);
+        });
+
+        // Sort groups by start time, then day order
+        const dayOrder = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4, Saturday:5 };
+        const groups = Object.values(grouped).sort((a, b) => {
+            const tA = timeToMins(a.start_time), tB = timeToMins(b.start_time);
+            if (tA !== tB) return tA - tB;
+            const dA = Math.min(...a.days.map(d => dayOrder[d]||99));
+            const dB = Math.min(...b.days.map(d => dayOrder[d]||99));
+            return dA - dB;
+        });
+
+        // Sort days within each group
+        groups.forEach(g => { g.days.sort((a,b) => (dayOrder[a]||0) - (dayOrder[b]||0)); });
+
+        // Build abbreviated day labels
+        const dayAbbr = { Monday:'Mon', Tuesday:'Tue', Wednesday:'Wed', Thursday:'Thu', Friday:'Fri', Saturday:'Sat' };
 
         let tbodyHtml = '';
-        HOURS.forEach((hr, rowIdx) => {
-            const rowMins  = timeToMins(hr);
-            const isEndRow = rowIdx === HOURS.length - 1;
-            let tr = '<tr>';
-            tr += '<td class="tc">' + to12hr(hr) + '</td>';
-
-            WEEK.forEach((day, dayIdx) => {
-                if (used[dayIdx] && used[dayIdx][rowIdx]) return;
-                if (isEndRow) { tr += '<td></td>'; return; }
-
-                const slot = dayMap[day][rowMins];
-                if (slot) {
-                    const rawSpan = Math.round((slot.endMins - slot.startMins) / 30);
-                    const maxSpan = timeSlots.length - rowIdx;
-                    const span    = Math.max(1, Math.min(rawSpan, maxSpan));
-                    const c       = slotColors(slot.section);
-                    const rawName   = slot.course_name || '';
-                    const typeMatch = rawName.match(/\((Lecture|Laboratory)\)/);
-                    const typeShort = typeMatch ? (typeMatch[1] === 'Lecture' ? 'Lec' : 'Lab') : '';
-                    const dispName  = rawName.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim();
-                    const isMerged  = /\//.test(slot.section);
-                    const startStr  = to12hr(slot.start_time.slice(0,5));
-                    const endStr    = to12hr(slot.end_time.slice(0,5));
-
-                    tr += '<td rowspan="'+span+'" style="background:'+c.bg+';border:1px solid '+c.border+';color:'+c.text+';vertical-align:middle;padding:3px 4px;">'
-                        + '<div class="si">'
-                        + '<strong>'+escHtml(dispName)+(typeShort?' <em>('+typeShort+')</em>':'')+'</strong>'
-                        + '<span class="sec">'+escHtml(slot.section)+(isMerged?' \u21cc':'')+'</span>'
-                        + '<span class="fac">'+escHtml(slot.faculty)+'</span>'
-                        + '<span class="tm">'+startStr+' \u2013 '+endStr+'</span>'
-                        + '</div></td>';
-
-                    for (let r = 1; r < span; r++) {
-                        const ri = rowIdx + r;
-                        if (!used[dayIdx]) used[dayIdx] = {};
-                        used[dayIdx][ri] = true;
-                    }
-                } else {
-                    tr += '<td class="empty"></td>';
-                }
+        if (groups.length === 0) {
+            tbodyHtml = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8;font-style:italic;">No schedules found for this room.</td></tr>';
+        } else {
+            groups.forEach((g, i) => {
+                const c         = slotColors(g.section);
+                const isMerged  = /\//.test(g.section);
+                const startStr  = to12hr(g.start_time);
+                const endStr    = to12hr(g.end_time);
+                const daysLabel = g.days.map(d => dayAbbr[d]||d).join(', ');
+                const rowBg     = i % 2 === 0 ? 'white' : '#f8fafc';
+                tbodyHtml += `<tr style="background:${rowBg};">
+  <td>
+    <div style="display:flex;align-items:flex-start;gap:7px;">
+      <div style="width:9px;height:9px;border-radius:2px;background:${c.dot};border:1px solid ${c.border};margin-top:2px;flex-shrink:0;"></div>
+      <div>
+        <div style="font-weight:700;font-size:8.5pt;color:${c.text};">${escHtml(g.dispName)}${g.typeShort ? ' <span style="font-weight:400;font-size:7pt;color:#64748b;">('+escHtml(g.typeShort)+')</span>' : ''}</div>
+        <div style="font-size:6.5pt;color:#64748b;margin-top:2px;">${escHtml(g.section)}${isMerged ? ' &#8652;' : ''}</div>
+      </div>
+    </div>
+  </td>
+  <td style="color:#374151;">${escHtml(g.faculty) || '<span style="color:#cbd5e1;font-style:italic;">—</span>'}</td>
+  <td style="text-align:center;">
+    ${g.days.map(d => `<span style="display:inline-block;background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:4px;padding:1px 6px;font-size:7pt;font-weight:600;margin:1px;">${dayAbbr[d]||d}</span>`).join('')}
+  </td>
+  <td style="text-align:center;font-weight:700;color:#0d1b3e;white-space:nowrap;">${escHtml(startStr)}</td>
+  <td style="text-align:center;font-weight:700;color:#0d1b3e;white-space:nowrap;">${escHtml(endStr)}</td>
+</tr>`;
             });
-
-            tr += '</tr>';
-            tbodyHtml += tr;
-        });
+        }
 
         const printDate = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
         const title = 'Room ' + room + ' \u2014 Weekly Schedule';
+        const totalClasses = groups.length;
 
         const html = `\x3C!DOCTYPE html>
 \x3Chtml>\x3Chead><meta charset="UTF-8"><title>${title}</title>
 <\style>
-@page { size: A4 landscape; margin: 8mm 10mm; }
+@page { size: A4 portrait; margin: 10mm 12mm; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { font-family: Arial, sans-serif; font-size: 7pt; background: white; color: #1e293b; }
-.ph { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px; padding-bottom:5px; border-bottom:2.5px solid #0d1b3e; }
-.ph-school { font-size:6.5pt; color:#475569; }
-.ph-title { font-size:12pt; font-weight:700; color:#0d1b3e; margin:2px 0 0; }
-.ph-sub { font-size:7pt; color:#64748b; margin-top:1px; }
-.ph-right { text-align:right; font-size:6pt; color:#94a3b8; }
-.ph-room-badge { display:inline-block; background:#0d1b3e; color:white; font-size:9pt; font-weight:700; padding:4px 14px; border-radius:6px; margin-bottom:3px; }
-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:6.5pt; }
-th { background:#0d1b3e; color:white; font-weight:700; padding:4px 2px; border:1px solid #1a3060; text-align:center; font-size:7.5pt; }
-td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
-.tc { background:#f1f5f9; font-weight:700; font-size:6pt; color:#475569; width:40px; text-align:center; white-space:nowrap; border-color:#cbd5e1; }
-.empty { background:#fafafa; }
-.si { line-height:1.35; padding:2px 3px; text-align:left; }
-.si strong { display:block; font-size:7pt; font-weight:700; }
-.si em { font-size:5.5pt; font-weight:400; font-style:normal; opacity:0.8; }
-.sec { display:block; font-size:6pt; font-weight:600; margin-top:1px; }
-.fac { display:block; font-size:5.5pt; color:#475569; margin-top:1px; }
-.tm  { display:block; font-size:5pt; color:#94a3b8; margin-top:1px; }
-.pf { margin-top:6px; display:flex; justify-content:space-between; font-size:5.5pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:4px; }
-.legend { display:flex; gap:10px; flex-wrap:wrap; }
-.leg-item { display:flex; align-items:center; gap:4px; font-size:5.5pt; }
-.leg-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+html, body { font-family: Arial, sans-serif; font-size: 8pt; background: white; color: #1e293b; }
+.ph { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-bottom:7px; border-bottom:2.5px solid #0d1b3e; }
+.ph-school { font-size:6.5pt; color:#475569; text-transform:uppercase; letter-spacing:0.5px; }
+.ph-title { font-size:13pt; font-weight:700; color:#0d1b3e; margin:3px 0 2px; }
+.ph-sub { font-size:7pt; color:#64748b; }
+.ph-right { text-align:right; }
+.ph-room-badge { display:inline-block; background:#0d1b3e; color:white; font-size:11pt; font-weight:700; padding:5px 16px; border-radius:7px; margin-bottom:4px; }
+.ph-meta { font-size:6pt; color:#94a3b8; }
+.summary-bar { display:flex; gap:16px; margin-bottom:8px; font-size:7pt; color:#475569; }
+.summary-item { display:flex; align-items:center; gap:4px; }
+table { width:100%; border-collapse:collapse; font-size:8pt; }
+thead tr { background:#0d1b3e; }
+th { color:white; font-weight:700; padding:7px 10px; border:1px solid #1a3060; text-align:left; font-size:8pt; white-space:nowrap; }
+th.center { text-align:center; }
+td { border:1px solid #e2e8f0; vertical-align:middle; padding:6px 10px; }
+tbody tr:hover { background:#f0f7ff !important; }
+.pf { margin-top:8px; display:flex; justify-content:space-between; font-size:6pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; }
+.legend { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.leg-item { display:flex; align-items:center; gap:4px; }
+.leg-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
 <\/style>
 \x3C/head>\x3Cbody>
 <div class="ph">
   <div>
     <div class="ph-school">Gordon College &mdash; College of Computer Studies</div>
     <div class="ph-title">${title}</div>
-    <div class="ph-sub">Academic Term Schedule &nbsp;&nbsp;|&nbsp;&nbsp; Monday &ndash; Saturday</div>
+    <div class="ph-sub">Academic Term Schedule &nbsp;&middot;&nbsp; Monday &ndash; Saturday</div>
   </div>
   <div class="ph-right">
     <div class="ph-room-badge">Room ${room}</div>
-    <div>Printed: ${printDate}</div>
+    <div class="ph-meta">Printed: ${printDate}</div>
   </div>
+</div>
+<div class="summary-bar">
+  <div class="summary-item"><strong>${totalClasses}</strong>&nbsp;class${totalClasses !== 1 ? 'es' : ''} scheduled</div>
 </div>
 <table>
   <thead>
     <tr>
-      <th style="width:40px;">Time</th>
-      ${WEEK.map(d => '<th>'+d+'</th>').join('')}
+      <th style="width:35%;">Class Name</th>
+      <th style="width:25%;">Professor</th>
+      <th class="center" style="width:22%;">Day(s)</th>
+      <th class="center" style="width:9%;">Start</th>
+      <th class="center" style="width:9%;">End</th>
     </tr>
   </thead>
   <tbody>${tbodyHtml}</tbody>
@@ -5864,13 +5924,13 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
     <div class="leg-item"><div class="leg-dot" style="background:#22c55e;border:1px solid #86efac;"></div>BSIT</div>
     <div class="leg-item"><div class="leg-dot" style="background:#f97316;border:1px solid #fdba74;"></div>BSEMC-GD</div>
     <div class="leg-item"><div class="leg-dot" style="background:#ef4444;border:1px solid #fca5a5;"></div>BSEMC-DAT</div>
-    <div class="leg-item"><span style="font-size:7pt;">\u21cc</span>&nbsp;Merged class</div>
+    <div class="leg-item"><span style="font-size:8pt;">&#8652;</span>&nbsp;Merged class</div>
   </div>
   <div>CCS Room Management System &mdash; CCSRMS</div>
 </div>
 \x3C/body>\x3C/html>`;
 
-        const pw = window.open('', '_blank', 'width=1200,height=800');
+        const pw = window.open('', '_blank', 'width=900,height=1100');
         pw.document.write(html);
         pw.document.close();
         pw.focus();
@@ -6062,13 +6122,164 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
     })();
     // ─────────────────────────────────────────────────────────────────────────
 
+    // ── EDIT MODAL: SUBJECT AUTOCOMPLETE ─────────────────────────────────────
+    (function() {
+        const editNameInput = document.getElementById('editCourseName');
+        const dropdown      = document.getElementById('editSubjectAcDropdown');
+        const listEl        = document.getElementById('editSubjectAcList');
+        let focusedIdx = -1;
+        let acItems    = [];
+
+        function getUniqueSubjects() {
+            const map = {};
+            Object.values(allRoomSchedules).forEach(slots => {
+                (slots || []).forEach(s => {
+                    if (!s.course_name) return;
+                    const mmMatch   = s.course_name.match(/\[(Major|Minor)\]/);
+                    const typeMatch = s.course_name.match(/\((Lecture|Laboratory|None)\)/);
+                    const cleanName = s.course_name
+                        .replace(/\s*\[(Major|Minor)\]/, '')
+                        .replace(/\s*\((Lecture|Laboratory|None)\)/, '')
+                        .trim();
+                    if (!cleanName) return;
+                    const key = cleanName.toLowerCase();
+                    if (!map[key]) {
+                        map[key] = {
+                            name:       cleanName,
+                            majorMinor: mmMatch   ? mmMatch[1]   : '',
+                            type:       typeMatch ? typeMatch[1] : '',
+                            faculty:    s.faculty || ''
+                        };
+                    } else {
+                        if (s.faculty) map[key].faculty = s.faculty;
+                    }
+                });
+            });
+            return Object.values(map).sort((a,b) => a.name.localeCompare(b.name));
+        }
+
+        function highlight(text, query) {
+            if (!query) return escHtml(text);
+            const idx = text.toLowerCase().indexOf(query.toLowerCase());
+            if (idx < 0) return escHtml(text);
+            return escHtml(text.slice(0, idx))
+                 + '<mark>' + escHtml(text.slice(idx, idx + query.length)) + '</mark>'
+                 + escHtml(text.slice(idx + query.length));
+        }
+
+        function renderDropdown(query) {
+            const subjects = getUniqueSubjects();
+            const q = (query || '').trim().toLowerCase();
+            const filtered = q
+                ? subjects.filter(s => s.name.toLowerCase().includes(q))
+                : subjects;
+
+            if (filtered.length === 0) { closeDropdown(); return; }
+
+            acItems = filtered;
+            focusedIdx = -1;
+
+            listEl.innerHTML = filtered.map((s, i) => {
+                const mmBadge = s.majorMinor
+                    ? `<span class="subject-ac-badge ${s.majorMinor === 'Minor' ? 'minor' : ''}">${s.majorMinor}</span>`
+                    : '';
+                const typeBadge = s.type && s.type !== 'None'
+                    ? `<span class="subject-ac-badge">${s.type}</span>`
+                    : '';
+                const facultyText = s.faculty
+                    ? `<span style="opacity:0.85;">${escHtml(s.faculty)}</span>`
+                    : '';
+                return `<div class="subject-ac-item" data-idx="${i}">
+                    <div class="subject-ac-name">${highlight(s.name, q)}</div>
+                    <div class="subject-ac-meta">${mmBadge}${typeBadge}${facultyText}</div>
+                </div>`;
+            }).join('');
+
+            listEl.querySelectorAll('.subject-ac-item').forEach(el => {
+                el.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    applyAutofill(acItems[parseInt(el.dataset.idx)]);
+                });
+            });
+
+            dropdown.classList.add('open');
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            focusedIdx = -1;
+        }
+
+        function flashField(el) {
+            el.classList.remove('autofill-flash');
+            void el.offsetWidth;
+            el.classList.add('autofill-flash');
+            el.addEventListener('animationend', () => el.classList.remove('autofill-flash'), { once: true });
+        }
+
+        function applyAutofill(subject) {
+            editNameInput.value = subject.name;
+            closeDropdown();
+
+            if (subject.majorMinor) {
+                const mmSel = document.getElementById('editCourseMajorMinor');
+                mmSel.value = subject.majorMinor;
+                flashField(mmSel);
+                mmSel.dispatchEvent(new Event('change'));
+            }
+
+            if (subject.type) {
+                const typeSel = document.getElementById('editCourseType');
+                typeSel.disabled = false;
+                typeSel.style.opacity = '1';
+                typeSel.style.cursor = '';
+                typeSel.value = subject.type;
+                flashField(typeSel);
+            }
+
+            if (subject.faculty) {
+                const facInput = document.getElementById('editFaculty');
+                facInput.value = subject.faculty;
+                flashField(facInput);
+            }
+        }
+
+        function moveFocus(dir) {
+            const items = listEl.querySelectorAll('.subject-ac-item');
+            if (!items.length) return;
+            items[focusedIdx]?.classList.remove('focused');
+            focusedIdx = Math.max(0, Math.min(items.length - 1, focusedIdx + dir));
+            items[focusedIdx]?.classList.add('focused');
+            items[focusedIdx]?.scrollIntoView({ block: 'nearest' });
+        }
+
+        editNameInput.addEventListener('input', () => renderDropdown(editNameInput.value));
+        editNameInput.addEventListener('focus', () => renderDropdown(editNameInput.value));
+        editNameInput.addEventListener('keydown', (e) => {
+            if (!dropdown.classList.contains('open')) return;
+            if (e.key === 'ArrowDown')  { e.preventDefault(); moveFocus(1); }
+            else if (e.key === 'ArrowUp')   { e.preventDefault(); moveFocus(-1); }
+            else if (e.key === 'Enter') {
+                if (focusedIdx >= 0 && acItems[focusedIdx]) {
+                    e.preventDefault();
+                    applyAutofill(acItems[focusedIdx]);
+                }
+            }
+            else if (e.key === 'Escape') { closeDropdown(); }
+        });
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== editNameInput) closeDropdown();
+        });
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
+
     </script>
 
     <!-- Delete All Schedules Modal -->
     <div class="modal-overlay" id="deleteAllOverlay" style="display:none;"></div>
     <div class="modal" id="deleteAllModal" style="display:none; max-width:400px; width:90%; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1100; border-radius:16px; padding:0; overflow:hidden;">
         <!-- Header -->
-        <div style="background:#7f1d1d; padding:20px 24px 16px; display:flex; align-items:center; gap:14px;">
+        <div style="background:#7f1d1d; padding:20px 24px 16px; display:flex; align-items:center; gap:14px; position:relative;">
             <div style="width:40px;height:40px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <i class="fa-solid fa-triangle-exclamation" style="color:#fca5a5;font-size:1.1rem;"></i>
             </div>
@@ -6076,6 +6287,7 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
                 <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem;color:white;">Delete All Schedules</div>
                 <div style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-top:1px;">This action cannot be undone</div>
             </div>
+            <button id="deleteAllCloseBtn" onclick="closeDeleteAll()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s;" title="Close" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <!-- Body -->
@@ -6226,7 +6438,7 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
     </script>
     <div class="modal-overlay" id="aboutOverlay" style="display:none;"></div>
     <div class="modal" id="aboutModal" style="display:none; max-width:420px; width:90%; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1100; border-radius:16px; padding:0; overflow:hidden;">
-        <div style="background:var(--navy); padding:22px 24px 18px; display:flex; align-items:center; gap:14px;">
+        <div style="background:var(--navy); padding:22px 24px 18px; display:flex; align-items:center; gap:14px; position:relative;">
             <div style="width:42px;height:42px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <i class="fa-solid fa-circle-info" style="color:white;font-size:1.1rem;"></i>
             </div>
@@ -6234,6 +6446,7 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
                 <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:white;letter-spacing:-0.2px;">About CCSRMS</div>
                 <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:1px;">College of Computer Studies Room Management System</div>
             </div>
+            <button onclick="closeAbout()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s;" title="Close" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div style="padding:22px 24px;">
             <p style="font-size:0.875rem;line-height:1.75;color:var(--text);" id="aboutText">
@@ -6938,9 +7151,7 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
 
     <script>
     // ── AVAILABILITY FEATURE ──
-    let availModeOn = false;
-
-    // Populate From/To time dropdowns using the same HOURS array from the main script
+    // Sync the Find Free Room Day dropdowns to whatever day is currently selected
     (function initFindFreeSelects() {
         const startSel = document.getElementById('findFreeStart');
         const endSel   = document.getElementById('findFreeEnd');
@@ -7002,36 +7213,6 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
         resultsEl.style.display = 'none';
         resultsEl.innerHTML = '';
     }
-
-    // ── OPTION 1: Highlight Available (toggle mode) ──
-    function toggleAvailMode() {
-        availModeOn = !availModeOn;
-        const btn  = document.getElementById('availModeBtn');
-        const wrap = document.querySelector('.timetable-container');
-        if (availModeOn) {
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Exit Highlight';
-            wrap && wrap.classList.add('avail-mode');
-            showToast('Green cells = available. Click any green cell to schedule.', 'info');
-        } else {
-            btn.classList.remove('active');
-            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Highlight Available';
-            wrap && wrap.classList.remove('avail-mode');
-        }
-    }
-
-    // Turn off avail mode whenever the user switches floor/day (it would be stale)
-    const _origLoadSchedules = loadSchedules;
-    window.loadSchedules = async function() {
-        if (availModeOn) {
-            availModeOn = false;
-            const btn  = document.getElementById('availModeBtn');
-            const wrap = document.querySelector('.timetable-container');
-            if (btn) { btn.classList.remove('active'); btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Highlight Available'; }
-            if (wrap) wrap.classList.remove('avail-mode');
-        }
-        return _origLoadSchedules.apply(this, arguments);
-    };
 
     // ── OPTION 2: Find Free Room panel ──
     function toggleFindFreePanel() {
