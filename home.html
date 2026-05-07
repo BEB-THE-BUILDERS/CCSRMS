@@ -5428,15 +5428,16 @@
 
     // ── Column guide data ──
     const IMPORT_COLUMNS = [
-        { col: 'Subject',     example: 'Data Structures',         note: 'Course/subject name only (no type or bracket)' },
-        { col: 'Type',        example: 'Lecture',                 note: 'Lecture, Laboratory, or None' },
-        { col: 'Major_Minor', example: 'Major',                   note: 'Major or Minor' },
-        { col: 'Section',     example: 'BSCS 2-A',               note: 'Format: COURSE YEAR-BLOCK (e.g. BSIT 1-A)' },
-        { col: 'Teacher',     example: 'Juan Dela Cruz',          note: 'Full name of the faculty member' },
-        { col: 'Room',        example: '301',                     note: 'Room number (must exist in the system)' },
-        { col: 'Day',         example: 'Monday',                  note: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday' },
-        { col: 'Start_Time',  example: '08:00',                   note: '24-hour format HH:MM (e.g. 13:30 for 1:30 PM)' },
-        { col: 'End_Time',    example: '09:30',                   note: '24-hour format HH:MM — must be after Start_Time' },
+        { col: 'Subject',        example: 'Data Structures',         note: 'Course/subject name only (no type or bracket)' },
+        { col: 'Type',           example: 'Lecture',                 note: 'Lecture, Laboratory, or None' },
+        { col: 'Major_Minor',    example: 'Major',                   note: 'Major or Minor' },
+        { col: 'Section',        example: 'BSCS 2-A',               note: 'Primary section — Format: COURSE YEAR-BLOCK (e.g. BSIT 1-A)' },
+        { col: 'Merged_Section', example: 'B',                       note: '(Optional) Second block for merged classes (e.g. B → makes BSCS 2-A/B). Leave blank if not merged.' },
+        { col: 'Teacher',        example: 'Juan Dela Cruz',          note: 'Full name of the faculty member' },
+        { col: 'Room',           example: '301',                     note: 'Room number (must exist in the system)' },
+        { col: 'Day',            example: 'Monday',                  note: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday' },
+        { col: 'Start_Time',     example: '08:00',                   note: '24-hour format HH:MM (e.g. 13:30 for 1:30 PM)' },
+        { col: 'End_Time',       example: '09:30',                   note: '24-hour format HH:MM — must be after Start_Time' },
     ];
 
     const VALID_DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -5465,9 +5466,10 @@
 
         const headers = IMPORT_COLUMNS.map(c => c.col);
         const examples = [
-            ['Data Structures','Lecture','Major','BSCS 2-A','Juan Dela Cruz','301','Monday','08:00','09:30'],
-            ['Web Development','Laboratory','Major','BSIT 1-B','Maria Santos','201','Tuesday','13:00','15:00'],
-            ['Physical Education','None','Minor','BSEMC-DAT 3-A','Pedro Reyes','101','Wednesday','07:00','08:00'],
+            ['Data Structures','Lecture','Major','BSCS 2-A','',   'Juan Dela Cruz','301','Monday','08:00','09:30'],
+            ['Web Development','Laboratory','Major','BSIT 1-B','', 'Maria Santos',  '201','Tuesday','13:00','15:00'],
+            ['Physical Education','None','Minor','BSEMC-DAT 3-A','','Pedro Reyes', '101','Wednesday','07:00','08:00'],
+            ['Discrete Mathematics','Lecture','Major','BSCS 1-A','B','Ana Reyes',  '302','Thursday','10:00','11:30'],
         ];
 
         const wsData = [headers, ...examples];
@@ -5475,7 +5477,7 @@
 
         // Column widths
         ws['!cols'] = [
-            {wch:22},{wch:12},{wch:13},{wch:14},{wch:22},{wch:8},{wch:12},{wch:12},{wch:12}
+            {wch:22},{wch:12},{wch:13},{wch:14},{wch:16},{wch:22},{wch:8},{wch:12},{wch:12},{wch:12}
         ];
 
         const wb = XLSX.utils.book_new();
@@ -5496,6 +5498,11 @@
             ['Valid values for Type: Lecture, Laboratory, None'],
             ['Valid values for Major_Minor: Major, Minor'],
             ['Time format: HH:MM in 24-hour (07:00 to 21:00 in 30-min increments)'],
+            [''],
+            ['Merged Classes:'],
+            ['  Leave Merged_Section blank for regular single-block classes.'],
+            ['  For merged classes (e.g. Block A and Block B together), put the SECOND block letter in Merged_Section.'],
+            ['  Example: Section = "BSCS 1-A", Merged_Section = "B"  →  saves as "BSCS 1-A/B"'],
         ];
         const wsInstr = XLSX.utils.aoa_to_sheet(instrData);
         wsInstr['!cols'] = [{wch:20},{wch:55},{wch:30}];
@@ -5648,12 +5655,14 @@
         const processedRows = [];
 
         rows.forEach((row, idx) => {
-            const subject   = String(row['Subject']     || '').trim();
-            const type      = String(row['Type']        || '').trim();
-            const mm        = String(row['Major_Minor'] || '').trim();
+            const subject   = String(row['Subject']        || '').trim();
+            const type      = String(row['Type']           || '').trim();
+            const mm        = String(row['Major_Minor']    || '').trim();
             // Auto-normalize section to uppercase: "bsit 1-b" -> "BSIT 1-B"
-            const section   = String(row['Section']     || '').trim().toUpperCase();
-            const teacher   = String(row['Teacher']     || '').trim();
+            const section   = String(row['Section']        || '').trim().toUpperCase();
+            // Optional merged block letter (e.g. "B" → merges with primary block to form "BSCS 2-A/B")
+            const mergedRaw = String(row['Merged_Section'] || '').trim().toUpperCase();
+            const teacher   = String(row['Teacher']        || '').trim();
             const roomRaw   = String(row['Room']        || '').trim();
             // Normalize day to Title Case: "monday" -> "Monday"
             const dayRaw    = String(row['Day']         || '').trim();
@@ -5675,6 +5684,17 @@
             const secMatch = section.trim().match(/^(\S+)\s+(\d+)-([A-Z])$/i);
             if (!secMatch) errors.push('Section must be like "BSCS 2-A" (got: "' + section + '")');
 
+            // Merged_Section validation — must be a single letter A–F if provided, and different from primary block
+            let mergedBlock = '';
+            if (mergedRaw) {
+                if (!/^[A-F]$/.test(mergedRaw)) {
+                    errors.push('Merged_Section must be a single block letter A–F (got: "' + mergedRaw + '"). Leave blank if not a merged class.');
+                } else if (secMatch && mergedRaw === secMatch[3].toUpperCase()) {
+                    errors.push('Merged_Section block ("' + mergedRaw + '") must be different from the primary Section block ("' + secMatch[3] + '").');
+                } else {
+                    mergedBlock = mergedRaw;
+                }
+            }
             if (!teacher)  errors.push('Teacher name is empty');
 
             const roomNum = parseInt(roomRaw);
@@ -5690,10 +5710,15 @@
 
             if (startTime && endTime && startTime >= endTime) errors.push('End_Time (' + endTime + ') must be after Start_Time (' + startTime + ')');
 
+            // ── Build final section string (e.g. "BSCS 2-A" or "BSCS 2-A/B" for merged) ──
+            const finalSection = (secMatch && mergedBlock)
+                ? secMatch[1] + ' ' + secMatch[2] + '-' + secMatch[3] + '/' + mergedBlock
+                : section;
+
             // ── Role check: coordinator can only import their own course ──
             if (errors.length === 0 && coordinatorCourse && secMatch) {
                 const secCourse = secMatch[1].toUpperCase();
-                if (!canOwnSection(section)) {
+                if (!canOwnSection(finalSection)) {
                     errors.push('You can only import schedules for ' + coordinatorCourse);
                 }
             }
@@ -5719,10 +5744,10 @@
 
                 // Section conflict across all rooms
                 if (!hasConflict) {
-                    const secConflict = findSectionConflict(section, day, sM, eM, roomStr, null);
+                    const secConflict = findSectionConflict(finalSection, day, sM, eM, roomStr, null);
                     if (secConflict) {
                         hasConflict  = true;
-                        conflictNote = 'Section ' + section + ' already in Room ' + secConflict.room + ' on ' + day;
+                        conflictNote = 'Section ' + finalSection + ' already in Room ' + secConflict.room + ' on ' + day;
                     }
                 }
             }
@@ -5739,7 +5764,7 @@
 
             const rowData = {
                 rowNum: idx + 2, // 1-indexed + header
-                subject, type, mm, section, teacher,
+                subject, type, mm, section: finalSection, mergedBlock, teacher,
                 room: String(roomNum),
                 day, startTime, endTime,
                 fullCourseName,
@@ -5783,13 +5808,16 @@
             }
 
             const colCount = 11;
+            const mergeBadge = r.mergedBlock
+                ? ` <span style="display:inline-block;padding:1px 6px;border-radius:4px;font-size:0.68rem;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;margin-left:3px;" title="Merged class">⇌ Merged</span>`
+                : '';
             tr.style.background = rowBg;
             tr.innerHTML = `
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);font-size:0.7rem;">${r.rowNum}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};font-weight:600;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.subject)}">${escHtml(r.subject)}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);">${escHtml(r.type)}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};color:var(--muted);">${escHtml(r.mm)}</td>
-                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${escHtml(r.section)}</td>
+                <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${escHtml(r.section)}${mergeBadge}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(r.teacher)}">${escHtml(r.teacher)}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};text-align:center;">${escHtml(r.room)}</td>
                 <td style="padding:6px 10px;border-bottom:${reasonHtml ? 'none' : '1px solid var(--border)'};white-space:nowrap;">${escHtml(r.day)}</td>
