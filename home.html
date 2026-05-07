@@ -7757,25 +7757,21 @@ tbody tr:hover { background:#f0f7ff !important; }
 
     // ── BANNER CONFLICT CLICK → navigate to slot then auto-open suggest ──
     function navigateToBannerConflict(rowEl) {
-        const slotAId   = rowEl.dataset.slotAId;
-        const slotARoom = rowEl.dataset.slotARoom;
-        const slotBId   = rowEl.dataset.slotBId;
-        const slotBRoom = rowEl.dataset.slotBRoom;
-        const day       = rowEl.dataset.day;
+        const slotAId = rowEl.dataset.slotAId;
+        const slotBId = rowEl.dataset.slotBId;
+        const day     = rowEl.dataset.day;
 
-        // Pick slot A as the primary one to navigate to
-        const slotId   = slotAId;
-        const room     = slotARoom;
-
-        // Find the actual schedule entry
+        // Find the actual schedule entry from allRoomSchedules (source of truth for room)
         let targetSlot = null;
         for (const [r, slots] of Object.entries(allRoomSchedules)) {
-            const found = slots.find(s => String(s.id) === String(slotId));
-            if (found) { targetSlot = { ...found, room: r }; break; }
+            const found = slots.find(s => String(s.id) === String(slotAId));
+            if (found) { targetSlot = { ...found, room: String(r) }; break; }
         }
         if (!targetSlot) return;
 
-        const startTime = targetSlot.start_time.slice(0, 5);
+        // Use the verified real room from allRoomSchedules, not the data attribute
+        const slotId = slotAId;
+        const room   = targetSlot.room;
 
         // Collapse the banner so the timetable is visible
         document.getElementById('blockConflictBanner').classList.add('collapsed');
@@ -7786,14 +7782,15 @@ tbody tr:hover { background:#f0f7ff !important; }
             if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
         });
 
-        // Switch floor if needed
+        // Switch floor if needed and set currentRoom to the EXACT target room
         if (targetFloor !== currentFloor) {
             currentFloor = targetFloor;
-            currentRoom  = String(FLOORS[currentFloor][0]);
             document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
                 b.classList.toggle('active', b.dataset.floor == currentFloor);
             });
         }
+        // Always point currentRoom at the specific room we want to highlight
+        currentRoom = room;
 
         // Switch day if needed
         if (day !== currentDay) {
@@ -7803,8 +7800,19 @@ tbody tr:hover { background:#f0f7ff !important; }
             });
         }
 
-        // Load schedules then scroll & highlight, then auto-open suggest modal
+        // Re-fetch fresh schedules to avoid ghost/stale conflict entries
         loadSchedules().then(() => {
+            // After reload, verify the slot still exists (guard against ghost conflicts)
+            let stillExists = false;
+            for (const [r, slots] of Object.entries(allRoomSchedules)) {
+                if (slots.find(s => String(s.id) === String(slotId))) { stillExists = true; break; }
+            }
+            if (!stillExists) {
+                // Slot no longer exists — refresh the banner and bail
+                renderBlockConflictBanner();
+                return;
+            }
+
             setTimeout(() => {
                 // Find the rendered cell for this slot
                 let target = null;
@@ -7815,7 +7823,6 @@ tbody tr:hover { background:#f0f7ff !important; }
 
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Flash highlight — use the existing bscsFlash-style animation inline
                     target.style.transition = 'outline 0.1s, box-shadow 0.1s';
                     target.style.outline    = '3px solid #ef4444';
                     target.style.boxShadow  = '0 0 0 6px rgba(239,68,68,0.25)';
