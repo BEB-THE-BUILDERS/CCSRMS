@@ -3717,9 +3717,9 @@
         if (!cfg) return;
         const content = document.getElementById(cfg.contentId).innerHTML;
         const w = window.open('','_blank');
-        w.document.write(`<!DOCTYPE html><html><head><title>${cfg.label} Schedule</title>
+        w.document.write(`\x3C!DOCTYPE html>\x3Chtml>\x3Chead><title>${cfg.label} Schedule</title>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-        <style>
+        <\style>
             body { font-family: 'DM Sans', sans-serif; padding: 24px; color: #1e293b; }
             h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color: #0d1b3e; }
             .bscs-year-section { margin-bottom: 28px; }
@@ -3734,8 +3734,8 @@
             .bscs-block-table td:last-child, .bscs-block-table th:last-child { border-right: none; }
             .bscs-subject-chip { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin: 1px; line-height: 1.4; }
             .chip-time, .chip-room { display: block; font-size: 0.65rem; opacity: 0.75; }
-        </style></head><body>
-        <h1>${cfg.label} — All Classes</h1>${content}</body></html>`);
+        <\/style>\x3C/head>\x3Cbody>
+        <h1>${cfg.label} — All Classes</h1>${content}\x3C/body>\x3C/html>`);
         w.document.close();
         w.print();
     }
@@ -3901,9 +3901,9 @@
     function printMajorMinorView() {
         const content = document.getElementById('majorMinorViewContent').innerHTML;
         const w = window.open('','_blank');
-        w.document.write(`<!DOCTYPE html><html><head><title>Major / Minor Schedule</title>
+        w.document.write(`\x3C!DOCTYPE html>\x3Chtml>\x3Chead><title>Major / Minor Schedule</title>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
-        <style>
+        <\style>
             body { font-family: 'DM Sans', sans-serif; padding: 24px; color: #1e293b; }
             h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color: #0d1b3e; }
             .bscs-year-section { margin-bottom: 28px; }
@@ -3914,8 +3914,8 @@
             .bscs-block-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: top; }
             .bscs-block-table tr:last-child td { border-bottom: none; }
             .bscs-block-table td:last-child, .bscs-block-table th:last-child { border-right: none; }
-        </style></head><body>
-        <h1>Major &amp; Minor Subjects — All Classes</h1>${content}</body></html>`);
+        <\/style>\x3C/head>\x3Cbody>
+        <h1>Major &amp; Minor Subjects — All Classes</h1>${content}\x3C/body>\x3C/html>`);
         w.document.close();
         w.print();
     }
@@ -4751,6 +4751,7 @@
         const fullCourseName = courseName+(courseMajorMinor?' ['+courseMajorMinor+']':'')+(courseType&&courseType!=='None'?' ('+courseType+')':'');
 
         // Check conflicts for ALL selected days — room conflict AND section conflict across all rooms
+        let conflictSlot = null, conflictDay = null, conflictType = null;
         for (const day of selectedDays) {
             // 1. Room conflict: same room, same day, overlapping time
             const roomSchedules = allRoomSchedules[currentRoom] || [];
@@ -5129,9 +5130,9 @@
         const printDate = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
         const title = 'Room ' + room + ' \u2014 Weekly Schedule';
 
-        const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${title}</title>
-<style>
+        const html = `\x3C!DOCTYPE html>
+\x3Chtml>\x3Chead><meta charset="UTF-8"><title>${title}</title>
+<\style>
 @page { size: A4 landscape; margin: 8mm 10mm; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: Arial, sans-serif; font-size: 7pt; background: white; color: #1e293b; }
@@ -5156,8 +5157,8 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
 .legend { display:flex; gap:10px; flex-wrap:wrap; }
 .leg-item { display:flex; align-items:center; gap:4px; font-size:5.5pt; }
 .leg-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
-</style>
-</head><body>
+<\/style>
+\x3C/head>\x3Cbody>
 <div class="ph">
   <div>
     <div class="ph-school">Gordon College &mdash; College of Computer Studies</div>
@@ -5188,7 +5189,7 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
   </div>
   <div>CCS Room Management System &mdash; CCSRMS</div>
 </div>
-</body></html>`;
+\x3C/body>\x3C/html>`;
 
         const pw = window.open('', '_blank', 'width=1200,height=800');
         pw.document.write(html);
