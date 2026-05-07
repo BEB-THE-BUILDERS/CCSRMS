@@ -5520,10 +5520,12 @@
         document.getElementById('importModalOverlay').style.justifyContent = 'center';
         document.getElementById('sidebar').classList.remove('open');
         document.getElementById('sidebarOverlay').classList.remove('show');
+        document.body.style.overflow = 'hidden';
     });
 
     function closeImportModal() {
         document.getElementById('importModalOverlay').style.display = 'none';
+        document.body.style.overflow = '';
         resetImportModal();
     }
 
