@@ -2336,6 +2336,14 @@
                                 <option value="Saturday">Saturday</option>
                             </select>
                         </div>
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
+                            <select id="bscsSortFilter" onchange="renderCourseView('bscs')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                <option value="day-time">Day &amp; Time</option>
+                                <option value="professor">Professor</option>
+                                <option value="room">Room</option>
+                                <option value="block">Block</option>
+                                <option value="subject">Subject Name</option>
+                            </select>
                     </div>
                     <div id="bscsViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bscs')">
@@ -2362,6 +2370,14 @@
                                 <option value="Saturday">Saturday</option>
                             </select>
                         </div>
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
+                            <select id="bsitSortFilter" onchange="renderCourseView('bsit')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                <option value="day-time">Day &amp; Time</option>
+                                <option value="professor">Professor</option>
+                                <option value="room">Room</option>
+                                <option value="block">Block</option>
+                                <option value="subject">Subject Name</option>
+                            </select>
                     </div>
                     <div id="bsitViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsit')">
@@ -2388,6 +2404,14 @@
                                 <option value="Saturday">Saturday</option>
                             </select>
                         </div>
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
+                            <select id="bsemcDatSortFilter" onchange="renderCourseView('bsemc-dat')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                <option value="day-time">Day &amp; Time</option>
+                                <option value="professor">Professor</option>
+                                <option value="room">Room</option>
+                                <option value="block">Block</option>
+                                <option value="subject">Subject Name</option>
+                            </select>
                     </div>
                     <div id="bsemcDatViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsemc-dat')">
@@ -2414,6 +2438,14 @@
                                 <option value="Saturday">Saturday</option>
                             </select>
                         </div>
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
+                            <select id="bsemcGdSortFilter" onchange="renderCourseView('bsemc-gd')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                                <option value="day-time">Day &amp; Time</option>
+                                <option value="professor">Professor</option>
+                                <option value="room">Room</option>
+                                <option value="block">Block</option>
+                                <option value="subject">Subject Name</option>
+                            </select>
                     </div>
                     <div id="bsemcGdViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsemc-gd')">
@@ -3906,10 +3938,10 @@
     // ── TABS ──
     let currentTab = 'room';
     const COURSE_TABS = {
-        'bscs':     { tabId: 'tabBscsView',     panelId: 'panelBscsView',     filterId: 'bscsDayFilter',     contentId: 'bscsViewContent',     prefix: 'BSCS',      label: 'BSCS' },
-        'bsit':     { tabId: 'tabBsitView',     panelId: 'panelBsitView',     filterId: 'bsitDayFilter',     contentId: 'bsitViewContent',     prefix: 'BSIT',      label: 'BSIT' },
-        'bsemc-dat':{ tabId: 'tabBsemcDatView', panelId: 'panelBsemcDatView', filterId: 'bsemcDatDayFilter', contentId: 'bsemcDatViewContent', prefix: 'BSEMC-DAT', label: 'BSEMC-DAT' },
-        'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
+        'bscs':     { tabId: 'tabBscsView',     panelId: 'panelBscsView',     filterId: 'bscsDayFilter',     sortId: 'bscsSortFilter',     contentId: 'bscsViewContent',     prefix: 'BSCS',      label: 'BSCS' },
+        'bsit':     { tabId: 'tabBsitView',     panelId: 'panelBsitView',     filterId: 'bsitDayFilter',     sortId: 'bsitSortFilter',     contentId: 'bsitViewContent',     prefix: 'BSIT',      label: 'BSIT' },
+        'bsemc-dat':{ tabId: 'tabBsemcDatView', panelId: 'panelBsemcDatView', filterId: 'bsemcDatDayFilter', sortId: 'bsemcDatSortFilter', contentId: 'bsemcDatViewContent', prefix: 'BSEMC-DAT', label: 'BSEMC-DAT' },
+        'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  sortId: 'bsemcGdSortFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
     };
 
     // ── LOAD ALL SCHEDULES (all floors) for course/major-minor tabs ──
@@ -3974,7 +4006,8 @@
         const cfg = COURSE_TABS[tab];
         if (!cfg) return;
         const container = document.getElementById(cfg.contentId);
-        const dayFilter = document.getElementById(cfg.filterId).value;
+        const dayFilter  = document.getElementById(cfg.filterId).value;
+        const sortBy     = document.getElementById(cfg.sortId) ? document.getElementById(cfg.sortId).value : 'day-time';
         const WEEKDAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const days      = dayFilter === 'all' ? WEEKDAYS : [dayFilter];
         const prefix    = cfg.prefix.toUpperCase();
@@ -4080,26 +4113,52 @@
                     if (!mergedMap[key].days.includes(s.day)) mergedMap[key].days.push(s.day);
                 });
 
-                // Sort by day order then start time
+                // ── Sort rows based on selected sort option ──
                 const DAY_ORDER = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 const merged = Object.values(mergedMap);
-                merged.sort((a,b) => {
-                    const da = Math.min(...a.days.map(d => DAY_ORDER.indexOf(d)));
-                    const db = Math.min(...b.days.map(d => DAY_ORDER.indexOf(d)));
-                    return da !== db ? da - db : timeToMins(a.start_time) - timeToMins(b.start_time);
-                });
+                switch (sortBy) {
+                    case 'professor':
+                        merged.sort((a,b) => (a.faculty||'').localeCompare(b.faculty||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
+                        break;
+                    case 'room':
+                        merged.sort((a,b) => String(a.room).localeCompare(String(b.room), undefined, {numeric:true}) || timeToMins(a.start_time) - timeToMins(b.start_time));
+                        break;
+                    case 'block':
+                        // Within the block card, sort by subject name then time (block grouping is already outer)
+                        merged.sort((a,b) => (a.name||'').localeCompare(b.name||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
+                        break;
+                    case 'subject':
+                        merged.sort((a,b) => (a.name||'').localeCompare(b.name||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
+                        break;
+                    default: // 'day-time'
+                        merged.sort((a,b) => {
+                            const da = Math.min(...a.days.map(d => DAY_ORDER.indexOf(d)));
+                            const db = Math.min(...b.days.map(d => DAY_ORDER.indexOf(d)));
+                            return da !== db ? da - db : timeToMins(a.start_time) - timeToMins(b.start_time);
+                        });
+                }
+
+                // ── Sort indicator helpers ──
+                const sortArrow = '<span style="font-size:0.6rem;margin-left:3px;opacity:0.7;">▲▼</span>';
+                const activeArrow = '<span style="font-size:0.65rem;margin-left:3px;color:var(--navy);">▼</span>';
+                const hSubject   = 'Class Name'   + (sortBy === 'subject'    ? activeArrow : sortArrow);
+                const hProf      = 'Professor'    + (sortBy === 'professor'  ? activeArrow : sortArrow);
+                const hDay       = 'Day'          + (sortBy === 'day-time'   ? activeArrow : sortArrow);
+                const hStart     = 'Start Time'   + (sortBy === 'day-time'   ? activeArrow : '');
+                const hEnd       = 'End Time';
+                const hRoom      = 'Room'         + (sortBy === 'room'       ? activeArrow : sortArrow);
 
                 html += `<div class="bscs-block-card">
                     <div class="bscs-block-header">Block ${block}</div>
                     <div style="overflow-x:auto;">
                     <table class="bscs-block-table">
                         <thead><tr>
-                            <th style="text-align:left;">Class Name</th>
-                            <th>Professor</th>
-                            <th>Day</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Room</th>
+                            <th style="text-align:left;cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='subject';renderCourseView('${tab}')">${hSubject}</th>
+                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='professor';renderCourseView('${tab}')">${hProf}</th>
+                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='day-time';renderCourseView('${tab}')">${hDay}</th>
+                            <th>${hStart}</th>
+                            <th>${hEnd}</th>
+                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='room';renderCourseView('${tab}')">${hRoom}</th>
                         </tr></thead><tbody>`;
 
                 if (merged.length === 0) {
