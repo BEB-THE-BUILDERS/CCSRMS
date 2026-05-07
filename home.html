@@ -94,6 +94,8 @@
         body.dark-mode #moveCancelBtn { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
         body.dark-mode #moveCancelBtn:hover { background: #475569 !important; }
         body.dark-mode #conflictSlotCard { background: #1e1b4b !important; border-color: #6366f1 !important; color: #e0e7ff !important; }
+        body.dark-mode .tab-filter-search { background: #1e293b !important; color: #e2e8f0 !important; border-color: #334155 !important; }
+        body.dark-mode .tab-filter-search::placeholder { color: #64748b; }
         body.dark-mode #conflictModal h3 { color: #93c5fd !important; }
         body.dark-mode #conflictModal p  { color: #94a3b8 !important; }
         body.dark-mode .conflict-replace-btn { background: #3b82f6 !important; color: #fff !important; }
@@ -2324,9 +2326,12 @@
                             <i class="fa-solid fa-graduation-cap" style="color:var(--navy);opacity:0.7;"></i>
                             <span style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:600;color:var(--navy);">BSCS — All Classes</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Day:</label>
-                            <select id="bscsDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <div style="position:relative;display:flex;align-items:center;">
+                                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:8px;color:var(--muted);font-size:0.72rem;pointer-events:none;"></i>
+                                <input type="text" id="bscsSearchFilter" placeholder="Search course or professor…" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);min-width:160px;padding-left:26px;" oninput="onTabFilterChange('bscs')">
+                            </div>
+                            <select id="bscsDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bscs')">
                                 <option value="all">All Days</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -2335,15 +2340,39 @@
                                 <option value="Friday">Friday</option>
                                 <option value="Saturday">Saturday</option>
                             </select>
-                        </div>
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
-                            <select id="bscsSortFilter" onchange="renderCourseView('bscs')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
-                                <option value="day-time">Day &amp; Time</option>
+                            <select id="bscsRoomFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bscs')">
+                                <option value="all">All Rooms</option>
+                                <option value="407">407</option><option value="408">408</option><option value="409">409</option><option value="410">410</option><option value="411">411</option><option value="412">412</option><option value="413">413</option>
+                                <option value="503">503</option><option value="504">504</option><option value="505">505</option><option value="506">506</option>
+                                <option value="507">507 (Lab)</option><option value="508">508 (Lab)</option><option value="509">509 (Lab)</option><option value="510">510 (Lab)</option>
+                                <option value="517">517 (Lab)</option><option value="518">518 (Lab)</option><option value="519">519 (Lab)</option><option value="520">520 (Lab)</option><option value="521">521 (Lab)</option>
+                                <option value="525">525</option>
+                            </select>
+                            <select id="bscsTimeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bscs')">
+                                <option value="all">All Times</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <select id="bscsSortFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bscs')">
+                                <option value="day-time">Day → Time</option>
+                                <option value="time">Start Time</option>
+                                <option value="course">Course Name</option>
                                 <option value="professor">Professor</option>
                                 <option value="room">Room</option>
-                                <option value="block">Block</option>
-                                <option value="subject">Subject Name</option>
                             </select>
+                        </div>
                     </div>
                     <div id="bscsViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bscs')">
@@ -2358,9 +2387,12 @@
                             <i class="fa-solid fa-graduation-cap" style="color:var(--navy);opacity:0.7;"></i>
                             <span style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:600;color:var(--navy);">BSIT — All Classes</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Day:</label>
-                            <select id="bsitDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <div style="position:relative;display:flex;align-items:center;">
+                                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:8px;color:var(--muted);font-size:0.72rem;pointer-events:none;"></i>
+                                <input type="text" id="bsitSearchFilter" placeholder="Search course or professor…" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);min-width:160px;padding-left:26px;" oninput="onTabFilterChange('bsit')">
+                            </div>
+                            <select id="bsitDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsit')">
                                 <option value="all">All Days</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -2369,15 +2401,39 @@
                                 <option value="Friday">Friday</option>
                                 <option value="Saturday">Saturday</option>
                             </select>
-                        </div>
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
-                            <select id="bsitSortFilter" onchange="renderCourseView('bsit')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
-                                <option value="day-time">Day &amp; Time</option>
+                            <select id="bsitRoomFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsit')">
+                                <option value="all">All Rooms</option>
+                                <option value="407">407</option><option value="408">408</option><option value="409">409</option><option value="410">410</option><option value="411">411</option><option value="412">412</option><option value="413">413</option>
+                                <option value="503">503</option><option value="504">504</option><option value="505">505</option><option value="506">506</option>
+                                <option value="507">507 (Lab)</option><option value="508">508 (Lab)</option><option value="509">509 (Lab)</option><option value="510">510 (Lab)</option>
+                                <option value="517">517 (Lab)</option><option value="518">518 (Lab)</option><option value="519">519 (Lab)</option><option value="520">520 (Lab)</option><option value="521">521 (Lab)</option>
+                                <option value="525">525</option>
+                            </select>
+                            <select id="bsitTimeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsit')">
+                                <option value="all">All Times</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <select id="bsitSortFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsit')">
+                                <option value="day-time">Day → Time</option>
+                                <option value="time">Start Time</option>
+                                <option value="course">Course Name</option>
                                 <option value="professor">Professor</option>
                                 <option value="room">Room</option>
-                                <option value="block">Block</option>
-                                <option value="subject">Subject Name</option>
                             </select>
+                        </div>
                     </div>
                     <div id="bsitViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsit')">
@@ -2392,9 +2448,12 @@
                             <i class="fa-solid fa-graduation-cap" style="color:var(--navy);opacity:0.7;"></i>
                             <span style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:600;color:var(--navy);">BSEMC-DAT — All Classes</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Day:</label>
-                            <select id="bsemcDatDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <div style="position:relative;display:flex;align-items:center;">
+                                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:8px;color:var(--muted);font-size:0.72rem;pointer-events:none;"></i>
+                                <input type="text" id="bsemcDatSearchFilter" placeholder="Search course or professor…" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);min-width:160px;padding-left:26px;" oninput="onTabFilterChange('bsemc-dat')">
+                            </div>
+                            <select id="bsemcDatDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-dat')">
                                 <option value="all">All Days</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -2403,15 +2462,39 @@
                                 <option value="Friday">Friday</option>
                                 <option value="Saturday">Saturday</option>
                             </select>
-                        </div>
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
-                            <select id="bsemcDatSortFilter" onchange="renderCourseView('bsemc-dat')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
-                                <option value="day-time">Day &amp; Time</option>
+                            <select id="bsemcDatRoomFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-dat')">
+                                <option value="all">All Rooms</option>
+                                <option value="407">407</option><option value="408">408</option><option value="409">409</option><option value="410">410</option><option value="411">411</option><option value="412">412</option><option value="413">413</option>
+                                <option value="503">503</option><option value="504">504</option><option value="505">505</option><option value="506">506</option>
+                                <option value="507">507 (Lab)</option><option value="508">508 (Lab)</option><option value="509">509 (Lab)</option><option value="510">510 (Lab)</option>
+                                <option value="517">517 (Lab)</option><option value="518">518 (Lab)</option><option value="519">519 (Lab)</option><option value="520">520 (Lab)</option><option value="521">521 (Lab)</option>
+                                <option value="525">525</option>
+                            </select>
+                            <select id="bsemcDatTimeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-dat')">
+                                <option value="all">All Times</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <select id="bsemcDatSortFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-dat')">
+                                <option value="day-time">Day → Time</option>
+                                <option value="time">Start Time</option>
+                                <option value="course">Course Name</option>
                                 <option value="professor">Professor</option>
                                 <option value="room">Room</option>
-                                <option value="block">Block</option>
-                                <option value="subject">Subject Name</option>
                             </select>
+                        </div>
                     </div>
                     <div id="bsemcDatViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsemc-dat')">
@@ -2426,9 +2509,12 @@
                             <i class="fa-solid fa-graduation-cap" style="color:var(--navy);opacity:0.7;"></i>
                             <span style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:600;color:var(--navy);">BSEMC-GD — All Classes</span>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Day:</label>
-                            <select id="bsemcGdDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <div style="position:relative;display:flex;align-items:center;">
+                                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:8px;color:var(--muted);font-size:0.72rem;pointer-events:none;"></i>
+                                <input type="text" id="bsemcGdSearchFilter" placeholder="Search course or professor…" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);min-width:160px;padding-left:26px;" oninput="onTabFilterChange('bsemc-gd')">
+                            </div>
+                            <select id="bsemcGdDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-gd')">
                                 <option value="all">All Days</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -2437,15 +2523,39 @@
                                 <option value="Friday">Friday</option>
                                 <option value="Saturday">Saturday</option>
                             </select>
-                        </div>
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Sort by:</label>
-                            <select id="bsemcGdSortFilter" onchange="renderCourseView('bsemc-gd')" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
-                                <option value="day-time">Day &amp; Time</option>
+                            <select id="bsemcGdRoomFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-gd')">
+                                <option value="all">All Rooms</option>
+                                <option value="407">407</option><option value="408">408</option><option value="409">409</option><option value="410">410</option><option value="411">411</option><option value="412">412</option><option value="413">413</option>
+                                <option value="503">503</option><option value="504">504</option><option value="505">505</option><option value="506">506</option>
+                                <option value="507">507 (Lab)</option><option value="508">508 (Lab)</option><option value="509">509 (Lab)</option><option value="510">510 (Lab)</option>
+                                <option value="517">517 (Lab)</option><option value="518">518 (Lab)</option><option value="519">519 (Lab)</option><option value="520">520 (Lab)</option><option value="521">521 (Lab)</option>
+                                <option value="525">525</option>
+                            </select>
+                            <select id="bsemcGdTimeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-gd')">
+                                <option value="all">All Times</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <select id="bsemcGdSortFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="onTabFilterChange('bsemc-gd')">
+                                <option value="day-time">Day → Time</option>
+                                <option value="time">Start Time</option>
+                                <option value="course">Course Name</option>
                                 <option value="professor">Professor</option>
                                 <option value="room">Room</option>
-                                <option value="block">Block</option>
-                                <option value="subject">Subject Name</option>
                             </select>
+                        </div>
                     </div>
                     <div id="bsemcGdViewContent"></div>
                     <button class="print-btn" style="margin-top:16px;" onclick="printCourseView('bsemc-gd')">
@@ -2461,14 +2571,16 @@
                             <span style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:600;color:var(--navy);">Major &amp; Minor Subjects</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Type:</label>
-                            <select id="majorMinorTypeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
-                                <option value="all">All</option>
+                            <div style="position:relative;display:flex;align-items:center;">
+                                <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:8px;color:var(--muted);font-size:0.72rem;pointer-events:none;"></i>
+                                <input type="text" id="majorMinorSearchFilter" placeholder="Search course or professor…" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);min-width:160px;padding-left:26px;" oninput="if(currentTab==='major-minor') renderMajorMinorView()">
+                            </div>
+                            <select id="majorMinorTypeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="if(currentTab==='major-minor') renderMajorMinorView()">
+                                <option value="all">All Types</option>
                                 <option value="Major">Major Only</option>
                                 <option value="Minor">Minor Only</option>
                             </select>
-                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);">Day:</label>
-                            <select id="majorMinorDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);">
+                            <select id="majorMinorDayFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="if(currentTab==='major-minor') renderMajorMinorView()">
                                 <option value="all">All Days</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -2476,6 +2588,38 @@
                                 <option value="Thursday">Thursday</option>
                                 <option value="Friday">Friday</option>
                                 <option value="Saturday">Saturday</option>
+                            </select>
+                            <select id="majorMinorRoomFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="if(currentTab==='major-minor') renderMajorMinorView()">
+                                <option value="all">All Rooms</option>
+                                <option value="407">407</option><option value="408">408</option><option value="409">409</option><option value="410">410</option><option value="411">411</option><option value="412">412</option><option value="413">413</option>
+                                <option value="503">503</option><option value="504">504</option><option value="505">505</option><option value="506">506</option>
+                                <option value="507">507 (Lab)</option><option value="508">508 (Lab)</option><option value="509">509 (Lab)</option><option value="510">510 (Lab)</option>
+                                <option value="517">517 (Lab)</option><option value="518">518 (Lab)</option><option value="519">519 (Lab)</option><option value="520">520 (Lab)</option><option value="521">521 (Lab)</option>
+                                <option value="525">525</option>
+                            </select>
+                            <select id="majorMinorTimeFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="if(currentTab==='major-minor') renderMajorMinorView()">
+                                <option value="all">All Times</option>
+                                <option value="07:00">7:00 AM</option>
+                                <option value="08:00">8:00 AM</option>
+                                <option value="09:00">9:00 AM</option>
+                                <option value="10:00">10:00 AM</option>
+                                <option value="11:00">11:00 AM</option>
+                                <option value="12:00">12:00 PM</option>
+                                <option value="13:00">1:00 PM</option>
+                                <option value="14:00">2:00 PM</option>
+                                <option value="15:00">3:00 PM</option>
+                                <option value="16:00">4:00 PM</option>
+                                <option value="17:00">5:00 PM</option>
+                                <option value="18:00">6:00 PM</option>
+                                <option value="19:00">7:00 PM</option>
+                                <option value="20:00">8:00 PM</option>
+                            </select>
+                            <select id="majorMinorSortFilter" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);" onchange="if(currentTab==='major-minor') renderMajorMinorView()">
+                                <option value="day-time">Day → Time</option>
+                                <option value="time">Start Time</option>
+                                <option value="course">Course Name</option>
+                                <option value="professor">Professor</option>
+                                <option value="room">Room</option>
                             </select>
                         </div>
                     </div>
@@ -2748,7 +2892,12 @@
                     Free slots to move <span id="conflictSuggestName" style="color:#3b82f6;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;"></span> to:
                 </div>
                 <div id="conflictSuggestList" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;padding-right:2px;"></div>
-                <div id="conflictSuggestNone" style="display:none;font-size:0.78rem;color:#b91c1c;font-weight:600;padding:6px 0;"><i class="fa-solid fa-circle-xmark"></i> No free slots found for this day. Try a different day or edit the schedule manually.</div>
+                <div id="conflictSuggestNone" style="display:none;font-size:0.78rem;color:#b91c1c;font-weight:600;padding:6px 0;"><i class="fa-solid fa-circle-xmark"></i> No free slots found across all rooms. Try a different day or edit the schedule manually.</div>
+                <div id="conflictTryOtherDaysRow" style="display:none;margin-top:8px;">
+                    <button id="conflictTryOtherDaysBtn" class="modal-confirm" style="background-color: rgb(13, 27, 62);flex:1;min-width:140px;width:100%;padding:10px 0 10px 0;border: none;border-radius: 8px;">
+                        <i class="fa-solid fa-calendar-week"></i> Search Other Days
+                    </button>
+                </div>
             </div>
 
             <div class="modal-btns conflict-btns" id="conflictMainBtns" style="margin-top:14px;flex-wrap:wrap;gap:8px;">
@@ -3885,8 +4034,12 @@
         const thead = document.getElementById('timetableHead');
         const floorNames = {1:'1st',2:'2nd',3:'3rd',4:'4th',5:'5th',6:'6th'};
 
+        const LAB_ROOMS = new Set([507,508,509,510,517,518,519,520,521]);
         thead.innerHTML = '<tr><th>Time</th>' +
-            rooms.map(r => '<th>Room '+r+'</th>').join('') +
+            rooms.map(r => {
+                const isLab = LAB_ROOMS.has(r);
+                return '<th>Room ' + r + (isLab ? '<br><span style="font-size:0.65rem;font-weight:500;opacity:0.75;letter-spacing:0.03em;">🔬 Lab</span>' : '') + '</th>';
+            }).join('') +
             '</tr>';
 
         // Update title
@@ -3938,10 +4091,10 @@
     // ── TABS ──
     let currentTab = 'room';
     const COURSE_TABS = {
-        'bscs':     { tabId: 'tabBscsView',     panelId: 'panelBscsView',     filterId: 'bscsDayFilter',     sortId: 'bscsSortFilter',     contentId: 'bscsViewContent',     prefix: 'BSCS',      label: 'BSCS' },
-        'bsit':     { tabId: 'tabBsitView',     panelId: 'panelBsitView',     filterId: 'bsitDayFilter',     sortId: 'bsitSortFilter',     contentId: 'bsitViewContent',     prefix: 'BSIT',      label: 'BSIT' },
-        'bsemc-dat':{ tabId: 'tabBsemcDatView', panelId: 'panelBsemcDatView', filterId: 'bsemcDatDayFilter', sortId: 'bsemcDatSortFilter', contentId: 'bsemcDatViewContent', prefix: 'BSEMC-DAT', label: 'BSEMC-DAT' },
-        'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  sortId: 'bsemcGdSortFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
+        'bscs':     { tabId: 'tabBscsView',     panelId: 'panelBscsView',     filterId: 'bscsDayFilter',     searchId: 'bscsSearchFilter',     roomFiltId: 'bscsRoomFilter',     timeFiltId: 'bscsTimeFilter',     sortFiltId: 'bscsSortFilter',     contentId: 'bscsViewContent',     prefix: 'BSCS',      label: 'BSCS' },
+        'bsit':     { tabId: 'tabBsitView',     panelId: 'panelBsitView',     filterId: 'bsitDayFilter',     searchId: 'bsitSearchFilter',     roomFiltId: 'bsitRoomFilter',     timeFiltId: 'bsitTimeFilter',     sortFiltId: 'bsitSortFilter',     contentId: 'bsitViewContent',     prefix: 'BSIT',      label: 'BSIT' },
+        'bsemc-dat':{ tabId: 'tabBsemcDatView', panelId: 'panelBsemcDatView', filterId: 'bsemcDatDayFilter', searchId: 'bsemcDatSearchFilter', roomFiltId: 'bsemcDatRoomFilter', timeFiltId: 'bsemcDatTimeFilter', sortFiltId: 'bsemcDatSortFilter', contentId: 'bsemcDatViewContent', prefix: 'BSEMC-DAT', label: 'BSEMC-DAT' },
+        'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  searchId: 'bsemcGdSearchFilter',  roomFiltId: 'bsemcGdRoomFilter',  timeFiltId: 'bsemcGdTimeFilter',  sortFiltId: 'bsemcGdSortFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
     };
 
     // ── LOAD ALL SCHEDULES (all floors) for course/major-minor tabs ──
@@ -3993,10 +4146,14 @@
         }
     }
 
+    function onTabFilterChange(tabKey) {
+        if (currentTab === tabKey) renderCourseView(tabKey);
+    }
+
+    // Legacy per-element listeners for day filters (kept for compatibility)
     Object.entries(COURSE_TABS).forEach(([key, cfg]) => {
-        document.getElementById(cfg.filterId).addEventListener('change', () => {
-            if (currentTab === key) renderCourseView(key);
-        });
+        const el = document.getElementById(cfg.filterId);
+        if (el) el.addEventListener('change', () => { if (currentTab === key) renderCourseView(key); });
     });
     document.getElementById('majorMinorTypeFilter').addEventListener('change', () => { if (currentTab === 'major-minor') renderMajorMinorView(); });
     document.getElementById('majorMinorDayFilter').addEventListener('change',  () => { if (currentTab === 'major-minor') renderMajorMinorView(); });
@@ -4005,12 +4162,15 @@
     function renderCourseView(tab) {
         const cfg = COURSE_TABS[tab];
         if (!cfg) return;
-        const container = document.getElementById(cfg.contentId);
-        const dayFilter  = document.getElementById(cfg.filterId).value;
-        const sortBy     = document.getElementById(cfg.sortId) ? document.getElementById(cfg.sortId).value : 'day-time';
-        const WEEKDAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        const days      = dayFilter === 'all' ? WEEKDAYS : [dayFilter];
-        const prefix    = cfg.prefix.toUpperCase();
+        const container  = document.getElementById(cfg.contentId);
+        const dayFilter  = document.getElementById(cfg.filterId)?.value || 'all';
+        const searchQ    = (document.getElementById(cfg.searchId)?.value || '').trim().toLowerCase();
+        const roomFilt   = document.getElementById(cfg.roomFiltId)?.value || 'all';
+        const timeFilt   = document.getElementById(cfg.timeFiltId)?.value || 'all';
+        const sortFilt   = document.getElementById(cfg.sortFiltId)?.value || 'day-time';
+        const WEEKDAYS   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const days       = dayFilter === 'all' ? WEEKDAYS : [dayFilter];
+        const prefix     = cfg.prefix.toUpperCase();
 
         // Collect ALL matching schedules across every room/floor
         const courseSchedules = [];
@@ -4044,8 +4204,23 @@
             });
         }
 
-        if (courseSchedules.length === 0) {
-            container.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:0.88rem;"><i class="fa-solid fa-calendar-xmark" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.4;"></i>No ${cfg.label} schedules found.</div>`;
+        // Apply search / room / time filters
+        const filteredSchedules = courseSchedules.filter(s => {
+            if (roomFilt !== 'all' && String(s.room) !== String(roomFilt)) return false;
+            if (timeFilt !== 'all' && timeToMins(s.start_time) < timeToMins(timeFilt)) return false;
+            if (timeFilt !== 'all' && timeToMins(s.start_time) >= timeToMins(timeFilt) + 60) return false;
+            if (searchQ) {
+                const courseLower = (s.course_name||'').toLowerCase();
+                const profLower   = (s.faculty||'').toLowerCase();
+                const secLower    = (s.section||'').toLowerCase();
+                if (!courseLower.includes(searchQ) && !profLower.includes(searchQ) && !secLower.includes(searchQ)) return false;
+            }
+            return true;
+        });
+
+        if (filteredSchedules.length === 0) {
+            const hasFilters = searchQ || roomFilt !== 'all' || timeFilt !== 'all';
+            container.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:0.88rem;"><i class="fa-solid fa-calendar-xmark" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.4;"></i>${hasFilters ? 'No results match your filters.' : 'No ' + cfg.label + ' schedules found.'}</div>`;
             return;
         }
 
@@ -4062,7 +4237,7 @@
         // Group: year → block → day → [schedules]
         // Merged classes (e.g. BSCS 1-A/B) appear in BOTH blocks
         const grouped = {};
-        courseSchedules.forEach(s => {
+        filteredSchedules.forEach(s => {
             const p = parseSection(s.section);
             if (!p) return;
             if (!grouped[p.year]) grouped[p.year] = {};
@@ -4113,52 +4288,31 @@
                     if (!mergedMap[key].days.includes(s.day)) mergedMap[key].days.push(s.day);
                 });
 
-                // ── Sort rows based on selected sort option ──
+                // Sort by selected sort option
                 const DAY_ORDER = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
                 const merged = Object.values(mergedMap);
-                switch (sortBy) {
-                    case 'professor':
-                        merged.sort((a,b) => (a.faculty||'').localeCompare(b.faculty||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
-                        break;
-                    case 'room':
-                        merged.sort((a,b) => String(a.room).localeCompare(String(b.room), undefined, {numeric:true}) || timeToMins(a.start_time) - timeToMins(b.start_time));
-                        break;
-                    case 'block':
-                        // Within the block card, sort by subject name then time (block grouping is already outer)
-                        merged.sort((a,b) => (a.name||'').localeCompare(b.name||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
-                        break;
-                    case 'subject':
-                        merged.sort((a,b) => (a.name||'').localeCompare(b.name||'') || timeToMins(a.start_time) - timeToMins(b.start_time));
-                        break;
-                    default: // 'day-time'
-                        merged.sort((a,b) => {
-                            const da = Math.min(...a.days.map(d => DAY_ORDER.indexOf(d)));
-                            const db = Math.min(...b.days.map(d => DAY_ORDER.indexOf(d)));
-                            return da !== db ? da - db : timeToMins(a.start_time) - timeToMins(b.start_time);
-                        });
-                }
-
-                // ── Sort indicator helpers ──
-                const sortArrow = '<span style="font-size:0.6rem;margin-left:3px;opacity:0.7;">▲▼</span>';
-                const activeArrow = '<span style="font-size:0.65rem;margin-left:3px;color:var(--navy);">▼</span>';
-                const hSubject   = 'Class Name'   + (sortBy === 'subject'    ? activeArrow : sortArrow);
-                const hProf      = 'Professor'    + (sortBy === 'professor'  ? activeArrow : sortArrow);
-                const hDay       = 'Day'          + (sortBy === 'day-time'   ? activeArrow : sortArrow);
-                const hStart     = 'Start Time'   + (sortBy === 'day-time'   ? activeArrow : '');
-                const hEnd       = 'End Time';
-                const hRoom      = 'Room'         + (sortBy === 'room'       ? activeArrow : sortArrow);
+                merged.sort((a,b) => {
+                    if (sortFilt === 'course')    return a.name.localeCompare(b.name);
+                    if (sortFilt === 'professor') return (a.faculty||'').localeCompare(b.faculty||'');
+                    if (sortFilt === 'room')      return String(a.room).localeCompare(String(b.room), undefined, {numeric:true});
+                    if (sortFilt === 'time')      return timeToMins(a.start_time) - timeToMins(b.start_time);
+                    // default: day-time
+                    const da = Math.min(...a.days.map(d => DAY_ORDER.indexOf(d)));
+                    const db = Math.min(...b.days.map(d => DAY_ORDER.indexOf(d)));
+                    return da !== db ? da - db : timeToMins(a.start_time) - timeToMins(b.start_time);
+                });
 
                 html += `<div class="bscs-block-card">
                     <div class="bscs-block-header">Block ${block}</div>
                     <div style="overflow-x:auto;">
                     <table class="bscs-block-table">
                         <thead><tr>
-                            <th style="text-align:left;cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='subject';renderCourseView('${tab}')">${hSubject}</th>
-                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='professor';renderCourseView('${tab}')">${hProf}</th>
-                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='day-time';renderCourseView('${tab}')">${hDay}</th>
-                            <th>${hStart}</th>
-                            <th>${hEnd}</th>
-                            <th style="cursor:pointer;" onclick="document.getElementById('${cfg.sortId}').value='room';renderCourseView('${tab}')">${hRoom}</th>
+                            <th style="text-align:left;">Class Name</th>
+                            <th>Professor</th>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Room</th>
                         </tr></thead><tbody>`;
 
                 if (merged.length === 0) {
@@ -4268,8 +4422,12 @@
     // ── MAJOR / MINOR VIEW ──
     function renderMajorMinorView() {
         const container  = document.getElementById('majorMinorViewContent');
-        const typeFilter = document.getElementById('majorMinorTypeFilter').value;  // 'all' | 'Major' | 'Minor'
-        const dayFilter  = document.getElementById('majorMinorDayFilter').value;   // 'all' | day name
+        const typeFilter  = document.getElementById('majorMinorTypeFilter').value;
+        const dayFilter   = document.getElementById('majorMinorDayFilter').value;
+        const searchQ     = (document.getElementById('majorMinorSearchFilter')?.value || '').trim().toLowerCase();
+        const roomFilt    = document.getElementById('majorMinorRoomFilter')?.value || 'all';
+        const timeFilt    = document.getElementById('majorMinorTimeFilter')?.value || 'all';
+        const sortFilt    = document.getElementById('majorMinorSortFilter')?.value || 'day-time';
         const WEEKDAYS   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const days       = dayFilter === 'all' ? WEEKDAYS : [dayFilter];
         const DAY_ORDER  = WEEKDAYS;
@@ -4283,6 +4441,12 @@
                 if (!mm) return;
                 if (typeFilter !== 'all' && mm[1] !== typeFilter) return;
                 if (!days.includes(s.day)) return;
+                if (roomFilt !== 'all' && String(s.room) !== String(roomFilt)) return;
+                if (timeFilt !== 'all' && (timeToMins(s.start_time) < timeToMins(timeFilt) || timeToMins(s.start_time) >= timeToMins(timeFilt) + 60)) return;
+                if (searchQ) {
+                    const cL = (s.course_name||'').toLowerCase(), pL = (s.faculty||'').toLowerCase(), sL = (s.section||'').toLowerCase();
+                    if (!cL.includes(searchQ) && !pL.includes(searchQ) && !sL.includes(searchQ)) return;
+                }
                 allSlots.push({ ...s, _type: mm[1] });
             });
         });
@@ -4327,7 +4491,11 @@
 
         const merged = Object.values(mergedMap);
         merged.sort((a, b) => {
-            // Sort by type (Major first), then by subject name, then by day, then by start time
+            if (sortFilt === 'course')    return a.name.localeCompare(b.name);
+            if (sortFilt === 'professor') return (a.faculty||'').localeCompare(b.faculty||'');
+            if (sortFilt === 'room')      return String(a.room).localeCompare(String(b.room), undefined, {numeric:true});
+            if (sortFilt === 'time')      return timeToMins(a.start_time) - timeToMins(b.start_time);
+            // default day-time: Major first, then day, then time
             if (a.type !== b.type) return a.type === 'Major' ? -1 : 1;
             const nc = a.name.localeCompare(b.name);
             if (nc !== 0) return nc;
@@ -5419,6 +5587,84 @@
     });
 
     // ── CONFLICT MODAL ──
+    // ── SEARCH OTHER DAYS ──
+    // Scans all other weekdays across all CCS rooms for a free window that fits the entry's duration
+    function findFreeSlotsAcrossAllDays(entry, excludeDay) {
+        const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const durMins  = timeToMins(entry.end_time) - timeToMins(entry.start_time);
+        const allRooms = (FLOORS[currentFloor] || []).map(String);
+        const DAY_START = timeToMins('07:00');
+        const DAY_END   = timeToMins('21:00');
+        const results   = [];
+        for (const day of WEEKDAYS) {
+            if (day === excludeDay) continue;
+            for (const room of allRooms) {
+                const slots = (allRoomSchedules[room] || [])
+                    .filter(s => s.day === day)
+                    .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
+                    .sort((a, b) => a.sM - b.sM);
+                const windows = [];
+                let cursor = DAY_START;
+                slots.forEach(({ sM, eM }) => {
+                    if (sM > cursor) windows.push({ start: cursor, end: sM });
+                    cursor = Math.max(cursor, eM);
+                });
+                if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
+                for (const { start, end } of windows) {
+                    const aligned = Math.ceil(start / 30) * 30;
+                    for (let t = aligned; t + durMins <= end; t += 30) {
+                        const secConflict = findSectionConflict(entry.section, day, t, t + durMins, '', entry.id);
+                        if (!secConflict) {
+                            results.push({ start: t, end: t + durMins, room, day });
+                            if (results.length >= 10) return results;
+                        }
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    let _suggestEntry = null; // tracks the entry currently being suggested for
+
+    document.getElementById('conflictTryOtherDaysBtn').addEventListener('click', () => {
+        if (!_suggestEntry) return;
+        const otherSlots = findFreeSlotsAcrossAllDays(_suggestEntry, _suggestEntry.day);
+        const listEl = document.getElementById('conflictSuggestList');
+        const noneEl = document.getElementById('conflictSuggestNone');
+        const tryRow = document.getElementById('conflictTryOtherDaysRow');
+        document.getElementById('conflictSuggestName').textContent =
+            _suggestEntry.course_name.replace(/\s*\[.*?\]/,'').replace(/\s*\(.*?\)/,'').trim();
+        if (otherSlots.length === 0) {
+            listEl.innerHTML = '';
+            listEl.style.display = 'none';
+            noneEl.textContent = '\u26a0\ufe0f No free slots found on any day across all rooms.';
+            noneEl.style.display = 'block';
+            tryRow.style.display = 'none';
+            return;
+        }
+        noneEl.style.display = 'none';
+        tryRow.style.display = 'none';
+        listEl.style.display = 'flex';
+        listEl.innerHTML = otherSlots.map((slot, i) => {
+            const roomLabel = `<strong style="color:#7c3aed;">Room ${slot.room}</strong> &middot; <strong style="color:#059669;">${slot.day}</strong>`;
+            return `<div class="conflict-suggest-slot" data-idx="${i}">
+                <span>
+                    <span class="css-time">${to12hr(minsToTime(slot.start))} \u2013 ${to12hr(minsToTime(slot.end))}</span>
+                    <span class="css-room">&middot; ${roomLabel}</span>
+                </span>
+                <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
+            </div>`;
+        }).join('');
+        listEl.querySelectorAll('.css-move-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const slot = otherSlots[parseInt(btn.dataset.idx)];
+                pendingNewEntry = null;
+                await applyConflictMove(_suggestEntry, slot.room, slot.start, slot.end, slot.day);
+            });
+        });
+    });
+
     document.getElementById('conflictCancelBtn').addEventListener('click', () => {
         document.getElementById('conflictModal').classList.remove('show');
         // Reset suggest panel state
@@ -5441,82 +5687,112 @@
         }
         if (!conflictEntry) return;
 
-        const durMins = timeToMins(conflictEntry.end_time) - timeToMins(conflictEntry.start_time);
-        const day     = conflictEntry.day;
-
-        // Find free slots in the SAME room on the same day that fit the duration
-        // and don't cause a section conflict
-        const roomSlots = (allRoomSchedules[conflictRoom] || [])
-            .filter(s => s.day === day)
-            .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
-            .sort((a, b) => a.sM - b.sM);
-
-        const DAY_START = timeToMins('07:00');
-        const DAY_END   = timeToMins('21:00');
-
-        // Build free windows
-        const windows = [];
-        let cursor = DAY_START;
-        roomSlots.forEach(({ sM, eM }) => {
-            if (sM > cursor) windows.push({ start: cursor, end: sM });
-            cursor = Math.max(cursor, eM);
-        });
-        if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
-
-        // Enumerate half-hour aligned slots within each window
-        const freeSlots = [];
-        windows.forEach(({ start, end }) => {
-            // Align start to next half-hour boundary
-            const aligned = Math.ceil(start / 30) * 30;
-            for (let t = aligned; t + durMins <= end; t += 30) {
-                // Skip the slot occupied by conflictEntry itself
-                if (t === timeToMins(conflictEntry.start_time)) continue;
-                // Check section conflict
-                const secConflict = findSectionConflict(conflictEntry.section, day, t, t + durMins, conflictRoom, conflictEntry.id);
-                if (!secConflict) freeSlots.push({ start: t, end: t + durMins });
-            }
-        });
+        const freeSlots1 = findFreeSlotsForEntry(conflictEntry, conflictRoom);
 
         // Update panel UI
         document.getElementById('conflictSuggestName').textContent = conflictEntry.course_name.replace(/\s*\[.*?\]/,'').replace(/\s*\(.*?\)/,'').trim();
         const listEl  = document.getElementById('conflictSuggestList');
         const noneEl  = document.getElementById('conflictSuggestNone');
 
-        if (freeSlots.length === 0) {
-            listEl.innerHTML = '';
-            noneEl.style.display  = 'block';
-            listEl.style.display  = 'none';
-        } else {
-            noneEl.style.display  = 'none';
-            listEl.style.display  = 'flex';
-            listEl.innerHTML = freeSlots.slice(0, 8).map((slot, i) =>
-                `<div class="conflict-suggest-slot" data-idx="${i}">
-                    <span>
-                        <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
-                        <span class="css-room">· Room ${conflictRoom} · ${day}</span>
-                    </span>
-                    <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
-                </div>`
-            ).join('');
-
-            // Wire up move buttons
-            listEl.querySelectorAll('.css-move-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const idx  = parseInt(btn.dataset.idx);
-                    const slot = freeSlots[idx];
-                    await applyConflictMove(conflictEntry, conflictRoom, slot.start, slot.end);
-                });
-            });
-        }
+        _suggestEntry = { ...conflictEntry, room: conflictRoom };
+        renderSuggestSlots(listEl, noneEl, freeSlots1, conflictEntry, (slot) => {
+            applyConflictMove(conflictEntry, slot.room, slot.start, slot.end);
+        });
 
         document.getElementById('conflictSuggestPanel').style.display = 'block';
         document.getElementById('conflictMainBtns').style.display     = 'none';
         document.getElementById('conflictReplaceRow').style.display   = 'block';
     });
 
-    async function applyConflictMove(conflictEntry, room, newStartMins, newEndMins) {
+    // ── FREE-SLOT SEARCH HELPER ──
+    // Searches the same room first, then all other CCS rooms, for slots
+    // that fit the given entry's duration on the same day without conflicts.
+    function findFreeSlotsForEntry(entry, preferredRoom) {
+        const durMins  = timeToMins(entry.end_time) - timeToMins(entry.start_time);
+        const day      = entry.day;
+        const DAY_START = timeToMins('07:00');
+        const DAY_END   = timeToMins('21:00');
+        const allRooms  = (FLOORS[currentFloor] || []).map(String);
+
+        function getFreeSlots(room) {
+            const slots = (allRoomSchedules[room] || [])
+                .filter(s => s.day === day)
+                .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
+                .sort((a, b) => a.sM - b.sM);
+            const windows = [];
+            let cursor = DAY_START;
+            slots.forEach(({ sM, eM }) => {
+                if (sM > cursor) windows.push({ start: cursor, end: sM });
+                cursor = Math.max(cursor, eM);
+            });
+            if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
+            const free = [];
+            windows.forEach(({ start, end }) => {
+                const aligned = Math.ceil(start / 30) * 30;
+                for (let t = aligned; t + durMins <= end; t += 30) {
+                    if (room === preferredRoom && t === timeToMins(entry.start_time)) continue;
+                    const secConflict = findSectionConflict(entry.section, day, t, t + durMins, room, entry.id);
+                    if (!secConflict) free.push({ start: t, end: t + durMins, room });
+                }
+            });
+            return free;
+        }
+
+        // Same room first
+        const sameRoom = getFreeSlots(preferredRoom);
+        if (sameRoom.length > 0) return sameRoom;
+
+        // Fall back to other rooms
+        const otherRooms = allRooms.filter(r => r !== preferredRoom);
+        const results = [];
+        for (const room of otherRooms) {
+            const slots = getFreeSlots(room);
+            results.push(...slots);
+            if (results.length >= 12) break;
+        }
+        return results;
+    }
+
+    // ── RENDER SUGGEST SLOTS (shared UI renderer) ──
+    function renderSuggestSlots(listEl, noneEl, freeSlots, entry, onMove) {
+        const tryRow = document.getElementById('conflictTryOtherDaysRow');
+        if (freeSlots.length === 0) {
+            listEl.innerHTML = '';
+            noneEl.style.display = 'block';
+            listEl.style.display = 'none';
+            if (tryRow) tryRow.style.display = 'block';
+            return;
+        }
+        if (tryRow) tryRow.style.display = 'none';
+        noneEl.style.display = 'none';
+        listEl.style.display = 'flex';
+        listEl.innerHTML = freeSlots.slice(0, 10).map((slot, i) => {
+            const sameRoom = slot.room === entry.room;
+            const roomLabel = sameRoom
+                ? `· Room ${slot.room} · ${entry.day}`
+                : `· <strong style="color:#2563eb;">Room ${slot.room}</strong> · ${entry.day} <span style="font-size:0.68rem;background:#dbeafe;color:#1d4ed8;border-radius:4px;padding:1px 5px;margin-left:3px;">different room</span>`;
+            return `<div class="conflict-suggest-slot" data-idx="${i}">
+                    <span>
+                        <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
+                        <span class="css-room">${roomLabel}</span>
+                    </span>
+                    <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
+                </div>`;
+        }).join('');
+        listEl.querySelectorAll('.css-move-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const idx  = parseInt(btn.dataset.idx);
+                const slot = freeSlots[idx];
+                await onMove(slot);
+            });
+        });
+    }
+
+
+    async function applyConflictMove(conflictEntry, room, newStartMins, newEndMins, newDay) {
         const newStart = minsToTime(newStartMins) + ':00';
         const newEnd   = minsToTime(newEndMins)   + ':00';
+        const day      = newDay || conflictEntry.day;
 
         document.getElementById('conflictModal').classList.remove('show');
         document.getElementById('conflictSuggestPanel').style.display = 'none';
@@ -5526,11 +5802,20 @@
         pushUndo('Schedule moved to resolve conflict');
 
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            // Remove from old room if moving to a different room
+            const oldRoom = conflictEntry.room || room;
+            if (String(oldRoom) !== String(room)) {
+                allRoomSchedules[oldRoom] = (allRoomSchedules[oldRoom] || []).filter(s => String(s.id) !== String(conflictEntry.id));
+                localStorage.setItem('schedules_'+oldRoom, JSON.stringify(allRoomSchedules[oldRoom]));
+                if (!allRoomSchedules[room]) allRoomSchedules[room] = [];
+                allRoomSchedules[room].push({ ...conflictEntry, room: String(room), start_time: newStart, end_time: newEnd, day });
+            } else {
             allRoomSchedules[room] = (allRoomSchedules[room] || []).map(s =>
                 String(s.id) === String(conflictEntry.id)
-                    ? { ...s, start_time: newStart, end_time: newEnd }
+                    ? { ...s, start_time: newStart, end_time: newEnd, day }
                     : s
             );
+            }
             localStorage.setItem('schedules_' + room, JSON.stringify(allRoomSchedules[room]));
             schedules = allRoomSchedules[currentRoom] || [];
             logAudit('Schedule moved (conflict resolve)', conflictEntry.id, room, { ...conflictEntry, start_time: newStart, end_time: newEnd });
@@ -5873,14 +6158,13 @@
             if (!grouped[key].days.includes(s.day)) grouped[key].days.push(s.day);
         });
 
-        // Sort groups by start time, then day order
+        // Sort groups by day first, then start time
         const dayOrder = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4, Saturday:5 };
         const groups = Object.values(grouped).sort((a, b) => {
-            const tA = timeToMins(a.start_time), tB = timeToMins(b.start_time);
-            if (tA !== tB) return tA - tB;
-            const dA = Math.min(...a.days.map(d => dayOrder[d]||99));
-            const dB = Math.min(...b.days.map(d => dayOrder[d]||99));
-            return dA - dB;
+            const dA = Math.min(...a.days.map(d => dayOrder[d]??99));
+            const dB = Math.min(...b.days.map(d => dayOrder[d]??99));
+            if (dA !== dB) return dA - dB;
+            return timeToMins(a.start_time) - timeToMins(b.start_time);
         });
 
         // Sort days within each group
@@ -5903,7 +6187,7 @@
                 tbodyHtml += `<tr style="background:${rowBg};">
   <td>
     <div style="display:flex;align-items:flex-start;gap:7px;">
-      <div style="width:9px;height:9px;border-radius:2px;background:${c.dot};border:1px solid ${c.border};margin-top:2px;flex-shrink:0;"></div>
+      <div style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c.dot};flex-shrink:0;margin-top:2px;"></div>
       <div>
         <div style="font-weight:700;font-size:8.5pt;color:${c.text};">${escHtml(g.dispName)}${g.typeShort ? ' <span style="font-weight:400;font-size:7pt;color:#64748b;">('+escHtml(g.typeShort)+')</span>' : ''}</div>
         <div style="font-size:6.5pt;color:#64748b;margin-top:2px;">${escHtml(g.section)}${isMerged ? ' &#8652;' : ''}</div>
@@ -5930,28 +6214,32 @@
 @page { size: A4 portrait; margin: 10mm 12mm; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: Arial, sans-serif; font-size: 8pt; background: white; color: #1e293b; }
-.ph { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; padding-bottom:7px; border-bottom:2.5px solid #0d1b3e; }
-.ph-school { font-size:6.5pt; color:#475569; text-transform:uppercase; letter-spacing:0.5px; }
-.ph-title { font-size:13pt; font-weight:700; color:#0d1b3e; margin:3px 0 2px; }
-.ph-sub { font-size:7pt; color:#64748b; }
-.ph-right { text-align:right; }
-.ph-room-badge { display:inline-block; background:#0d1b3e; color:white; font-size:11pt; font-weight:700; padding:5px 16px; border-radius:7px; margin-bottom:4px; }
+/* ── HEADER ── */
+.ph-wrap { background:#0d1b3e; color:white; padding:10px 14px 10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.ph-school { font-size:6.5pt; color:#93c5fd; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px; }
+.ph-title { font-size:15pt; font-weight:700; color:white; margin:2px 0; letter-spacing:-0.3px; }
+.ph-sub { font-size:7pt; color:#94a3b8; margin-top:3px; }
+.ph-right { text-align:right; flex-shrink:0; margin-left:16px; }
+.ph-room-badge { display:inline-block; background:white; color:#0d1b3e; font-size:16pt; font-weight:700; padding:6px 20px; border-radius:8px; margin-bottom:5px; letter-spacing:0.5px; }
 .ph-meta { font-size:6pt; color:#94a3b8; }
+/* ── SUMMARY BAR ── */
 .summary-bar { display:flex; gap:16px; margin-bottom:8px; font-size:7pt; color:#475569; }
 .summary-item { display:flex; align-items:center; gap:4px; }
+/* ── TABLE ── */
 table { width:100%; border-collapse:collapse; font-size:8pt; }
 thead tr { background:#0d1b3e; }
-th { color:white; font-weight:700; padding:7px 10px; border:1px solid #1a3060; text-align:left; font-size:8pt; white-space:nowrap; }
+th { color:white; font-weight:700; padding:8px 10px; border:1px solid #1a3060; text-align:left; font-size:8pt; white-space:nowrap; }
 th.center { text-align:center; }
 td { border:1px solid #e2e8f0; vertical-align:middle; padding:6px 10px; }
 tbody tr:hover { background:#f0f7ff !important; }
-.pf { margin-top:8px; display:flex; justify-content:space-between; font-size:6pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; }
-.legend { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+/* ── FOOTER ── */
+.pf { margin-top:8px; display:flex; justify-content:space-between; align-items:center; font-size:6pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:5px; }
+.legend { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .leg-item { display:flex; align-items:center; gap:4px; }
-.leg-dot { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+.leg-pill { display:inline-block; padding:2px 8px; border-radius:20px; font-size:6pt; font-weight:700; letter-spacing:0.3px; }
 <\/style>
 \x3C/head>\x3Cbody>
-<div class="ph">
+<div class="ph-wrap">
   <div>
     <div class="ph-school">Gordon College &mdash; College of Computer Studies</div>
     <div class="ph-title">${title}</div>
@@ -5979,10 +6267,10 @@ tbody tr:hover { background:#f0f7ff !important; }
 </table>
 <div class="pf">
   <div class="legend">
-    <div class="leg-item"><div class="leg-dot" style="background:#3b82f6;border:1px solid #93c5fd;"></div>BSCS</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#22c55e;border:1px solid #86efac;"></div>BSIT</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#f97316;border:1px solid #fdba74;"></div>BSEMC-GD</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#ef4444;border:1px solid #fca5a5;"></div>BSEMC-DAT</div>
+    <div class="leg-item"><div style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3b82f6;"></div>&nbsp;BSCS</div>
+    <div class="leg-item"><div style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>&nbsp;BSIT</div>
+    <div class="leg-item"><div style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;"></div>&nbsp;BSEMC-GD</div>
+    <div class="leg-item"><div style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>&nbsp;BSEMC-DAT</div>
     <div class="leg-item"><span style="font-size:8pt;">&#8652;</span>&nbsp;Merged class</div>
   </div>
   <div>CCS Room Management System &mdash; CCSRMS</div>
@@ -7559,32 +7847,7 @@ tbody tr:hover { background:#f0f7ff !important; }
         const durMins = timeToMins(entry.end_time) - timeToMins(entry.start_time);
         const day     = entry.day;
 
-        // Build free windows in the same room on the same day
-        const roomSlots = (allRoomSchedules[conflictRoom] || [])
-            .filter(s => s.day === day)
-            .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
-            .sort((a, b) => a.sM - b.sM);
-
-        const DAY_START = timeToMins('07:00');
-        const DAY_END   = timeToMins('21:00');
-
-        const windows = [];
-        let cursor = DAY_START;
-        roomSlots.forEach(({ sM, eM }) => {
-            if (sM > cursor) windows.push({ start: cursor, end: sM });
-            cursor = Math.max(cursor, eM);
-        });
-        if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
-
-        const freeSlots = [];
-        windows.forEach(({ start, end }) => {
-            const aligned = Math.ceil(start / 30) * 30;
-            for (let t = aligned; t + durMins <= end; t += 30) {
-                if (t === timeToMins(entry.start_time)) continue;
-                const secConflict = findSectionConflict(entry.section, day, t, t + durMins, conflictRoom, entry.id);
-                if (!secConflict) freeSlots.push({ start: t, end: t + durMins });
-            }
-        });
+        const freeSlots = findFreeSlotsForEntry(entry, conflictRoom);
 
         // Populate the conflict modal — no pendingNewEntry needed (banner-initiated)
         const timeStr = to12hr(entry.start_time.slice(0,5)) + ' – ' + to12hr(entry.end_time.slice(0,5));
@@ -7601,33 +7864,11 @@ tbody tr:hover { background:#f0f7ff !important; }
         const listEl = document.getElementById('conflictSuggestList');
         const noneEl = document.getElementById('conflictSuggestNone');
 
-        if (freeSlots.length === 0) {
-            listEl.innerHTML = '';
-            noneEl.style.display = 'block';
-            listEl.style.display = 'none';
-        } else {
-            noneEl.style.display = 'none';
-            listEl.style.display = 'flex';
-            listEl.innerHTML = freeSlots.slice(0, 8).map((slot, i) =>
-                `<div class="conflict-suggest-slot" data-idx="${i}">
-                    <span>
-                        <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
-                        <span class="css-room">· Room ${conflictRoom} · ${day}</span>
-                    </span>
-                    <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
-                </div>`
-            ).join('');
-
-            listEl.querySelectorAll('.css-move-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const idx  = parseInt(btn.dataset.idx);
-                    const slot = freeSlots[idx];
-                    // Banner-initiated move: no pendingNewEntry, just move the conflicting slot
-                    pendingNewEntry = null;
-                    await applyConflictMove(entry, conflictRoom, slot.start, slot.end);
-                });
-            });
-        }
+        _suggestEntry = { ...entry, room: conflictRoom };
+        renderSuggestSlots(listEl, noneEl, freeSlots, entry, (slot) => {
+            pendingNewEntry = null;
+            applyConflictMove(entry, slot.room, slot.start, slot.end);
+        });
 
         // Show modal with suggest panel open, hide main action buttons
         document.getElementById('conflictSuggestPanel').style.display = 'block';
