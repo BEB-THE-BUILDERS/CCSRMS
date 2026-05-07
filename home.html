@@ -154,6 +154,67 @@
         }
         body.dark-mode #darkModeToggle i { color: #fbbf24; }
 
+        /* ── PRESENCE AVATARS ── */
+        .presence-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: white;
+            cursor: default;
+            margin-left: -8px;
+            flex-shrink: 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .presence-avatar:first-child { margin-left: 0; }
+        .presence-avatar:hover { transform: translateY(-3px) scale(1.12); box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10; }
+        .presence-avatar[data-editing="true"]::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 9px; height: 9px;
+            background: #f59e0b;
+            border-radius: 50%;
+            border: 1.5px solid white;
+            animation: presence-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes presence-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(1.25); }
+        }
+        .presence-tooltip {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%; transform: translateX(-50%);
+            background: rgba(15,23,42,0.92);
+            color: #f1f5f9;
+            font-size: 0.68rem; font-weight: 500;
+            white-space: nowrap;
+            padding: 5px 9px;
+            border-radius: 7px;
+            pointer-events: none;
+            opacity: 0; transition: opacity 0.18s;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .presence-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: 100%; left: 50%; transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-bottom-color: rgba(15,23,42,0.92);
+        }
+        .presence-avatar:hover .presence-tooltip { opacity: 1; }
+        #presenceAvatars { display: flex; align-items: center; margin-right: 4px; }
+
         /* ── DARK MODE: IMPORT MODAL ── */
         body.dark-mode #importModal { background: #1e293b; color: #e2e8f0; }
         body.dark-mode #importModal h3 { color: #93c5fd !important; }
@@ -188,6 +249,158 @@
         body.dark-mode .schedule-tab { color: #94a3b8; }
         body.dark-mode .schedule-tab:hover { color: #e2e8f0; }
         body.dark-mode .schedule-tab.active { color: #93c5fd; border-bottom-color: #3b82f6; }
+
+        body.dark-mode #blockConflictNewModal > div { background: #1e293b; }
+        body.dark-mode #blockConflictNewModal p { color: #94a3b8; }
+
+        /* ── BLOCK CONFLICT WARNING BANNER ── */
+        #blockConflictBanner {
+            display: none;
+            margin: 0 0 10px 0;
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #dc2626;
+        }
+        #blockConflictBanner .bcb-header {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 700; font-size: 0.83rem; margin-bottom: 6px;
+            cursor: pointer; user-select: none;
+        }
+        #blockConflictBanner .bcb-header i.bcb-chevron { margin-left: auto; transition: transform 0.2s; font-size: 0.75rem; }
+        #blockConflictBanner.collapsed .bcb-body { display: none; }
+        #blockConflictBanner.collapsed .bcb-chevron { transform: rotate(-90deg); }
+        #blockConflictBanner .bcb-body { margin-top: 4px; display: flex; flex-direction: column; gap: 5px; }
+        .bcb-conflict-row {
+            background: #fff5f5; border: 1px solid #fecaca; border-radius: 7px;
+            padding: 7px 10px; font-size: 0.76rem; color: #991b1b;
+        }
+        .bcb-conflict-row strong { color: #7f1d1d; }
+        .bcb-conflict-row .bcb-subjects { margin-top: 3px; display: flex; flex-direction: column; gap: 2px; }
+        .bcb-subject-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .bcb-room-badge {
+            display: inline-block; padding: 1px 6px; border-radius: 4px;
+            background: #fee2e2; color: #b91c1c; font-weight: 700; font-size: 0.7rem;
+            border: 1px solid #fca5a5; white-space: nowrap;
+        }
+        body.dark-mode #blockConflictBanner { background: #1c0a0a; border-color: #7f1d1d; color: #fca5a5; }
+        body.dark-mode .bcb-conflict-row { background: #1c0a0a; border-color: #7f1d1d; color: #fca5a5; }
+        body.dark-mode .bcb-conflict-row strong { color: #fca5a5; }
+        body.dark-mode .bcb-room-badge { background: #450a0a; border-color: #7f1d1d; color: #fca5a5; }
+
+        /* ── CONFLICT BADGE ON TIMETABLE SLOT ── */
+        .slot-conflict-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: #ef4444; color: white;
+            font-size: 0.62rem; font-weight: 700;
+            padding: 1px 5px; border-radius: 4px;
+            margin-top: 3px; line-height: 1.4;
+            animation: conflictPulse 2s ease-in-out infinite;
+        }
+        @keyframes conflictPulse {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.65; }
+        }
+
+        /* ── CONFLICT SUGGEST MOVE SLOTS ── */
+        .conflict-suggest-slot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 11px;
+            border: 1.5px solid #bfdbfe;
+            border-radius: 8px;
+            background: #eff6ff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            flex-wrap: wrap;
+        }
+        .conflict-suggest-slot:hover { background: #dbeafe; border-color: #3b82f6; transform: translateX(2px); }
+        .conflict-suggest-slot .css-time { font-weight: 700; color: #1e40af; }
+        .conflict-suggest-slot .css-room { font-size: 0.73rem; color: #3b82f6; font-weight: 600; }
+        .conflict-suggest-slot .css-move-btn {
+            padding: 4px 10px; border-radius: 5px; border: none;
+            background: #2563eb; color: white;
+            font-size: 0.73rem; font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: background 0.15s;
+            white-space: nowrap;
+        }
+        .conflict-suggest-slot .css-move-btn:hover { background: #1d4ed8; }
+        body.dark-mode .conflict-suggest-slot { background: #172554; border-color: #1e40af; }
+        body.dark-mode .conflict-suggest-slot:hover { background: #1e3a8a; border-color: #3b82f6; }
+        body.dark-mode .conflict-suggest-slot .css-time { color: #93c5fd; }
+        body.dark-mode .conflict-suggest-slot .css-room { color: #60a5fa; }
+
+        /* ── SUBJECT AUTOCOMPLETE ── */
+        .subject-autocomplete-wrap { position: relative; flex: 1; display: flex; }
+        .subject-autocomplete-wrap input { width: 100%; }
+        .subject-autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0; right: 0;
+            background: var(--white);
+            border: 1.5px solid var(--accent);
+            border-radius: 9px;
+            box-shadow: 0 8px 28px rgba(59,130,246,0.13);
+            z-index: 9999;
+            max-height: 220px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .subject-autocomplete-dropdown.open { display: block; }
+        .subject-ac-item {
+            padding: 9px 13px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.12s;
+        }
+        .subject-ac-item:last-child { border-bottom: none; }
+        .subject-ac-item:hover, .subject-ac-item.focused { background: #eff6ff; }
+        .subject-ac-name {
+            font-size: 0.85rem; font-weight: 600; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .subject-ac-name mark { background: #bfdbfe; color: #1e40af; border-radius: 2px; padding: 0 1px; font-weight: 700; }
+        .subject-ac-meta {
+            font-size: 0.72rem; color: var(--muted); margin-top: 2px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .subject-ac-badge {
+            display: inline-block; padding: 1px 6px; border-radius: 4px;
+            font-size: 0.68rem; font-weight: 600;
+            background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;
+        }
+        .subject-ac-badge.minor { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+        .subject-ac-autofill-hint {
+            font-size: 0.73rem; color: var(--muted);
+            padding: 6px 13px 7px;
+            border-top: 1px dashed var(--border);
+            text-align: center;
+            background: var(--light-bg);
+            border-radius: 0 0 8px 8px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        body.dark-mode .subject-autocomplete-dropdown {
+            background: #1e293b; border-color: #3b82f6;
+        }
+        body.dark-mode .subject-ac-item:hover,
+        body.dark-mode .subject-ac-item.focused { background: #172554; }
+        body.dark-mode .subject-ac-name mark { background: #1e3a8a; color: #93c5fd; }
+        body.dark-mode .subject-ac-badge { background: #172554; color: #93c5fd; border-color: #1e40af; }
+        body.dark-mode .subject-ac-badge.minor { background: #052e16; color: #4ade80; border-color: #166534; }
+        body.dark-mode .subject-ac-autofill-hint { background: #0f172a; border-color: #334155; }
+        /* autofill flash animation */
+        @keyframes autofillFlash {
+            0%   { background: #dbeafe; }
+            100% { background: #f8fafc; }
+        }
+        .autofill-flash { animation: autofillFlash 0.6s ease forwards; }
+        body.dark-mode .autofill-flash { animation: none; background: #0f172a !important; }
 
         /* ── BSCS VIEW ── */
         .bscs-year-section { margin-bottom: 28px; }
@@ -1808,6 +2021,9 @@
             <!-- Coordinator + Realtime badges -->
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
 
+                <!-- Active users presence avatars -->
+                <div id="presenceAvatars" style="display:flex;align-items:center;gap:0;flex-shrink:0;"></div>
+
                 <div id="realtimeBadge" title="Real-time collaboration status" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:3px 10px;font-size:0.7rem;font-weight:600;color:white;cursor:default;white-space:nowrap;">
                     <span id="realtimeDot" style="width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.25);transition:background 0.4s,box-shadow 0.4s;display:inline-block;flex-shrink:0;"></span>
                     <span id="realtimeLabel">Connecting...</span>
@@ -2061,6 +2277,15 @@
                                 <span style="width:8px;height:8px;border-radius:50%;background:#d946ef;flex-shrink:0;display:inline-block;"></span>Minor
                             </div>
                         </div>
+                    <!-- Block Conflict Warning Banner -->
+                    <div id="blockConflictBanner" class="collapsed">
+                        <div class="bcb-header" onclick="document.getElementById('blockConflictBanner').classList.toggle('collapsed')">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span id="blockConflictBannerTitle">Block schedule conflicts detected</span>
+                            <i class="fa-solid fa-chevron-down bcb-chevron"></i>
+                        </div>
+                        <div class="bcb-body" id="blockConflictBannerBody"></div>
+                    </div>
                     <div class="timetable-container">
                         <table class="timetable" id="timetable">
                             <thead id="timetableHead">
@@ -2285,7 +2510,13 @@
             <form class="schedule-form" id="scheduleForm" style="display:flex;flex-direction:column;gap:12px;">
                 <div class="form-row">
                     <label>Class Name:</label>
-                    <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                    <div class="subject-autocomplete-wrap">
+                        <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" required autocomplete="off" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                        <div class="subject-autocomplete-dropdown" id="subjectAcDropdown">
+                            <div id="subjectAcList"></div>
+                            <div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#3b82f6;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>Class Type:</label>
@@ -2405,6 +2636,43 @@
         </div>
     </div>
 
+    <!-- Block Conflict New Schedule Modal -->
+    <div id="blockConflictNewModal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:16px;">
+        <div style="background:var(--white);border-radius:16px;max-width:440px;width:100%;padding:0;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="background:#7f1d1d;padding:18px 20px 14px;display:flex;align-items:center;gap:12px;">
+                <div style="width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#fca5a5;font-size:1rem;"></i>
+                </div>
+                <div>
+                    <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem;color:white;">Block Schedule Conflict</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.7);margin-top:2px;">This block already has a class at this time</div>
+                </div>
+            </div>
+            <div style="padding:18px 20px;">
+                <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">
+                    <strong id="bcnmSection" style="color:var(--text);"></strong> on <strong id="bcnmDay" style="color:var(--text);"></strong> already has a scheduled subject that overlaps with the new one you're trying to add.
+                </p>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                    <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:9px;padding:10px 13px;">
+                        <div style="font-size:0.68rem;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;"><i class="fa-solid fa-calendar-check"></i> Existing Schedule</div>
+                        <div style="font-weight:700;font-size:0.85rem;color:#7f1d1d;" id="bcnmExistingName"></div>
+                        <div style="font-size:0.76rem;color:#991b1b;margin-top:2px;"><i class="fa-solid fa-clock" style="opacity:0.6;margin-right:4px;"></i><span id="bcnmExistingTime"></span> · <span id="bcnmExistingRoom"></span></div>
+                    </div>
+                    <div style="text-align:center;font-size:0.75rem;font-weight:700;color:#dc2626;"><i class="fa-solid fa-arrows-up-down"></i> conflicts with</div>
+                    <div style="background:#fff7ed;border:1.5px solid #fdba74;border-radius:9px;padding:10px 13px;">
+                        <div style="font-size:0.68rem;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;"><i class="fa-solid fa-calendar-plus"></i> New Schedule (blocked)</div>
+                        <div style="font-weight:700;font-size:0.85rem;color:#92400e;" id="bcnmNewName"></div>
+                        <div style="font-size:0.76rem;color:#b45309;margin-top:2px;"><i class="fa-solid fa-clock" style="opacity:0.6;margin-right:4px;"></i><span id="bcnmNewTime"></span> · <span id="bcnmNewRoom"></span></div>
+                    </div>
+                </div>
+                <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">To fix this, either change the time/day of the new schedule, or first resolve the existing conflict.</p>
+                <button onclick="document.getElementById('blockConflictNewModal').style.display='none'" style="width:100%;padding:10px;border-radius:8px;border:none;background:#0d1b3e;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;">
+                    <i class="fa-solid fa-arrow-left"></i> Go Back &amp; Fix
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirm Modal -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
@@ -2422,17 +2690,33 @@
 
     <!-- Conflict Modal -->
     <div class="modal-overlay" id="conflictModal">
-        <div class="modal conflict-modal">
+        <div class="modal conflict-modal" style="max-width:480px;width:94%;">
             <div class="conflict-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h3>Room Already Occupied</h3>
-            <p>This room is already scheduled for this time slot with:</p>
+            <h3>Time Slot Occupied</h3>
+            <p style="margin-bottom:8px;">This slot is already taken by:</p>
             <div class="conflict-slot-card" id="conflictSlotCard"></div>
-            <p class="conflict-question">Do you want to replace the existing schedule?</p>
-            <div class="modal-btns conflict-btns">
-                <button class="modal-confirm conflict-replace-btn" id="conflictReplaceBtn">
-                    <i class="fa-solid fa-rotate"></i> Yes, Replace
+
+            <!-- Suggest-move panel (shown after clicking Suggest) -->
+            <div id="conflictSuggestPanel" style="display:none;margin-top:12px;">
+                <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-arrows-left-right" style="color:#3b82f6;"></i>
+                    Free slots to move <span id="conflictSuggestName" style="color:#3b82f6;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;"></span> to:
+                </div>
+                <div id="conflictSuggestList" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;padding-right:2px;"></div>
+                <div id="conflictSuggestNone" style="display:none;font-size:0.78rem;color:#b91c1c;font-weight:600;padding:6px 0;"><i class="fa-solid fa-circle-xmark"></i> No free slots found for this day. Try a different day or edit the schedule manually.</div>
+            </div>
+
+            <div class="modal-btns conflict-btns" id="conflictMainBtns" style="margin-top:14px;flex-wrap:wrap;gap:8px;">
+                <button class="modal-confirm" id="conflictSuggestBtn" style="background:#2563eb;flex:1;min-width:140px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest Move
                 </button>
-                <button class="modal-cancel conflict-cancel-btn" id="conflictCancelBtn">No, Cancel</button>
+                <button class="modal-cancel conflict-cancel-btn" id="conflictCancelBtn" style="flex:1;min-width:100px;">Cancel</button>
+            </div>
+            <!-- Fallback replace (collapsed by default, revealed after suggestion) -->
+            <div id="conflictReplaceRow" style="display:none;margin-top:8px;text-align:center;">
+                <button class="modal-confirm conflict-replace-btn" id="conflictReplaceBtn" style="background:#dc2626;font-size:0.78rem;padding:7px 14px;width:100%;">
+                    <i class="fa-solid fa-rotate"></i> Force Replace (delete existing)
+                </button>
             </div>
         </div>
     </div>
@@ -2996,6 +3280,61 @@
         return null;
     }
 
+    // ── BLOCK CONFLICT HELPER ──
+    // Checks ALL rooms (including the given room) for same-section time overlaps.
+    // Returns the conflicting slot if found, or null. Used when adding a new schedule.
+    function findBlockConflict(section, day, startMins, endMins, excludeRoom, excludeId) {
+        const secNorm = (section||'').trim().toUpperCase();
+        for (const [room, slots] of Object.entries(allRoomSchedules)) {
+            for (const s of slots) {
+                if (excludeId && String(s.id) === String(excludeId)) continue;
+                if (String(room) === String(excludeRoom) && String(s.id) === String(excludeId)) continue;
+                if (s.day !== day) continue;
+                if ((s.section||'').trim().toUpperCase() !== secNorm) continue;
+                const sM = timeToMins(s.start_time), eM = timeToMins(s.end_time);
+                if (startMins < eM && endMins > sM) return { ...s, room };
+            }
+        }
+        return null;
+    }
+
+    // ── SCAN ALL EXISTING BLOCK CONFLICTS ──
+    // Returns array of conflict pairs: [{ a, b, section, day }]
+    // where a and b are slots (with .room) that overlap for the same section.
+    function getAllBlockConflicts() {
+        const conflicts = [];
+        const seen = new Set();
+
+        // Collect all slots across all rooms
+        const allSlots = [];
+        for (const [room, slots] of Object.entries(allRoomSchedules)) {
+            (slots || []).forEach(s => allSlots.push({ ...s, room: String(room) }));
+        }
+
+        for (let i = 0; i < allSlots.length; i++) {
+            const a = allSlots[i];
+            const secA = (a.section||'').trim().toUpperCase();
+            if (!secA) continue;
+            const aStart = timeToMins(a.start_time), aEnd = timeToMins(a.end_time);
+
+            for (let j = i + 1; j < allSlots.length; j++) {
+                const b = allSlots[j];
+                if (b.day !== a.day) continue;
+                const secB = (b.section||'').trim().toUpperCase();
+                if (secA !== secB) continue;
+                const bStart = timeToMins(b.start_time), bEnd = timeToMins(b.end_time);
+                if (aStart < bEnd && aEnd > bStart) {
+                    const key = [String(a.id), String(b.id)].sort().join('|');
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        conflicts.push({ a, b, section: a.section, day: a.day });
+                    }
+                }
+            }
+        }
+        return conflicts;
+    }
+
 
     // ── TOAST ──
     function showToast(msg, type='') {
@@ -3270,7 +3609,95 @@
     function init() { loadSchedules(); initRealtime(); }
 
     // ── REALTIME COLLABORATION ──
-    var _realtimeChannel = null;
+    var _realtimeChannel  = null;
+    var _presenceChannel  = null;
+    var _presenceKey      = null; // unique key for this tab session
+    var _myPresenceState  = {};   // what we last broadcast
+
+    // ── Colour palette for presence avatars ──
+    var PRESENCE_COLORS = [
+        '#3b82f6','#8b5cf6','#ec4899','#f97316',
+        '#10b981','#06b6d4','#eab308','#ef4444'
+    ];
+    function presenceColor(email) {
+        var hash = 0;
+        for (var i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
+        return PRESENCE_COLORS[Math.abs(hash) % PRESENCE_COLORS.length];
+    }
+    function presenceInitials(email) {
+        var name = email.split('@')[0].replace(/[._-]/g,' ').trim();
+        var parts = name.split(' ').filter(Boolean);
+        if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        return name.slice(0,2).toUpperCase();
+    }
+
+    function renderPresenceAvatars(stateMap) {
+        var container = document.getElementById('presenceAvatars');
+        if (!container) return;
+        var myEmail = _currentUserEmail || '';
+        // Collect one entry per unique email (other than self), keep latest
+        var byEmail = {};
+        Object.values(stateMap).forEach(function(presences) {
+            var p = Array.isArray(presences) ? presences[0] : presences;
+            if (!p || !p.email) return;
+            if (p.email === myEmail) return; // skip self
+            if (!byEmail[p.email] || p.online_at > byEmail[p.email].online_at) {
+                byEmail[p.email] = p;
+            }
+        });
+
+        var emails = Object.keys(byEmail);
+        if (emails.length === 0) { container.innerHTML = ''; return; }
+
+        container.innerHTML = emails.map(function(email, idx) {
+            var p      = byEmail[email];
+            var color  = presenceColor(email);
+            var initls = presenceInitials(email);
+            var isEditing = !!p.editing_room;
+            var tip = email.split('@')[0];
+            if (p.role)         tip += ' (' + p.role + ')';
+            if (p.editing_room) tip += ' — editing Room ' + p.editing_room;
+            return '<div class="presence-avatar" data-editing="' + isEditing + '" '
+                 + 'style="background:' + color + ';z-index:' + (10 - idx) + ';" '
+                 + 'title="">'
+                 + initls
+                 + '<span class="presence-tooltip">' + tip + '</span>'
+                 + '</div>';
+        }).join('');
+    }
+
+    function broadcastPresence(extraState) {
+        if (!_presenceChannel || !_presenceKey) return;
+        _myPresenceState = Object.assign({
+            email:      _currentUserEmail || 'Unknown',
+            role:       (document.getElementById('userRole') || {}).textContent || '',
+            online_at:  new Date().toISOString(),
+            editing_room: null
+        }, extraState || {});
+        _presenceChannel.track(_myPresenceState);
+    }
+
+    function initPresence() {
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return;
+        if (_presenceChannel) { _supabase.removeChannel(_presenceChannel); }
+        _presenceKey = 'user-' + Math.random().toString(36).slice(2);
+        _presenceChannel = _supabase.channel('ccsrms-presence', {
+            config: { presence: { key: _presenceKey } }
+        });
+        _presenceChannel
+            .on('presence', { event: 'sync' }, function() {
+                renderPresenceAvatars(_presenceChannel.presenceState());
+            })
+            .on('presence', { event: 'join' }, function() {
+                renderPresenceAvatars(_presenceChannel.presenceState());
+            })
+            .on('presence', { event: 'leave' }, function() {
+                renderPresenceAvatars(_presenceChannel.presenceState());
+            })
+            .subscribe(function(status) {
+                if (status === 'SUBSCRIBED') broadcastPresence();
+            });
+    }
 
     function initRealtime() {
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return;
@@ -3283,6 +3710,7 @@
             .subscribe(function(status) {
                 updateRealtimeIndicator(status);
             });
+        initPresence();
     }
 
     function handleRealtimeChange(payload) {
@@ -3920,6 +4348,38 @@
         w.print();
     }
 
+    // ── BLOCK CONFLICT BANNER + SLOT BADGES ──
+    function renderBlockConflictBanner() {
+        const conflicts = getAllBlockConflicts();
+        const banner    = document.getElementById('blockConflictBanner');
+        const body      = document.getElementById('blockConflictBannerBody');
+        const title     = document.getElementById('blockConflictBannerTitle');
+
+        if (conflicts.length === 0) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        const n = conflicts.length;
+        title.textContent = n + ' block schedule conflict' + (n > 1 ? 's' : '') + ' detected — same block has overlapping subjects';
+        banner.style.display = 'block';
+
+        body.innerHTML = conflicts.map(({ a, b, section, day }) => {
+            const timeA = to12hr(a.start_time.slice(0,5)) + ' – ' + to12hr(a.end_time.slice(0,5));
+            const timeB = to12hr(b.start_time.slice(0,5)) + ' – ' + to12hr(b.end_time.slice(0,5));
+            const nameA = escHtml(a.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim());
+            const nameB = escHtml(b.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim());
+            return `<div class="bcb-conflict-row">
+                <strong>${escHtml(section)} · ${escHtml(day)}</strong>
+                <div class="bcb-subjects">
+                    <div class="bcb-subject-line"><span class="bcb-room-badge">Room ${a.room}</span> ${nameA} <span style="opacity:0.7;">${timeA}</span></div>
+                    <div style="font-size:0.68rem;color:#dc2626;padding-left:2px;font-weight:700;">⟷ overlaps with</div>
+                    <div class="bcb-subject-line"><span class="bcb-room-badge">Room ${b.room}</span> ${nameB} <span style="opacity:0.7;">${timeB}</span></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
     // ── TIMETABLE ──
     function renderTimetable() {
         const tbody = document.getElementById('timetableBody');
@@ -3934,6 +4394,13 @@
                 const sM = timeToMins(s.start_time);
                 roomMap[r][sM] = { ...s, startMins: sM, endMins: timeToMins(s.end_time) };
             });
+        });
+
+        // Pre-compute which slot IDs are in a block conflict (for badge rendering)
+        const conflictingIds = new Set();
+        getAllBlockConflicts().forEach(({ a, b }) => {
+            conflictingIds.add(String(a.id));
+            conflictingIds.add(String(b.id));
         });
 
         const slotRows = HOURS.slice(0,-1);
@@ -3987,6 +4454,7 @@
                             escHtml(slot.section)+'<br>'+
                             escHtml(slot.faculty)+
                             _mergedLabel+
+                            (conflictingIds.has(String(slot.id)) ? '<br><span class="slot-conflict-badge"><i class="fa-solid fa-triangle-exclamation"></i> Block conflict</span>' : '')+
                         '</div>'+
                         '<span class="slot-id" data-id="'+slot.id+'" style="display:none"></span>';
                     tr.appendChild(td);
@@ -4009,6 +4477,9 @@
             });
             tbody.appendChild(tr);
         });
+
+        // Update block conflict banner
+        renderBlockConflictBanner();
 
         // ── SLOT CLICK → details modal ──
         tbody.querySelectorAll('.scheduled-slot').forEach(td => {
@@ -4689,13 +5160,17 @@
         document.getElementById('endTimeWarning').style.display = 'none';
         document.getElementById('endTime').style.borderColor = '';
         document.getElementById('scheduleModal').classList.add('show');
+        broadcastPresence({ editing_room: currentRoom });
     }
     document.getElementById('scheduleModalCloseBtn').addEventListener('click', () => {
-        document.getElementById('scheduleModal').classList.remove('show');
+        document.getElementById('scheduleModal').classList.remove('show'); broadcastPresence({ editing_room: null });
+        broadcastPresence({ editing_room: null });
     });
     document.getElementById('scheduleModal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('scheduleModal'))
-            document.getElementById('scheduleModal').classList.remove('show');
+        if (e.target === document.getElementById('scheduleModal')) {
+            document.getElementById('scheduleModal').classList.remove('show'); broadcastPresence({ editing_room: null });
+            broadcastPresence({ editing_room: null });
+        }
     });
 
     // ── END TIME VALIDATION ──
@@ -4750,7 +5225,7 @@
         const sM = timeToMins(startTime), eM = timeToMins(endTime);
         const fullCourseName = courseName+(courseMajorMinor?' ['+courseMajorMinor+']':'')+(courseType&&courseType!=='None'?' ('+courseType+')':'');
 
-        // Check conflicts for ALL selected days — room conflict AND section conflict across all rooms
+        // Check conflicts for ALL selected days — room conflict AND block/section conflict across all rooms
         let conflictSlot = null, conflictDay = null, conflictType = null;
         for (const day of selectedDays) {
             // 1. Room conflict: same room, same day, overlapping time
@@ -4761,20 +5236,39 @@
             });
             if (roomConflict) { conflictDay = day; conflictSlot = roomConflict; conflictType = 'room'; break; }
 
-            // 2. Section conflict: same section, different room, overlapping time
+            // 2. Block conflict: same section already has a class at this time in ANY room (hard block)
+            const blockConflict = findBlockConflict(section, day, sM, eM, currentRoom, null);
+            if (blockConflict) { conflictDay = day; conflictSlot = blockConflict; conflictType = 'block'; break; }
+
+            // 3. Legacy section conflict check (different room, kept for safety)
             const secConflict = findSectionConflict(section, day, sM, eM, currentRoom, null);
             if (secConflict) { conflictDay = day; conflictSlot = secConflict; conflictType = 'section'; break; }
         }
         if (conflictSlot) {
+            if (conflictType === 'block' || conflictType === 'section') {
+                // Hard block — same section already occupied at this time. Show clear error, do NOT proceed.
+                const conflictName = escHtml(conflictSlot.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim());
+                const conflictTime = to12hr(conflictSlot.start_time.slice(0,5)) + ' – ' + to12hr(conflictSlot.end_time.slice(0,5));
+                showToast('Block conflict: ' + section + ' already has "' + conflictSlot.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim() + '" on ' + conflictDay + ' at that time (Room ' + (conflictSlot.room || '') + ')', 'error');
+                // Also show the block conflict modal for detail
+                document.getElementById('blockConflictNewModal').style.display = 'flex';
+                document.getElementById('bcnmSection').textContent = section;
+                document.getElementById('bcnmDay').textContent = conflictDay;
+                document.getElementById('bcnmExistingName').textContent = conflictSlot.course_name.replace(/\s*\[.*?\]/g,'').replace(/\s*\(.*?\)/g,'').trim();
+                document.getElementById('bcnmExistingTime').textContent = conflictTime;
+                document.getElementById('bcnmExistingRoom').textContent = 'Room ' + (conflictSlot.room || currentRoom);
+                document.getElementById('bcnmNewName').textContent = courseName;
+                document.getElementById('bcnmNewTime').textContent = to12hr(startTime) + ' – ' + to12hr(endTime);
+                document.getElementById('bcnmNewRoom').textContent = 'Room ' + currentRoom;
+                return;
+            }
             pendingNewEntry = { courseName: fullCourseName, section, faculty, day: conflictDay, startTime, endTime, conflictId: conflictSlot.id, dragMoveId: null, allDays: selectedDays };
-            const conflictRoomNote = conflictType === 'section'
-                ? '<br><span style="font-size:0.75rem;color:#ef4444;font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Section already scheduled in Room '+conflictSlot.room+' at this time!</span>'
-                : '';
+            const conflictRoomNote = '';
             document.getElementById('conflictSlotCard').innerHTML =
                 '<strong>'+escHtml(conflictSlot.course_name)+'</strong>'+
                 escHtml(conflictSlot.section)+'<br>'+escHtml(conflictSlot.faculty)+'<br>'+
                 '<span class="slot-time">'+to12hr(conflictSlot.start_time.slice(0,5))+' – '+to12hr(conflictSlot.end_time.slice(0,5))+'</span>'+
-                '<br><span style="font-size:0.75rem;color:#f59e0b;">Conflict on: '+conflictDay+'</span>'+conflictRoomNote;
+                '<br><span style="font-size:0.75rem;color:#f59e0b;">Conflict on: '+conflictDay+'</span>';
             document.getElementById('conflictModal').classList.add('show');
             return;
         }
@@ -4794,7 +5288,7 @@
             renderTimetable(); document.getElementById('scheduleForm').reset();
             setSelectedDays([]);
             document.getElementById('courseType').value = '';
-            document.getElementById('scheduleModal').classList.remove('show');
+            document.getElementById('scheduleModal').classList.remove('show'); broadcastPresence({ editing_room: null });
             showToast(selectedDays.length > 1 ? 'Schedule added for '+selectedDays.length+' days!' : 'Schedule added!','success');
             btn.classList.remove('loading'); btn.disabled=false; return;
         }
@@ -4808,7 +5302,7 @@
         (insertedData || newEntries).forEach(entry => logAudit('Schedule added', entry.id, currentRoom, entry));
         document.getElementById('scheduleForm').reset();
         setSelectedDays([]);
-        document.getElementById('scheduleModal').classList.remove('show');
+        document.getElementById('scheduleModal').classList.remove('show'); broadcastPresence({ editing_room: null });
         showToast(selectedDays.length > 1 ? 'Schedule added for '+selectedDays.length+' days!' : 'Schedule added!','success');
         loadSchedules();
     });
@@ -4816,10 +5310,168 @@
     // ── CONFLICT MODAL ──
     document.getElementById('conflictCancelBtn').addEventListener('click', () => {
         document.getElementById('conflictModal').classList.remove('show');
+        // Reset suggest panel state
+        document.getElementById('conflictSuggestPanel').style.display = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'none';
+        document.getElementById('conflictMainBtns').style.display     = 'flex';
         pendingNewEntry = null;
     });
+
+    document.getElementById('conflictSuggestBtn').addEventListener('click', () => {
+        if (!pendingNewEntry) return;
+        const { conflictId } = pendingNewEntry;
+
+        // Find the conflicting (existing) schedule across all rooms
+        let conflictEntry = null;
+        let conflictRoom  = null;
+        for (const [r, slots] of Object.entries(allRoomSchedules)) {
+            const found = slots.find(s => String(s.id) === String(conflictId));
+            if (found) { conflictEntry = found; conflictRoom = r; break; }
+        }
+        if (!conflictEntry) return;
+
+        const durMins = timeToMins(conflictEntry.end_time) - timeToMins(conflictEntry.start_time);
+        const day     = conflictEntry.day;
+
+        // Find free slots in the SAME room on the same day that fit the duration
+        // and don't cause a section conflict
+        const roomSlots = (allRoomSchedules[conflictRoom] || [])
+            .filter(s => s.day === day)
+            .map(s => ({ sM: timeToMins(s.start_time), eM: timeToMins(s.end_time) }))
+            .sort((a, b) => a.sM - b.sM);
+
+        const DAY_START = timeToMins('07:00');
+        const DAY_END   = timeToMins('21:00');
+
+        // Build free windows
+        const windows = [];
+        let cursor = DAY_START;
+        roomSlots.forEach(({ sM, eM }) => {
+            if (sM > cursor) windows.push({ start: cursor, end: sM });
+            cursor = Math.max(cursor, eM);
+        });
+        if (cursor < DAY_END) windows.push({ start: cursor, end: DAY_END });
+
+        // Enumerate half-hour aligned slots within each window
+        const freeSlots = [];
+        windows.forEach(({ start, end }) => {
+            // Align start to next half-hour boundary
+            const aligned = Math.ceil(start / 30) * 30;
+            for (let t = aligned; t + durMins <= end; t += 30) {
+                // Skip the slot occupied by conflictEntry itself
+                if (t === timeToMins(conflictEntry.start_time)) continue;
+                // Check section conflict
+                const secConflict = findSectionConflict(conflictEntry.section, day, t, t + durMins, conflictRoom, conflictEntry.id);
+                if (!secConflict) freeSlots.push({ start: t, end: t + durMins });
+            }
+        });
+
+        // Update panel UI
+        document.getElementById('conflictSuggestName').textContent = conflictEntry.course_name.replace(/\s*\[.*?\]/,'').replace(/\s*\(.*?\)/,'').trim();
+        const listEl  = document.getElementById('conflictSuggestList');
+        const noneEl  = document.getElementById('conflictSuggestNone');
+
+        if (freeSlots.length === 0) {
+            listEl.innerHTML = '';
+            noneEl.style.display  = 'block';
+            listEl.style.display  = 'none';
+        } else {
+            noneEl.style.display  = 'none';
+            listEl.style.display  = 'flex';
+            listEl.innerHTML = freeSlots.slice(0, 8).map((slot, i) =>
+                `<div class="conflict-suggest-slot" data-idx="${i}">
+                    <span>
+                        <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
+                        <span class="css-room">· Room ${conflictRoom} · ${day}</span>
+                    </span>
+                    <button class="css-move-btn" data-idx="${i}"><i class="fa-solid fa-arrow-right"></i> Move here</button>
+                </div>`
+            ).join('');
+
+            // Wire up move buttons
+            listEl.querySelectorAll('.css-move-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const idx  = parseInt(btn.dataset.idx);
+                    const slot = freeSlots[idx];
+                    await applyConflictMove(conflictEntry, conflictRoom, slot.start, slot.end);
+                });
+            });
+        }
+
+        document.getElementById('conflictSuggestPanel').style.display = 'block';
+        document.getElementById('conflictMainBtns').style.display     = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'block';
+    });
+
+    async function applyConflictMove(conflictEntry, room, newStartMins, newEndMins) {
+        const newStart = minsToTime(newStartMins) + ':00';
+        const newEnd   = minsToTime(newEndMins)   + ':00';
+
+        document.getElementById('conflictModal').classList.remove('show');
+        document.getElementById('conflictSuggestPanel').style.display = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'none';
+        document.getElementById('conflictMainBtns').style.display     = 'flex';
+
+        pushUndo('Schedule moved to resolve conflict');
+
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            allRoomSchedules[room] = (allRoomSchedules[room] || []).map(s =>
+                String(s.id) === String(conflictEntry.id)
+                    ? { ...s, start_time: newStart, end_time: newEnd }
+                    : s
+            );
+            localStorage.setItem('schedules_' + room, JSON.stringify(allRoomSchedules[room]));
+            schedules = allRoomSchedules[currentRoom] || [];
+            logAudit('Schedule moved (conflict resolve)', conflictEntry.id, room, { ...conflictEntry, start_time: newStart, end_time: newEnd });
+        } else {
+            const { error } = await _supabase.from('schedules').update({ start_time: newStart, end_time: newEnd }).eq('id', conflictEntry.id);
+            if (error) { showToast('Failed to move schedule: ' + error.message, 'error'); return; }
+            logAudit('Schedule moved (conflict resolve)', conflictEntry.id, room, { ...conflictEntry, start_time: newStart, end_time: newEnd });
+            await loadSchedules();
+        }
+
+        // Now proceed to save the new entry that was originally being added
+        if (pendingNewEntry) {
+            const { courseName, section, faculty, allDays } = pendingNewEntry;
+            const startTime = pendingNewEntry.startTime;
+            const endTime   = pendingNewEntry.endTime;
+            pendingNewEntry = null;
+
+            if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+                for (const d of (allDays || [startTime])) {
+                    const ne = { id: Date.now() + Math.random(), room: currentRoom, course_name: courseName, section, faculty, day: d, start_time: startTime + ':00', end_time: endTime + ':00' };
+                    (allRoomSchedules[currentRoom] = allRoomSchedules[currentRoom] || []).push(ne);
+                    logAudit('Schedule added', ne.id, currentRoom, ne);
+                }
+                localStorage.setItem('schedules_' + currentRoom, JSON.stringify(allRoomSchedules[currentRoom]));
+                schedules = allRoomSchedules[currentRoom];
+                renderTimetable();
+                document.getElementById('scheduleForm').reset();
+                setSelectedDays([]);
+                document.getElementById('scheduleModal').classList.remove('show');
+                broadcastPresence({ editing_room: null });
+            } else {
+                const newEntries = (allDays || [startTime]).map(d => ({ room: currentRoom, course_name: courseName, section, faculty, day: d, start_time: startTime + ':00', end_time: endTime + ':00' }));
+                const { error: ie } = await _supabase.from('schedules').insert(newEntries);
+                if (ie) { showToast('Moved existing schedule, but failed to save new one: ' + ie.message, 'error'); return; }
+                document.getElementById('scheduleForm').reset();
+                setSelectedDays([]);
+                document.getElementById('scheduleModal').classList.remove('show');
+                broadcastPresence({ editing_room: null });
+                loadSchedules();
+            }
+        } else {
+            renderTimetable();
+        }
+
+        showToast('Existing schedule moved — new schedule added!', 'success');
+    }
+
     document.getElementById('conflictReplaceBtn').addEventListener('click', async () => {
         document.getElementById('conflictModal').classList.remove('show');
+        document.getElementById('conflictSuggestPanel').style.display = 'none';
+        document.getElementById('conflictReplaceRow').style.display   = 'none';
+        document.getElementById('conflictMainBtns').style.display     = 'flex';
         if (!pendingNewEntry) return;
         const { courseName, section, faculty, day, startTime, endTime, conflictId, dragMoveId, allDays } = pendingNewEntry;
         pendingNewEntry = null;
@@ -4827,7 +5479,6 @@
         btn.classList.add('loading'); btn.disabled=true;
         pushUndo(dragMoveId ? 'Schedule moved (replaced)' : 'Schedule replaced');
 
-        // All days to insert: the conflicting day + any remaining days that weren't checked yet
         const daysToInsert = allDays && allDays.length > 1 ? allDays : [day];
 
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
@@ -4844,11 +5495,10 @@
             allRoomSchedules[currentRoom] = schedules;
             localStorage.setItem('schedules_'+currentRoom, JSON.stringify(schedules));
             renderTimetable();
-            if (!dragMoveId) { document.getElementById('scheduleForm').reset(); setSelectedDays([]); document.getElementById('scheduleModal').classList.remove('show'); }
+            if (!dragMoveId) { document.getElementById('scheduleForm').reset(); setSelectedDays([]); document.getElementById('scheduleModal').classList.remove('show'); broadcastPresence({ editing_room: null }); }
             showToast(daysToInsert.length > 1 ? 'Schedule replaced & added for '+daysToInsert.length+' days!' : 'Schedule replaced!','success');
             btn.classList.remove('loading'); btn.disabled=false; return;
         }
-        // Supabase: delete conflict + drag source, then insert all days
         const toDelete = [conflictId];
         if (dragMoveId) toDelete.push(dragMoveId);
         for (const delId of toDelete) {
@@ -5197,6 +5847,191 @@ td { border:1px solid #e2e8f0; vertical-align:middle; height:14px; padding:0; }
         pw.focus();
         pw.onload = () => { pw.print(); pw.close(); };
     }
+
+    // ── SUBJECT AUTOCOMPLETE ──────────────────────────────────────────────────
+    (function() {
+        const courseNameInput = document.getElementById('courseName');
+        const dropdown        = document.getElementById('subjectAcDropdown');
+        const listEl          = document.getElementById('subjectAcList');
+        let focusedIdx = -1;
+        let acItems    = [];
+
+        // Build a deduplicated list of unique subjects from allRoomSchedules
+        function getUniqueSubjects() {
+            const map = {}; // key: cleaned name → { name, majorMinor, type, faculty (most recent) }
+            Object.values(allRoomSchedules).forEach(slots => {
+                (slots || []).forEach(s => {
+                    if (!s.course_name) return;
+                    // Extract parts
+                    const mmMatch   = s.course_name.match(/\[(Major|Minor)\]/);
+                    const typeMatch = s.course_name.match(/\((Lecture|Laboratory|None)\)/);
+                    const cleanName = s.course_name
+                        .replace(/\s*\[(Major|Minor)\]/, '')
+                        .replace(/\s*\((Lecture|Laboratory|None)\)/, '')
+                        .trim();
+                    if (!cleanName) return;
+                    const key = cleanName.toLowerCase();
+                    if (!map[key]) {
+                        map[key] = {
+                            name:       cleanName,
+                            majorMinor: mmMatch   ? mmMatch[1]   : '',
+                            type:       typeMatch ? typeMatch[1] : '',
+                            faculty:    s.faculty || ''
+                        };
+                    } else {
+                        // Keep most recent faculty if slot has one
+                        if (s.faculty) map[key].faculty = s.faculty;
+                    }
+                });
+            });
+            return Object.values(map).sort((a,b) => a.name.localeCompare(b.name));
+        }
+
+        function highlight(text, query) {
+            if (!query) return escHtml(text);
+            const idx = text.toLowerCase().indexOf(query.toLowerCase());
+            if (idx < 0) return escHtml(text);
+            return escHtml(text.slice(0, idx))
+                 + '<mark>' + escHtml(text.slice(idx, idx + query.length)) + '</mark>'
+                 + escHtml(text.slice(idx + query.length));
+        }
+
+        function renderDropdown(query) {
+            const subjects = getUniqueSubjects();
+            const q = (query || '').trim().toLowerCase();
+            const filtered = q
+                ? subjects.filter(s => s.name.toLowerCase().includes(q))
+                : subjects;
+
+            if (filtered.length === 0) {
+                closeDropdown();
+                return;
+            }
+
+            acItems = filtered;
+            focusedIdx = -1;
+
+            listEl.innerHTML = filtered.map((s, i) => {
+                const mmBadge = s.majorMinor
+                    ? `<span class="subject-ac-badge ${s.majorMinor === 'Minor' ? 'minor' : ''}">${s.majorMinor}</span>`
+                    : '';
+                const typeBadge = s.type && s.type !== 'None'
+                    ? `<span class="subject-ac-badge">${s.type}</span>`
+                    : '';
+                const facultyText = s.faculty
+                    ? `<span style="opacity:0.85;">${escHtml(s.faculty)}</span>`
+                    : '';
+                return `<div class="subject-ac-item" data-idx="${i}">
+                    <div class="subject-ac-name">${highlight(s.name, q)}</div>
+                    <div class="subject-ac-meta">${mmBadge}${typeBadge}${facultyText}</div>
+                </div>`;
+            }).join('');
+
+            // Attach click handlers
+            listEl.querySelectorAll('.subject-ac-item').forEach(el => {
+                el.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    const idx = parseInt(el.dataset.idx);
+                    applyAutofill(acItems[idx]);
+                });
+            });
+
+            dropdown.classList.add('open');
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            focusedIdx = -1;
+        }
+
+        function flashField(el) {
+            el.classList.remove('autofill-flash');
+            void el.offsetWidth; // reflow
+            el.classList.add('autofill-flash');
+            el.addEventListener('animationend', () => el.classList.remove('autofill-flash'), { once: true });
+        }
+
+        function applyAutofill(subject) {
+            courseNameInput.value = subject.name;
+            closeDropdown();
+
+            // Auto-fill Major/Minor
+            if (subject.majorMinor) {
+                const mmSel = document.getElementById('courseMajorMinor');
+                mmSel.value = subject.majorMinor;
+                flashField(mmSel);
+                // Trigger the change event so courseType enable/disable logic fires
+                mmSel.dispatchEvent(new Event('change'));
+            }
+
+            // Auto-fill Lec/Lab type
+            if (subject.type) {
+                const typeSel = document.getElementById('courseType');
+                typeSel.disabled = false;
+                typeSel.style.opacity = '1';
+                typeSel.style.cursor = '';
+                typeSel.value = subject.type;
+                flashField(typeSel);
+            }
+
+            // Auto-fill professor
+            if (subject.faculty) {
+                const facInput = document.getElementById('faculty');
+                facInput.value = subject.faculty;
+                flashField(facInput);
+            }
+
+            // Focus next empty field
+            const mmSel   = document.getElementById('courseMajorMinor');
+            const typeSel = document.getElementById('courseType');
+            const facInput = document.getElementById('faculty');
+            if (!mmSel.value) { mmSel.focus(); }
+            else if (!typeSel.value) { typeSel.focus(); }
+            else if (!facInput.value) { facInput.focus(); }
+            else {
+                // All pre-filled, move focus to section
+                document.getElementById('sectionCourse').focus();
+            }
+        }
+
+        function moveFocus(dir) {
+            const items = listEl.querySelectorAll('.subject-ac-item');
+            if (!items.length) return;
+            items[focusedIdx]?.classList.remove('focused');
+            focusedIdx = Math.max(0, Math.min(items.length - 1, focusedIdx + dir));
+            items[focusedIdx]?.classList.add('focused');
+            items[focusedIdx]?.scrollIntoView({ block: 'nearest' });
+        }
+
+        // ── Event Listeners ──
+        courseNameInput.addEventListener('input', () => {
+            renderDropdown(courseNameInput.value);
+        });
+
+        courseNameInput.addEventListener('focus', () => {
+            if (courseNameInput.value.length >= 0) renderDropdown(courseNameInput.value);
+        });
+
+        courseNameInput.addEventListener('keydown', (e) => {
+            if (!dropdown.classList.contains('open')) return;
+            if (e.key === 'ArrowDown')  { e.preventDefault(); moveFocus(1); }
+            else if (e.key === 'ArrowUp')   { e.preventDefault(); moveFocus(-1); }
+            else if (e.key === 'Enter') {
+                if (focusedIdx >= 0 && acItems[focusedIdx]) {
+                    e.preventDefault();
+                    applyAutofill(acItems[focusedIdx]);
+                }
+            }
+            else if (e.key === 'Escape') { closeDropdown(); }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== courseNameInput) {
+                closeDropdown();
+            }
+        });
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
 
     </script>
 
