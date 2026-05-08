@@ -1,0 +1,161 @@
+    <!-- Delete All Schedules Modal -->
+    <div class="modal-overlay" id="deleteAllOverlay" style="display:none;"></div>
+    <div class="modal" id="deleteAllModal" style="display:none; max-width:400px; width:90%; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:1100; border-radius:16px; padding:0; overflow:hidden;">
+        <!-- Header -->
+        <div style="background:#7f1d1d; padding:20px 24px 16px; display:flex; align-items:center; gap:14px; position:relative;">
+            <div style="width:40px;height:40px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid fa-triangle-exclamation" style="color:#fca5a5;font-size:1.1rem;"></i>
+            </div>
+            <div>
+                <div style="font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem;color:white;">Delete All Schedules</div>
+                <div style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-top:1px;">This action cannot be undone</div>
+            </div>
+            <button id="deleteAllCloseBtn" onclick="closeDeleteAll()" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background 0.2s;" title="Close" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:20px 24px 8px;" id="deleteAllBody">
+            <!-- Step 1: Warning -->
+            <div id="deleteStep1">
+                <p style="font-size:0.85rem;line-height:1.65;color:var(--text);margin-bottom:16px;">
+                    You are about to <strong>permanently delete all schedules</strong> for the current term. This is intended for semester resets and cannot be reversed.
+                </p>
+                <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">To continue, enter your account password below.</p>
+                <div style="position:relative;">
+                    <input type="password" id="deletePasswordInput" placeholder="Enter your password"
+                        style="width:100%;padding:10px 40px 10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.875rem;font-family:'DM Sans',sans-serif;background:var(--light-bg);color:var(--text);outline:none;transition:border-color 0.2s;"
+                        onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border)'">
+                    <button onclick="toggleDeletePw()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85rem;" id="toggleDeletePwBtn">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <p id="deletePasswordError" style="color:#ef4444;font-size:0.78rem;margin-top:8px;display:none;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Incorrect password. Please try again.
+                </p>
+            </div>
+
+            <!-- Step 2: Success -->
+            <div id="deleteStep2" style="display:none;text-align:center;padding:10px 0 16px;">
+                <div style="width:52px;height:52px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <i class="fa-solid fa-check" style="color:#16a34a;font-size:1.3rem;"></i>
+                </div>
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:6px;">All schedules deleted</div>
+                <div style="font-size:0.82rem;color:var(--muted);">The timetable has been cleared for the new term.</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:12px 24px 20px;display:flex;gap:10px;justify-content:flex-end;" id="deleteAllFooter">
+            <button id="deleteAllCancelBtn" style="padding:9px 20px;background:var(--light-bg);color:var(--text);border:1.5px solid var(--border);border-radius:9px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;">Cancel</button>
+            <button id="deleteAllConfirmBtn" style="padding:9px 20px;background:#dc2626;color:white;border:none;border-radius:9px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;display:flex;align-items:center;gap:8px;">
+                <i class="fa-solid fa-trash-can"></i> Delete All
+            </button>
+        </div>
+    </div>
+
+    <style>
+        body.dark-mode #deleteAllModal { background: #1e293b; }
+        body.dark-mode #deletePasswordInput { background: #0f172a !important; border-color: #334155 !important; color: #e2e8f0 !important; }
+        body.dark-mode #deleteAllCancelBtn { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+        body.dark-mode #deleteStep1 p, body.dark-mode #deleteStep1 p strong { color: #cbd5e1; }
+    </style>
+
+    <script>
+        // ── DELETE ALL SCHEDULES ──
+        const deleteAllBtn    = document.getElementById('deleteAllBtn');
+        const deleteAllModal  = document.getElementById('deleteAllModal');
+        const deleteAllOverlay= document.getElementById('deleteAllOverlay');
+        const deleteAllCancel = document.getElementById('deleteAllCancelBtn');
+        const deleteAllConfirm= document.getElementById('deleteAllConfirmBtn');
+        const deletePassInput = document.getElementById('deletePasswordInput');
+        const deletePassError = document.getElementById('deletePasswordError');
+        const deleteStep1     = document.getElementById('deleteStep1');
+        const deleteStep2     = document.getElementById('deleteStep2');
+        const deleteAllFooter = document.getElementById('deleteAllFooter');
+
+        let pwVisible = false;
+        function toggleDeletePw() {
+            pwVisible = !pwVisible;
+            deletePassInput.type = pwVisible ? 'text' : 'password';
+            document.getElementById('toggleDeletePwBtn').innerHTML =
+                `<i class="fa-solid fa-eye${pwVisible ? '-slash' : ''}"></i>`;
+        }
+
+        function openDeleteAll() {
+            deletePassInput.value = '';
+            deletePassError.style.display = 'none';
+            deleteStep1.style.display = 'block';
+            deleteStep2.style.display = 'none';
+            deleteAllFooter.style.display = 'flex';
+            deleteAllConfirm.disabled = false;
+            deleteAllModal.style.display = 'block';
+            deleteAllOverlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => deletePassInput.focus(), 100);
+        }
+        function closeDeleteAll() {
+            deleteAllModal.style.display = 'none';
+            deleteAllOverlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        deleteAllBtn.addEventListener('click', () => { closeSidebar(); openDeleteAll(); });
+        deleteAllCancel.addEventListener('click', closeDeleteAll);
+        deleteAllOverlay.addEventListener('click', closeDeleteAll);
+
+        deleteAllConfirm.addEventListener('click', async () => {
+            const password = deletePassInput.value.trim();
+            if (!password) {
+                deletePassError.style.display = 'block';
+                deletePassError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter your password.';
+                return;
+            }
+
+            deleteAllConfirm.disabled = true;
+            deleteAllConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying…';
+
+            try {
+                // Re-authenticate with current email + entered password
+                const { data: { session } } = await _supabase.auth.getSession();
+                const email = session?.user?.email;
+
+                const { error: authError } = await _supabase.auth.signInWithPassword({ email, password });
+
+                if (authError) {
+                    deletePassError.style.display = 'block';
+                    deletePassError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Incorrect password. Please try again.';
+                    deleteAllConfirm.disabled = false;
+                    deleteAllConfirm.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete All';
+                    return;
+                }
+
+                // Password correct — delete all schedules for this user
+                const { error: delError } = await _supabase.from('schedules').delete().neq('id', 0);
+
+                if (delError) throw delError;
+
+                // Show success state
+                deleteStep1.style.display = 'none';
+                deleteStep2.style.display = 'block';
+                deleteAllFooter.style.display = 'none';
+
+                // Reload timetable after short delay
+                setTimeout(() => {
+                    closeDeleteAll();
+                    if (typeof loadSchedules === 'function') loadSchedules();
+                    else location.reload();
+                }, 1800);
+
+            } catch (err) {
+                deletePassError.style.display = 'block';
+                deletePassError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Something went wrong. Please try again.';
+                deleteAllConfirm.disabled = false;
+                deleteAllConfirm.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete All';
+            }
+        });
+
+        // Allow Enter key to submit
+        deletePassInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') deleteAllConfirm.click();
+        });
+    </script>
