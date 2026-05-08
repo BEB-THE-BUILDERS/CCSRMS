@@ -3394,7 +3394,6 @@
         });
     }
 
-    let currentFloor    = 1;
     let currentDay      = 'Monday';
     let currentRoom     = '407';
     let schedules       = [];
@@ -3444,9 +3443,7 @@
         if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); performUndo(); }
     });
 
-    const FLOORS = {
-        1: [407,408,409,410,411,412,413,503,504,505,506,507,508,509,510,517,518,519,520,521,525]
-    };
+    const ALL_ROOMS = [407,408,409,410,411,412,413,503,504,505,506,507,508,509,510,517,518,519,520,521,525];
     const HOURS   = [];
     for (let m = 7*60; m <= 21*60; m += 30) {
         HOURS.push(String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'));
@@ -3479,11 +3476,14 @@
     function findBlockConflict(section, day, startMins, endMins, excludeRoom, excludeId) {
         const secNorm = (section||'').trim().toUpperCase();
         for (const [room, slots] of Object.entries(allRoomSchedules)) {
+            // Skip the same room entirely — same-room overlaps are handled as room conflicts
+            if (String(room) === String(excludeRoom)) continue;
             for (const s of slots) {
                 if (excludeId && String(s.id) === String(excludeId)) continue;
-                if (String(room) === String(excludeRoom) && String(s.id) === String(excludeId)) continue;
                 if (s.day !== day) continue;
                 if ((s.section||'').trim().toUpperCase() !== secNorm) continue;
+                // Minor subjects can run in parallel for the same section across rooms
+                if (/\[Minor\]/i.test(s.course_name)) continue;
                 const sM = timeToMins(s.start_time), eM = timeToMins(s.end_time);
                 if (startMins < eM && endMins > sM) return { ...s, room };
             }
@@ -3508,13 +3508,19 @@
             const a = allSlots[i];
             const secA = (a.section||'').trim().toUpperCase();
             if (!secA) continue;
+            // Minor subjects can legitimately run in parallel for different students in the same section
+            if (/\[Minor\]/i.test(a.course_name)) continue;
             const aStart = timeToMins(a.start_time), aEnd = timeToMins(a.end_time);
 
             for (let j = i + 1; j < allSlots.length; j++) {
                 const b = allSlots[j];
+                // Skip pairs in the same room — those are room-level conflicts, not block conflicts
+                if (String(a.room) === String(b.room)) continue;
                 if (b.day !== a.day) continue;
                 const secB = (b.section||'').trim().toUpperCase();
                 if (secA !== secB) continue;
+                // Skip if the other slot is also a minor subject
+                if (/\[Minor\]/i.test(b.course_name)) continue;
                 const bStart = timeToMins(b.start_time), bEnd = timeToMins(b.end_time);
                 if (aStart < bEnd && aEnd > bStart) {
                     const key = [String(a.id), String(b.id)].sort().join('|');
@@ -3675,7 +3681,7 @@
 
         // Populate room filter
         const roomSel = document.getElementById('auditRoomFilter');
-        const allRooms = Object.values(FLOORS).flat().map(String).sort((a,b)=>parseInt(a)-parseInt(b));
+        const allRooms = ALL_ROOMS.map(String).sort((a,b)=>parseInt(a)-parseInt(b));
         roomSel.innerHTML = '<option value="">All Rooms</option>' +
             allRooms.map(r => `<option value="${r}">Room ${r}</option>`).join('');
 
@@ -3999,17 +4005,6 @@
         }
     }
 
-    // ── FLOOR ──
-    document.getElementById('floorGrid').addEventListener('click', (e) => {
-        const btn = e.target.closest('.floor-btn');
-        if (!btn) return;
-        document.querySelectorAll('#floorGrid .floor-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFloor = parseInt(btn.dataset.floor);
-        currentRoom  = String(FLOORS[currentFloor][0]);
-        loadSchedules();
-    });
-
     // ── DAY ──
     document.getElementById('dayGrid').addEventListener('click', (e) => {
         const btn = e.target.closest('.floor-btn');
@@ -4022,18 +4017,16 @@
 
 
 
-    // ── LOAD SCHEDULES (all rooms on current floor) ──
-    let allRoomSchedules = {}; // { '101': [...], '102': [...], ... }
+    // ── LOAD SCHEDULES (all rooms) ──
+    let allRoomSchedules = {}; // { '407': [...], '408': [...], ... }
 
     async function loadSchedules() {
         const ov = document.getElementById('scheduleLoading');
         ov.classList.add('show');
-        const rooms = FLOORS[currentFloor] || [];
+        const rooms = ALL_ROOMS;
 
         // Update thead with room columns
         const thead = document.getElementById('timetableHead');
-        const floorNames = {1:'1st',2:'2nd',3:'3rd',4:'4th',5:'5th',6:'6th'};
-
         const LAB_ROOMS = new Set([507,508,509,510,517,518,519,520,521]);
         thead.innerHTML = '<tr><th>Time</th>' +
             rooms.map(r => {
@@ -4055,7 +4048,6 @@
         }
 
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-            allRoomSchedules = {};
             rooms.forEach(r => {
                 allRoomSchedules[String(r)] = JSON.parse(localStorage.getItem('schedules_'+r)||'[]');
             });
@@ -4072,10 +4064,10 @@
             const roomStrs = rooms.map(r => String(r));
             const { data, error } = await _supabase.from('schedules').select('*').in('room', roomStrs);
             if (error) { showToast('Failed to load schedules','error'); return; }
-            allRoomSchedules = {};
+            // Refresh all rooms so the cache stays consistent
             rooms.forEach(r => { allRoomSchedules[String(r)] = []; });
             (data||[]).forEach(s => {
-                if (allRoomSchedules[s.room]) allRoomSchedules[s.room].push(s);
+                if (allRoomSchedules[s.room] !== undefined) allRoomSchedules[s.room].push(s);
             });
             schedules = allRoomSchedules[currentRoom] || [];
             if (currentTab === 'room') { renderTimetable(); }
@@ -4097,28 +4089,23 @@
         'bsemc-gd': { tabId: 'tabBsemcGdView',  panelId: 'panelBsemcGdView',  filterId: 'bsemcGdDayFilter',  searchId: 'bsemcGdSearchFilter',  roomFiltId: 'bsemcGdRoomFilter',  timeFiltId: 'bsemcGdTimeFilter',  sortFiltId: 'bsemcGdSortFilter',  contentId: 'bsemcGdViewContent',  prefix: 'BSEMC-GD',  label: 'BSEMC-GD' },
     };
 
-    // ── LOAD ALL SCHEDULES (all floors) for course/major-minor tabs ──
+    // ── LOAD ALL SCHEDULES for course/major-minor tabs ──
     async function loadAllSchedules() {
-        const allRooms = Object.values(FLOORS).flat().map(String);
+        const allRooms = ALL_ROOMS.map(String);
 
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
             // Demo / localStorage mode
             allRooms.forEach(r => {
-                if (!(r in allRoomSchedules)) {
-                    allRoomSchedules[r] = JSON.parse(localStorage.getItem('schedules_' + r) || '[]');
-                }
+                allRoomSchedules[r] = JSON.parse(localStorage.getItem('schedules_' + r) || '[]');
             });
             return;
         }
 
-        // Supabase mode — only fetch rooms not already loaded
-        const missing = allRooms.filter(r => !(r in allRoomSchedules));
-        if (missing.length === 0) return;
-
+        // Supabase mode — always fetch all rooms so we never show stale data
         try {
-            const { data, error } = await _supabase.from('schedules').select('*').in('room', missing);
+            const { data, error } = await _supabase.from('schedules').select('*').in('room', allRooms);
             if (error) { showToast('Failed to load all-floor schedules', 'error'); return; }
-            missing.forEach(r => { allRoomSchedules[r] = []; });
+            allRooms.forEach(r => { allRoomSchedules[r] = []; });
             (data || []).forEach(s => {
                 if (allRoomSchedules[s.room]) allRoomSchedules[s.room].push(s);
             });
@@ -4184,23 +4171,21 @@
             });
         });
 
-        // Also load from all floors if not yet loaded (demo mode)
+        // Also load from all rooms if not yet loaded (demo mode)
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-            Object.keys(FLOORS).forEach(f => {
-                FLOORS[f].forEach(r => {
-                    const key = String(r);
-                    if (!allRoomSchedules[key]) {
-                        const stored = JSON.parse(localStorage.getItem('schedules_'+key)||'[]');
-                        stored.forEach(s => {
-                            const sec = (s.section||'').trim().toUpperCase();
-                            if (sec.startsWith(prefix + ' ') || sec.startsWith(prefix + '-') || sec === prefix) {
-                                if (!courseSchedules.find(x => String(x.id) === String(s.id))) {
-                                    courseSchedules.push(s);
-                                }
+            ALL_ROOMS.forEach(r => {
+                const key = String(r);
+                if (!allRoomSchedules[key]) {
+                    const stored = JSON.parse(localStorage.getItem('schedules_'+key)||'[]');
+                    stored.forEach(s => {
+                        const sec = (s.section||'').trim().toUpperCase();
+                        if (sec.startsWith(prefix + ' ') || sec.startsWith(prefix + '-') || sec === prefix) {
+                            if (!courseSchedules.find(x => String(x.id) === String(s.id))) {
+                                courseSchedules.push(s);
                             }
-                        });
-                    }
-                });
+                        }
+                    });
+                }
             });
         }
 
@@ -4351,18 +4336,6 @@
 
                 switchTab('room');
 
-                let targetFloor = currentFloor;
-                Object.entries(FLOORS).forEach(([f, rooms]) => {
-                    if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
-                });
-                if (targetFloor !== currentFloor) {
-                    currentFloor = targetFloor;
-                    currentRoom  = String(FLOORS[currentFloor][0]);
-                    document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
-                        b.classList.toggle('active', b.dataset.floor == currentFloor);
-                    });
-                }
-
                 if (day !== currentDay) {
                     currentDay = day;
                     document.querySelectorAll('#dayGrid .floor-btn').forEach(b => {
@@ -4453,21 +4426,19 @@
 
         // Demo mode: pull from localStorage for rooms not yet loaded
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-            Object.keys(FLOORS).forEach(f => {
-                FLOORS[f].forEach(r => {
-                    const key = String(r);
-                    if (!allRoomSchedules[key]) {
-                        const stored = JSON.parse(localStorage.getItem('schedules_'+key)||'[]');
-                        stored.forEach(s => {
-                            const mm = (s.course_name||'').match(/\[(Major|Minor)\]/);
-                            if (!mm) return;
-                            if (typeFilter !== 'all' && mm[1] !== typeFilter) return;
-                            if (!days.includes(s.day)) return;
-                            if (!allSlots.find(x => String(x.id) === String(s.id)))
-                                allSlots.push({ ...s, _type: mm[1] });
-                        });
-                    }
-                });
+            ALL_ROOMS.forEach(r => {
+                const key = String(r);
+                if (!allRoomSchedules[key]) {
+                    const stored = JSON.parse(localStorage.getItem('schedules_'+key)||'[]');
+                    stored.forEach(s => {
+                        const mm = (s.course_name||'').match(/\[(Major|Minor)\]/);
+                        if (!mm) return;
+                        if (typeFilter !== 'all' && mm[1] !== typeFilter) return;
+                        if (!days.includes(s.day)) return;
+                        if (!allSlots.find(x => String(x.id) === String(s.id)))
+                            allSlots.push({ ...s, _type: mm[1] });
+                    });
+                }
             });
         }
 
@@ -4563,15 +4534,6 @@
                 const day   = tr.dataset.day;
                 const start = tr.dataset.start;
                 switchTab('room');
-                let targetFloor = currentFloor;
-                Object.entries(FLOORS).forEach(([f, rooms]) => {
-                    if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
-                });
-                if (targetFloor !== currentFloor) {
-                    currentFloor = targetFloor;
-                    currentRoom  = String(FLOORS[currentFloor][0]);
-                    document.querySelectorAll('#floorGrid .floor-btn').forEach(b => b.classList.toggle('active', b.dataset.floor == currentFloor));
-                }
                 if (day !== currentDay) {
                     currentDay = day;
                     document.querySelectorAll('#dayGrid .floor-btn').forEach(b => b.classList.toggle('active', b.dataset.day === day));
@@ -4657,7 +4619,7 @@
     function renderTimetable() {
         const tbody = document.getElementById('timetableBody');
         tbody.innerHTML = '';
-        const rooms = (FLOORS[currentFloor] || []).map(r => String(r));
+        const rooms = ALL_ROOMS.map(r => String(r));
 
         // Build per-room schedule map filtered by currentDay: roomStr → { startMins → slot }
         const roomMap = {};
@@ -5516,7 +5478,8 @@
             if (roomConflict) { conflictDay = day; conflictSlot = roomConflict; conflictType = 'room'; break; }
 
             // 2. Block conflict: same section already has a class at this time in ANY room (hard block)
-            const blockConflict = findBlockConflict(section, day, sM, eM, currentRoom, null);
+            // Minor subjects are exempt — they legitimately run in parallel for the same section
+            const blockConflict = /\[Minor\]/i.test(fullCourseName) ? null : findBlockConflict(section, day, sM, eM, currentRoom, null);
             if (blockConflict) { conflictDay = day; conflictSlot = blockConflict; conflictType = 'block'; break; }
 
             // 3. Legacy section conflict check (different room, kept for safety)
@@ -5592,7 +5555,7 @@
     function findFreeSlotsAcrossAllDays(entry, excludeDay) {
         const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         const durMins  = timeToMins(entry.end_time) - timeToMins(entry.start_time);
-        const allRooms = (FLOORS[currentFloor] || []).map(String);
+        const allRooms = ALL_ROOMS.map(String);
         const DAY_START = timeToMins('07:00');
         const DAY_END   = timeToMins('21:00');
         const results   = [];
@@ -5712,7 +5675,7 @@
         const day      = entry.day;
         const DAY_START = timeToMins('07:00');
         const DAY_END   = timeToMins('21:00');
-        const allRooms  = (FLOORS[currentFloor] || []).map(String);
+        const allRooms  = ALL_ROOMS.map(String);
 
         function getFreeSlots(room) {
             const slots = (allRoomSchedules[room] || [])
@@ -7594,8 +7557,8 @@ tbody tr:hover { background:#f0f7ff !important; }
         const searchStart = timeToMins(startVal);
         const searchEnd   = timeToMins(endVal);
 
-        // Get ALL rooms across ALL floors
-        const allRoomNums = Object.values(FLOORS).flat().map(r => String(r));
+        // Get ALL rooms
+        const allRoomNums = ALL_ROOMS.map(r => String(r));
 
         const freeRooms = [];
         const busyRooms = [];
@@ -7655,8 +7618,8 @@ tbody tr:hover { background:#f0f7ff !important; }
         const durMins    = parseInt(document.getElementById('findFreeDuration').value);
         const resultsEl  = document.getElementById('findFreeResults');
 
-        // All rooms across all floors
-        const allRoomNums = Object.values(FLOORS).flat().map(r => String(r));
+        // All rooms
+        const allRoomNums = ALL_ROOMS.map(r => String(r));
 
         // For each room, find all contiguous free windows >= durMins on this day
         const roomSlots = []; // { room, startMins, endMins }
@@ -7757,40 +7720,28 @@ tbody tr:hover { background:#f0f7ff !important; }
 
     // ── BANNER CONFLICT CLICK → navigate to slot then auto-open suggest ──
     function navigateToBannerConflict(rowEl) {
-        const slotAId = rowEl.dataset.slotAId;
-        const slotBId = rowEl.dataset.slotBId;
-        const day     = rowEl.dataset.day;
+        const slotAId   = rowEl.dataset.slotAId;
+        const slotARoom = rowEl.dataset.slotARoom;
+        const slotBId   = rowEl.dataset.slotBId;
+        const slotBRoom = rowEl.dataset.slotBRoom;
+        const day       = rowEl.dataset.day;
 
-        // Find the actual schedule entry from allRoomSchedules (source of truth for room)
+        // Pick slot A as the primary one to navigate to
+        const slotId   = slotAId;
+        const room     = slotARoom;
+
+        // Find the actual schedule entry
         let targetSlot = null;
         for (const [r, slots] of Object.entries(allRoomSchedules)) {
-            const found = slots.find(s => String(s.id) === String(slotAId));
-            if (found) { targetSlot = { ...found, room: String(r) }; break; }
+            const found = slots.find(s => String(s.id) === String(slotId));
+            if (found) { targetSlot = { ...found, room: r }; break; }
         }
         if (!targetSlot) return;
 
-        // Use the verified real room from allRoomSchedules, not the data attribute
-        const slotId = slotAId;
-        const room   = targetSlot.room;
+        const startTime = targetSlot.start_time.slice(0, 5);
 
         // Collapse the banner so the timetable is visible
         document.getElementById('blockConflictBanner').classList.add('collapsed');
-
-        // Determine which floor the room is on
-        let targetFloor = currentFloor;
-        Object.entries(FLOORS).forEach(([f, rooms]) => {
-            if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
-        });
-
-        // Switch floor if needed and set currentRoom to the EXACT target room
-        if (targetFloor !== currentFloor) {
-            currentFloor = targetFloor;
-            document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.floor == currentFloor);
-            });
-        }
-        // Always point currentRoom at the specific room we want to highlight
-        currentRoom = room;
 
         // Switch day if needed
         if (day !== currentDay) {
@@ -7800,19 +7751,8 @@ tbody tr:hover { background:#f0f7ff !important; }
             });
         }
 
-        // Re-fetch fresh schedules to avoid ghost/stale conflict entries
+        // Load schedules then scroll & highlight, then auto-open suggest modal
         loadSchedules().then(() => {
-            // After reload, verify the slot still exists (guard against ghost conflicts)
-            let stillExists = false;
-            for (const [r, slots] of Object.entries(allRoomSchedules)) {
-                if (slots.find(s => String(s.id) === String(slotId))) { stillExists = true; break; }
-            }
-            if (!stillExists) {
-                // Slot no longer exists — refresh the banner and bail
-                renderBlockConflictBanner();
-                return;
-            }
-
             setTimeout(() => {
                 // Find the rendered cell for this slot
                 let target = null;
@@ -7823,6 +7763,7 @@ tbody tr:hover { background:#f0f7ff !important; }
 
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Flash highlight — use the existing bscsFlash-style animation inline
                     target.style.transition = 'outline 0.1s, box-shadow 0.1s';
                     target.style.outline    = '3px solid #ef4444';
                     target.style.boxShadow  = '0 0 0 6px rgba(239,68,68,0.25)';
@@ -7884,23 +7825,8 @@ tbody tr:hover { background:#f0f7ff !important; }
         document.getElementById('conflictModal').classList.add('show');
     }
 
-    // Jump to a specific room on a specific floor and day, then highlight the slot
+    // Jump to a specific room on a specific day, then highlight the slot
     function jumpToRoom(room, day, startTime) {
-        // Find which floor the room is on
-        let targetFloor = currentFloor;
-        Object.entries(FLOORS).forEach(([f, rooms]) => {
-            if (rooms.map(String).includes(String(room))) targetFloor = parseInt(f);
-        });
-
-        // Switch floor if needed
-        if (targetFloor !== currentFloor) {
-            currentFloor = targetFloor;
-            currentRoom  = String(FLOORS[currentFloor][0]);
-            document.querySelectorAll('#floorGrid .floor-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.floor == currentFloor);
-            });
-        }
-
         // Switch day if needed
         if (day !== currentDay) {
             currentDay = day;
@@ -7909,7 +7835,7 @@ tbody tr:hover { background:#f0f7ff !important; }
             });
         }
 
-        // Load schedules for new floor/day then scroll & highlight the cell
+        // Load schedules then scroll & highlight the cell
         loadSchedules().then(() => {
             setTimeout(() => {
                 const startMins = timeToMins(startTime);
