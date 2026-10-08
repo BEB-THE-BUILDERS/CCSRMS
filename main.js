@@ -1,4 +1,4 @@
-    const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
+const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZWliY2hjcWhrY3N1dHBjdGl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2OTE1NDcsImV4cCI6MjA5MjI2NzU0N30.ICh4YZv1Da5D3BdKK6oKSuBBBZ0YOor3Mnz2iLSou9o';
 
     const { createClient } = supabase;
@@ -59,6 +59,9 @@
     let currentDay      = 'Monday';
     let currentRoom     = '407';
     let schedules       = [];
+    // Class schedules must never be deleted. Keep this false.
+    const ALLOW_SCHEDULE_DELETE = false;
+    const NO_DELETE_MSG = "Class schedules can't be deleted";
     let pendingDeleteId = null;
     let pendingNewEntry = null;
     let pendingMoveData = null;
@@ -79,6 +82,9 @@
             if (undoStack[i].room === currentRoom) { idx = i; break; }
         }
         if (idx === -1) { showToast('Nothing to undo', ''); return; }
+        if (!ALLOW_SCHEDULE_DELETE && undoStack[idx].snapshot.length < schedules.length) {
+            showToast("Can't undo: " + NO_DELETE_MSG.toLowerCase(), 'error'); return;
+        }
         const { snapshot, label } = undoStack.splice(idx, 1)[0];
         if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
             schedules = snapshot;
@@ -1538,6 +1544,7 @@
             document.getElementById('detailsModal').classList.remove('show');
     });
     document.getElementById('detailDeleteBtn').addEventListener('click', () => {
+        if (!ALLOW_SCHEDULE_DELETE) { showToast(NO_DELETE_MSG, 'error'); return; }
         const _sDel = schedules.find(x => String(x.id)===String(currentDetailId));
         if (_sDel && !canOwnSection(_sDel.section)) {
             showToast('You can only delete your own course\'s schedules', 'error'); return;
@@ -1695,6 +1702,7 @@
         document.getElementById('deleteModal').classList.remove('show'));
     document.getElementById('deleteConfirmBtn').addEventListener('click', async () => {
         document.getElementById('deleteModal').classList.remove('show');
+        if (!ALLOW_SCHEDULE_DELETE) { pendingDeleteId = null; showToast(NO_DELETE_MSG, 'error'); return; }
         if (!pendingDeleteId) return;
         pushUndo('Schedule removed');
         if (SUPABASE_URL==='YOUR_SUPABASE_URL') {
@@ -2489,6 +2497,11 @@
     }
 
     document.getElementById('conflictReplaceBtn').addEventListener('click', async () => {
+        if (!ALLOW_SCHEDULE_DELETE) {
+            document.getElementById('conflictModal').classList.remove('show');
+            pendingNewEntry = null;
+            showToast(NO_DELETE_MSG, 'error'); return;
+        }
         document.getElementById('conflictModal').classList.remove('show');
         document.getElementById('conflictSuggestPanel').style.display = 'none';
         document.getElementById('conflictReplaceRow').style.display   = 'none';
@@ -3244,4 +3257,3 @@ tbody tr:hover { background:#f0f7ff !important; }
         });
     })();
     // ─────────────────────────────────────────────────────────────────────────
-
