@@ -7,7 +7,7 @@
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0d1b3e">
+    <meta name="theme-color" content="#ED7117">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,6 +27,7 @@
 </head>
     <header class="navbar">
         <div class="nav-left">
+            <img src="logo-gc-ccs.png" class="gc-logo" alt="Gordon College - College of Computer Studies">
             <div class="logo-circle">
                 <img src="logo.png" class="logo">
             </div>
@@ -304,7 +305,7 @@
                         <select id="printRoomSelect" style="padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.82rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:var(--white);cursor:pointer;min-width:130px;">
                             <option value="">— Select Room —</option>
                         </select>
-                        <button class="print-btn" id="printRoomWeeklyBtn" onclick="printRoomWeeklySchedule()" style="background:#0d1b3e;color:white;border-color:#0d1b3e;">
+                        <button class="print-btn" id="printRoomWeeklyBtn" onclick="printRoomWeeklySchedule()" style="background:#ED7117;color:white;border-color:#ED7117;">
                             <i class="fa-solid fa-calendar-week"></i> Print Room Weekly Schedule
                         </button>
                     </div>
@@ -691,7 +692,7 @@
                         <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" required autocomplete="off" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;">
                         <div class="subject-autocomplete-dropdown" id="subjectAcDropdown">
                             <div id="subjectAcList"></div>
-                            <div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#3b82f6;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div>
+                            <div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#C2570C;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div>
                         </div>
                     </div>
                 </div>
@@ -844,7 +845,7 @@
                     </div>
                 </div>
                 <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">To fix this, either change the time/day of the new schedule, or first resolve the existing conflict.</p>
-                <button onclick="document.getElementById('blockConflictNewModal').style.display='none'" style="width:100%;padding:10px;border-radius:8px;border:none;background:#0d1b3e;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;">
+                <button onclick="document.getElementById('blockConflictNewModal').style.display='none'" style="width:100%;padding:10px;border-radius:8px;border:none;background:#ED7117;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;">
                     <i class="fa-solid fa-arrow-left"></i> Go Back &amp; Fix
                 </button>
             </div>
@@ -879,20 +880,20 @@
             <!-- Suggest-move panel (shown after clicking Suggest) -->
             <div id="conflictSuggestPanel" style="display:none;margin-top:12px;">
                 <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-                    <i class="fa-solid fa-arrows-left-right" style="color:#3b82f6;"></i>
-                    Free slots to move <span id="conflictSuggestName" style="color:#3b82f6;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;"></span> to:
+                    <i class="fa-solid fa-arrows-left-right" style="color:#C2570C;"></i>
+                    Free slots to move <span id="conflictSuggestName" style="color:#C2570C;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;"></span> to:
                 </div>
                 <div id="conflictSuggestList" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;padding-right:2px;"></div>
                 <div id="conflictSuggestNone" style="display:none;font-size:0.78rem;color:#b91c1c;font-weight:600;padding:6px 0;"><i class="fa-solid fa-circle-xmark"></i> No free slots found across all rooms. Try a different day or edit the schedule manually.</div>
                 <div id="conflictTryOtherDaysRow" style="display:none;margin-top:8px;">
-                    <button id="conflictTryOtherDaysBtn" class="modal-confirm" style="background-color: rgb(13, 27, 62);flex:1;min-width:140px;width:100%;padding:10px 0 10px 0;border: none;border-radius: 8px;">
+                    <button id="conflictTryOtherDaysBtn" class="modal-confirm" style="background-color: rgb(237, 113, 23);flex:1;min-width:140px;width:100%;padding:10px 0 10px 0;border: none;border-radius: 8px;">
                         <i class="fa-solid fa-calendar-week"></i> Search Other Days
                     </button>
                 </div>
             </div>
 
             <div class="modal-btns conflict-btns" id="conflictMainBtns" style="margin-top:14px;flex-wrap:wrap;gap:8px;">
-                <button class="modal-confirm" id="conflictSuggestBtn" style="background:#2563eb;flex:1;min-width:140px;">
+                <button class="modal-confirm" id="conflictSuggestBtn" style="background:#D4620F;flex:1;min-width:140px;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest Move
                 </button>
                 <button class="modal-cancel conflict-cancel-btn" id="conflictCancelBtn" style="flex:1;min-width:100px;">Cancel</button>
@@ -929,7 +930,7 @@
                 <div class="detail-row"><i class="fa-solid fa-clock"></i><div><div class="detail-row-label">Time</div><div class="detail-row-value" id="detailTime"></div></div></div>
             </div>
             <div class="modal-btns" style="justify-content:flex-end;gap:8px;">
-                <button id="detailEditBtn" style="padding:9px 18px;border-radius:7px;border:none;background:#eff6ff;color:#1d4ed8;font-family:DM Sans,sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-pen"></i> Edit</button>
+                <button id="detailEditBtn" style="padding:9px 18px;border-radius:7px;border:none;background:#FFF7ED;color:#C2570C;font-family:DM Sans,sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-pen"></i> Edit</button>
                 <button id="detailDeleteBtn" style="padding:9px 18px;border-radius:7px;border:none;background:#fef2f2;color:#dc2626;font-family:DM Sans,sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-trash"></i> Remove</button>
             </div>
         </div>
@@ -942,7 +943,7 @@
             <h3 style="margin-bottom:4px;"><i class="fa-solid fa-pen" style="color:#16a34a;margin-right:8px;"></i>Edit Schedule</h3>
             <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:18px;margin-bottom:16px;font-size:0.78rem;color:var(--muted);" id="editModalSub"><span id="editSubtitle"></span></div>
             <div style="display:flex;flex-direction:column;gap:10px;">
-                <div class="form-row"><label>Class Name:</label><div class="subject-autocomplete-wrap"><input type="text" id="editCourseName" autocomplete="off" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><div class="subject-autocomplete-dropdown" id="editSubjectAcDropdown"><div id="editSubjectAcList"></div><div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#3b82f6;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div></div></div></div>
+                <div class="form-row"><label>Class Name:</label><div class="subject-autocomplete-wrap"><input type="text" id="editCourseName" autocomplete="off" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><div class="subject-autocomplete-dropdown" id="editSubjectAcDropdown"><div id="editSubjectAcList"></div><div class="subject-ac-autofill-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#C2570C;font-size:0.72rem;"></i> Select to auto-fill type &amp; professor</div></div></div></div>
                 <div class="form-row"><label>Class Type:</label><div style="display:flex;gap:6px;flex:1;"><select id="editCourseMajorMinor" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Major/Minor</option><option value="Major">Major</option><option value="Minor">Minor</option></select><select id="editCourseType" required style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:0.85rem;font-family:DM Sans,sans-serif;outline:none;color:var(--text);background:#f8fafc;"><option value="" disabled hidden selected>Lec/Lab</option><option value="Lecture">Lecture</option><option value="Laboratory">Laboratory</option><option value="None">None</option></select></div></div>
                 <div class="form-row">
                     <label>Section:</label>
@@ -1020,16 +1021,16 @@
     <div class="modal-overlay" id="moveModal">
         <div class="modal" style="text-align:center;max-width:440px;position:relative;">
             <button id="moveCloseBtn" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" title="Close"><i class="fa-solid fa-xmark"></i></button>
-            <div style="width:52px;height:52px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.3rem;color:#3b82f6;border:2px solid #93c5fd;"><i class="fa-solid fa-arrows-up-down-left-right"></i></div>
+            <div style="width:52px;height:52px;background:#FFF7ED;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.3rem;color:#C2570C;border:2px solid #FDBA74;"><i class="fa-solid fa-arrows-up-down-left-right"></i></div>
             <h3>Move Schedule</h3>
             <p style="margin:8px 0 4px;">Move this class to the new time slot?</p>
             <div style="display:flex;gap:12px;margin:14px 0;align-items:center;justify-content:center;">
-                <div id="moveFromCard" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;font-size:0.82rem;color:#0d1b3e;line-height:1.7;text-align:left;flex:1;"></div>
+                <div id="moveFromCard" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;font-size:0.82rem;color:#C2570C;line-height:1.7;text-align:left;flex:1;"></div>
                 <div style="font-size:1.2rem;color:#64748b;flex-shrink:0;"><i class="fa-solid fa-arrow-right"></i></div>
-                <div id="moveToCard" style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px 16px;font-size:0.82rem;color:#0d1b3e;line-height:1.7;text-align:left;flex:1;"></div>
+                <div id="moveToCard" style="background:#FFF7ED;border:1px solid #FDBA74;border-radius:10px;padding:12px 16px;font-size:0.82rem;color:#C2570C;line-height:1.7;text-align:left;flex:1;"></div>
             </div>
             <div class="modal-btns" style="justify-content:center;gap:12px;">
-                <button id="moveConfirmBtn" style="padding:10px 24px;border-radius:7px;border:none;background:#0d1b3e;color:white;font-family:DM Sans,sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-check"></i> Yes, Move It</button>
+                <button id="moveConfirmBtn" style="padding:10px 24px;border-radius:7px;border:none;background:#ED7117;color:white;font-family:DM Sans,sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-check"></i> Yes, Move It</button>
                 <button class="modal-cancel" id="moveCancelBtn">Cancel</button>
             </div>
         </div>
@@ -1041,8 +1042,8 @@
         <div class="modal" style="max-width:420px;position:relative;">
             <button id="cpCloseBtn" onclick="document.getElementById('changePasswordModal').classList.remove('show')" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:var(--light-bg);color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;"><i class="fa-solid fa-xmark"></i></button>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-                <div style="width:44px;height:44px;background:#eff6ff;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid #93c5fd;flex-shrink:0;">
-                    <i class="fa-solid fa-key" style="color:#1d4ed8;font-size:1.1rem;"></i>
+                <div style="width:44px;height:44px;background:#FFF7ED;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid #FDBA74;flex-shrink:0;">
+                    <i class="fa-solid fa-key" style="color:#C2570C;font-size:1.1rem;"></i>
                 </div>
                 <div>
                     <div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);">Change Password</div>
@@ -1084,7 +1085,7 @@
             </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
                 <button id="cpCancelBtn" onclick="document.getElementById('changePasswordModal').classList.remove('show')" style="padding:9px 20px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;">Cancel</button>
-                <button id="changePasswordConfirmBtn" style="padding:9px 20px;border-radius:7px;border:none;background:#1d4ed8;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;">
+                <button id="changePasswordConfirmBtn" style="padding:9px 20px;border-radius:7px;border:none;background:#C2570C;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.2s;">
                     <i class="fa-solid fa-check"></i> Update Password
                 </button>
             </div>
@@ -1205,8 +1206,8 @@
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;">
                 <div>
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-                        <div style="width:36px;height:36px;border-radius:9px;background:#eff6ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa-solid fa-file-arrow-up" style="color:#3b82f6;font-size:0.95rem;"></i>
+                        <div style="width:36px;height:36px;border-radius:9px;background:#FFF7ED;border:1.5px solid #FED7AA;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-file-arrow-up" style="color:#C2570C;font-size:0.95rem;"></i>
                         </div>
                         <h3 style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy);margin:0;">Import Schedule from Excel</h3>
                     </div>
@@ -1229,7 +1230,7 @@
                             <div style="font-size:0.75rem;color:var(--muted);">Fill in your schedules using the correct column format, then upload below.</div>
                         </div>
                     </div>
-                    <button id="downloadTemplateBtn" style="padding:8px 16px;background:#0d1b3e;color:white;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background 0.15s;flex-shrink:0;">
+                    <button id="downloadTemplateBtn" style="padding:8px 16px;background:#ED7117;color:white;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background 0.15s;flex-shrink:0;">
                         <i class="fa-solid fa-download"></i> Download Template
                     </button>
                 </div>
@@ -1237,7 +1238,7 @@
                 <!-- Column guide -->
                 <div style="margin-top:10px;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;">
                     <div style="padding:8px 14px;background:var(--navy);display:flex;align-items:center;gap:7px;">
-                        <i class="fa-solid fa-circle-info" style="color:#93c5fd;font-size:0.75rem;"></i>
+                        <i class="fa-solid fa-circle-info" style="color:#FDBA74;font-size:0.75rem;"></i>
                         <span style="font-size:0.75rem;font-weight:700;color:white;letter-spacing:0.3px;">REQUIRED COLUMNS IN YOUR TEMPLATE</span>
                     </div>
                     <div style="overflow-x:auto;">
@@ -1294,17 +1295,17 @@
                     <table style="width:100%;border-collapse:collapse;font-size:0.75rem;" id="importPreviewTable">
                         <thead style="position:sticky;top:0;z-index:1;">
                             <tr style="background:var(--navy);">
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">#</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Subject</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Type</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Major/Minor</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Section</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Teacher</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Room</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Day</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Start</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">End</th>
-                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#93c5fd;white-space:nowrap;">Status</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">#</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Subject</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Type</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Major/Minor</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Section</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Teacher</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Room</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Day</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Start</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">End</th>
+                                <th style="padding:8px 10px;text-align:left;font-weight:700;color:#FFE8D6;white-space:nowrap;">Status</th>
                             </tr>
                         </thead>
                         <tbody id="importPreviewBody"></tbody>
@@ -1318,7 +1319,7 @@
             <!-- Footer buttons -->
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:16px;border-top:1.5px solid var(--border);">
                 <button id="importCancelBtn" style="padding:9px 20px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;transition:background 0.15s;">Cancel</button>
-                <button id="importConfirmBtn" disabled style="padding:9px 22px;border-radius:7px;border:none;background:#0d1b3e;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:not-allowed;opacity:0.5;display:flex;align-items:center;gap:8px;transition:background 0.15s,opacity 0.15s;">
+                <button id="importConfirmBtn" disabled style="padding:9px 22px;border-radius:7px;border:none;background:#ED7117;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:not-allowed;opacity:0.5;display:flex;align-items:center;gap:8px;transition:background 0.15s,opacity 0.15s;">
                     <i class="fa-solid fa-upload"></i>
                     <span id="importConfirmLabel">Import Schedules</span>
                 </button>
@@ -1351,7 +1352,7 @@
                 <div style="position:relative;">
                     <input type="password" id="deletePasswordInput" placeholder="Enter your password"
                         style="width:100%;padding:10px 40px 10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.875rem;font-family:'DM Sans',sans-serif;background:var(--light-bg);color:var(--text);outline:none;transition:border-color 0.2s;"
-                        onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border)'">
+                        onfocus="this.style.borderColor='#ED7117'" onblur="this.style.borderColor='var(--border)'">
                     <button onclick="toggleDeletePw()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.85rem;" id="toggleDeletePwBtn">
                         <i class="fa-solid fa-eye"></i>
                     </button>
@@ -1612,7 +1613,7 @@
                 }
             });
 
-            const colors = ['#ef4444','#f59e0b','#3b82f6','#10b981'];
+            const colors = ['#ef4444','#f59e0b','#ED7117','#10b981'];
             const labels = ['Weak','Fair','Good','Strong'];
             const barIds = ['pwBar1','pwBar2','pwBar3','pwBar4'];
             const color  = score <= 1 ? colors[0] : score === 2 ? colors[1] : score <= 4 ? colors[2] : colors[3];

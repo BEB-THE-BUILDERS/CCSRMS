@@ -1039,18 +1039,18 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
         <\style>
             body { font-family: 'DM Sans', sans-serif; padding: 24px; color: #1e293b; }
-            h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color: #0d1b3e; }
+            h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color:#C2570C; }
             .bscs-year-section { margin-bottom: 28px; }
-            .bscs-year-header { font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; color: #0d1b3e; padding: 7px 12px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+            .bscs-year-header { font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; color:#C2570C; padding: 7px 12px; background: #FFF7ED; border-left: 4px solid #ED7117; border-radius: 0 6px 6px 0; margin-bottom: 10px; }
             .bscs-block-card { border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
             .bscs-block-header { padding: 6px 12px; background: #f1f5f9; font-size: 0.78rem; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; }
             .bscs-block-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-            .bscs-block-table th { padding: 6px 8px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700; color: #0d1b3e; text-align: center; }
+            .bscs-block-table th { padding: 6px 8px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700; color:#C2570C; text-align: center; }
             .bscs-block-table th:first-child { text-align: left; }
             .bscs-block-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: top; }
             .bscs-block-table tr:last-child td { border-bottom: none; }
             .bscs-block-table td:last-child, .bscs-block-table th:last-child { border-right: none; }
-            .bscs-subject-chip { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin: 1px; line-height: 1.4; }
+            .bscs-subject-chip { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: #FFF7ED; color: #9A3412; border: 1px solid #FED7AA; margin: 1px; line-height: 1.4; }
             .chip-time, .chip-room { display: block; font-size: 0.65rem; opacity: 0.75; }
         <\/style>\x3C/head>\x3Cbody>
         <h1>${cfg.label} — All Classes</h1>${content}\x3C/body>\x3C/html>`);
@@ -1226,11 +1226,11 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
         <\style>
             body { font-family: 'DM Sans', sans-serif; padding: 24px; color: #1e293b; }
-            h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color: #0d1b3e; }
+            h1 { font-family: 'Sora', sans-serif; font-size: 1.1rem; margin-bottom: 20px; color:#C2570C; }
             .bscs-year-section { margin-bottom: 28px; }
             .bscs-year-header { font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; padding: 7px 12px; border-left: 4px solid; border-radius: 0 6px 6px 0; margin-bottom: 10px; }
             .bscs-block-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-            .bscs-block-table th { padding: 6px 8px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700; color: #0d1b3e; text-align: center; }
+            .bscs-block-table th { padding: 6px 8px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700; color:#C2570C; text-align: center; }
             .bscs-block-table th:first-child { text-align: left; }
             .bscs-block-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: top; }
             .bscs-block-table tr:last-child td { border-bottom: none; }
@@ -2001,7 +2001,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     let mergeActive = false;
     function setMerge(active) {
         mergeActive = active;
-        document.getElementById('mergeTrack').style.background  = active ? '#3b82f6' : '#cbd5e1';
+        document.getElementById('mergeTrack').style.background  = active ? '#ED7117' : '#cbd5e1';
         document.getElementById('mergeThumb').style.left        = active ? '18px'   : '2px';
         document.getElementById('sectionBlock2').style.display  = active ? ''       : 'none';
         document.getElementById('mergeToggleText').textContent  = active ? 'On'     : 'Off';
@@ -2013,7 +2013,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     let editMergeActive = false;
     function setEditMerge(active) {
         editMergeActive = active;
-        document.getElementById('editMergeTrack').style.background  = active ? '#3b82f6' : '#cbd5e1';
+        document.getElementById('editMergeTrack').style.background  = active ? '#ED7117' : '#cbd5e1';
         document.getElementById('editMergeThumb').style.left        = active ? '18px'   : '2px';
         document.getElementById('editSectionBlock2').style.display  = active ? ''       : 'none';
         document.getElementById('editMergeToggleText').textContent  = active ? 'On'     : 'Off';
@@ -2403,7 +2403,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
             const sameRoom = slot.room === entry.room;
             const roomLabel = sameRoom
                 ? `· Room ${slot.room} · ${entry.day}`
-                : `· <strong style="color:#2563eb;">Room ${slot.room}</strong> · ${entry.day} <span style="font-size:0.68rem;background:#dbeafe;color:#1d4ed8;border-radius:4px;padding:1px 5px;margin-left:3px;">different room</span>`;
+                : `· <strong style="color:#C2570C;">Room ${slot.room}</strong> · ${entry.day} <span style="font-size:0.68rem;background:#FFEDD5;color:#9A3412;border-radius:4px;padding:1px 5px;margin-left:3px;">different room</span>`;
             return `<div class="conflict-suggest-slot" data-idx="${i}">
                     <span>
                         <span class="css-time">${to12hr(minsToTime(slot.start))} – ${to12hr(minsToTime(slot.end))}</span>
@@ -2836,8 +2836,8 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
   <td style="text-align:center;">
     ${g.days.map(d => `<span style="display:inline-block;background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:4px;padding:1px 6px;font-size:7pt;font-weight:600;margin:1px;">${dayAbbr[d]||d}</span>`).join('')}
   </td>
-  <td style="text-align:center;font-weight:700;color:#0d1b3e;white-space:nowrap;">${escHtml(startStr)}</td>
-  <td style="text-align:center;font-weight:700;color:#0d1b3e;white-space:nowrap;">${escHtml(endStr)}</td>
+  <td style="text-align:center;font-weight:700;color:#C2570C;white-space:nowrap;">${escHtml(startStr)}</td>
+  <td style="text-align:center;font-weight:700;color:#C2570C;white-space:nowrap;">${escHtml(endStr)}</td>
 </tr>`;
             });
         }
@@ -2853,20 +2853,20 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { font-family: Arial, sans-serif; font-size: 8pt; background: white; color: #1e293b; }
 /* ── HEADER ── */
-.ph-wrap { background:#0d1b3e; color:white; padding:10px 14px 10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
-.ph-school { font-size:6.5pt; color:#93c5fd; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px; }
+.ph-wrap { background:#ED7117; color:white; padding:10px 14px 10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.ph-school { font-size:6.5pt; color:#FFE8D6; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:4px; }
 .ph-title { font-size:15pt; font-weight:700; color:white; margin:2px 0; letter-spacing:-0.3px; }
 .ph-sub { font-size:7pt; color:#94a3b8; margin-top:3px; }
 .ph-right { text-align:right; flex-shrink:0; margin-left:16px; }
-.ph-room-badge { display:inline-block; background:white; color:#0d1b3e; font-size:16pt; font-weight:700; padding:6px 20px; border-radius:8px; margin-bottom:5px; letter-spacing:0.5px; }
+.ph-room-badge { display:inline-block; background:white; color:#C2570C; font-size:16pt; font-weight:700; padding:6px 20px; border-radius:8px; margin-bottom:5px; letter-spacing:0.5px; }
 .ph-meta { font-size:6pt; color:#94a3b8; }
 /* ── SUMMARY BAR ── */
 .summary-bar { display:flex; gap:16px; margin-bottom:8px; font-size:7pt; color:#475569; }
 .summary-item { display:flex; align-items:center; gap:4px; }
 /* ── TABLE ── */
 table { width:100%; border-collapse:collapse; font-size:8pt; }
-thead tr { background:#0d1b3e; }
-th { color:white; font-weight:700; padding:8px 10px; border:1px solid #1a3060; text-align:left; font-size:8pt; white-space:nowrap; }
+thead tr { background:#ED7117; }
+th { color:white; font-weight:700; padding:8px 10px; border:1px solid #D4620F; text-align:left; font-size:8pt; white-space:nowrap; }
 th.center { text-align:center; }
 td { border:1px solid #e2e8f0; vertical-align:middle; padding:6px 10px; }
 tbody tr:hover { background:#f0f7ff !important; }

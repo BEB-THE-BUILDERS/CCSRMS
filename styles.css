@@ -2013,3 +2013,16 @@
         body.dark-mode .audit-modal-footer { border-color: #334155; }
         body.dark-mode #auditLoadMoreBtn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
         body.dark-mode #auditLoadMoreBtn:hover { background: #334155; }
+
+        /* ── GC CCS LOGO (leftmost in header) ── */
+        .gc-logo {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #fff;
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .gc-logo { width: 38px; height: 38px; }
+        }
