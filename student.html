@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCSRMS — Student View</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ED7117">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .dashboard .card { margin-bottom: 16px; }
+        .sv-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .sv-bar .card-title { margin: 0; }
+        .sv-meta { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--muted, #64748b); }
+        .scheduled-slot { cursor: pointer; }
+        .scheduled-slot:focus-visible { outline: 2px solid var(--accent, #ED7117); outline-offset: -2px; }
+        #svDetailRows .detail-row.is-hidden { display: none; }
+        .scheduled-slot.mine { box-shadow: inset 0 0 0 2px var(--navy, #0d1b3e); }
+        .scheduled-slot.dim  { opacity: 0.5; }
+        #emptyMsg { padding: 14px; text-align: center; font-size: 0.85rem; color: var(--muted, #64748b); }
+
+        /* Grid columns live here (not inline) so the mobile rule can override them */
+        #dayGrid { grid-template-columns: repeat(6, 1fr); }
+        .sv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .sv-hint { font-size: 0.75rem; color: var(--muted, #64748b); margin-bottom: 14px; }
+        @media (max-width: 768px) {
+            #dayGrid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-left">
+            <div class="logo-circle"><img src="logo.png" class="logo" alt=""></div>
+            <span class="nav-title">CCSRMS</span>
+        </div>
+        <div class="nav-right">
+            <div class="user-info" style="text-align:right;">
+                <div class="user-name" id="userName">Loading…</div>
+                <div class="user-role" id="userRole">Student</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Log out"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <section class="card">
+            <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Select Day</div>
+            <div class="floor-grid" id="dayGrid"></div>
+        </section>
+
+        <section class="card">
+            <div class="sv-bar">
+                <div class="card-title"><i class="fa-solid fa-calendar-week"></i> <span id="scheduleTitle">Schedule</span></div>
+                <div class="sv-meta">
+                    <span id="updated"></span>
+                    <button class="floor-btn" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="sv-legend" id="legendBar"></div>
+            <div class="sv-hint" id="legendHint"></div>
+            <div id="emptyMsg" hidden></div>
+            <div class="timetable-container">
+                <table class="timetable">
+                    <thead id="timetableHead"></thead>
+                    <tbody id="timetableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Schedule details card: view only (no Edit / Remove) -->
+    <div class="modal-overlay" id="svDetails" aria-hidden="true">
+        <div class="modal details-modal" style="position:relative;" role="dialog" aria-modal="true" aria-labelledby="svName">
+            <button id="svClose" type="button" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:#f1f5f9;color:#64748b;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="detail-header">
+                <div class="detail-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div>
+                    <div class="detail-title" id="svName"></div>
+                    <div class="detail-subtitle" id="svRoom"></div>
+                </div>
+            </div>
+            <div class="detail-rows" id="svDetailRows">
+                <div class="detail-row"><i class="fa-solid fa-users"></i><div><div class="detail-row-label">Section</div><div class="detail-row-value" id="svSection"></div></div></div>
+                <div class="detail-row"><i class="fa-solid fa-chalkboard-user"></i><div><div class="detail-row-label">Professor</div><div class="detail-row-value" id="svFaculty"></div></div></div>
+                <div class="detail-row"><i class="fa-solid fa-calendar-day"></i><div><div class="detail-row-label">Day</div><div class="detail-row-value" id="svDay"></div></div></div>
+                <div class="detail-row"><i class="fa-solid fa-clock"></i><div><div class="detail-row-label">Time</div><div class="detail-row-value" id="svTime"></div></div></div>
+                <div class="detail-row" id="svKindRow"><i class="fa-solid fa-book"></i><div><div class="detail-row-label">Course type</div><div class="detail-row-value" id="svKind"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="student.js"></script>
+</body>
+</html>

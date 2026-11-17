@@ -197,13 +197,22 @@
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .error-msg.show { display: block; }
+        .error-msg.ok { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
+        select { width: 100%; padding: 11px 12px 11px 38px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; outline: none; color: #1e293b; background: #f8fafc; }
+        select:focus { border-color: #ED7117; box-shadow: 0 0 0 3px rgba(237,113,23,0.18); background: #fff; }
+        .switch-view { text-align: center; margin-top: 16px; font-size: 0.82rem; color: #64748b; }
+        .switch-view button { background: none; border: none; color: #C2570C; font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
         .logo {
             height: 80px;
         }
+        /* Sign-up: fixed email domain after the ID number, room for the eye buttons */
+        .email-suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #64748b; pointer-events: none; }
+        #suId { padding-right: 150px; }
+        #suPassword, #suConfirm { padding-right: 40px; }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="card" id="loginCard">
         <div class="brand">
             <div class="brand-logo">
                 <img src="logo.png" class="logo">
@@ -263,6 +272,56 @@
                 <span class="btn-text">Log In</span>
             </button>
         </div>
+        <div class="switch-view">New student? <button type="button" id="showSignup">Create an account</button></div>
+    </div>
+
+    <div class="card" id="signupCard" style="display:none;">
+        <div class="brand">
+            <div class="brand-logo"><img src="logo.png" class="logo"></div>
+            <h1>Create your account</h1>
+            <p>For CCS students. View room schedules.</p>
+        </div>
+        <div id="suError" class="error-msg"></div>
+        <div class="input-group">
+            <label for="suId">Student ID Number</label>
+            <div class="input-wrap"><svg class="icon-left" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input type="text" id="suId" placeholder="9-digit ID number" inputmode="numeric" maxlength="9" autocomplete="username">
+                <span class="email-suffix">@gordoncollege.edu.ph</span></div>
+        </div>
+        <div class="input-group">
+            <label for="suProgram">Program</label>
+            <div class="input-wrap"><svg class="icon-left" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+                <select id="suProgram" required>
+                    <option value="" disabled hidden selected>Program</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="BSIT">BSIT</option>
+                    <option value="BSEMC-DAT">BSEMC-DAT</option>
+                    <option value="BSEMC-GD">BSEMC-GD</option>
+                </select></div>
+        </div>
+        <div class="input-group">
+            <label for="suPassword">Password</label>
+            <div class="input-wrap"><svg class="icon-left" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="suPassword" placeholder="At least 6 characters" autocomplete="new-password">
+                <button type="button" class="toggle-password" data-target="suPassword" aria-label="Show password">
+                    <svg class="eye-on" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button></div>
+        </div>
+        <div class="input-group">
+            <label for="suConfirm">Confirm Password</label>
+            <div class="input-wrap"><svg class="icon-left" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input type="password" id="suConfirm" placeholder="Re-enter your password" autocomplete="new-password">
+                <button type="button" class="toggle-password" data-target="suConfirm" aria-label="Show password">
+                    <svg class="eye-on" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button></div>
+        </div>
+        <div class="info-box"><strong>Note:</strong> Your program cannot be changed after sign-up. Pick carefully.</div>
+        <div class="button-group">
+            <button class="btn-login" id="suBtn"><span class="spinner"></span><span class="btn-text">Create Account</span></button>
+        </div>
+        <div class="switch-view">Already have an account? <button type="button" id="showLogin">Log in</button></div>
     </div>
 
 
@@ -354,7 +413,7 @@
 
         (async () => {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (session) window.location.href = 'home.html';
+            if (session) routeAfterLogin(session.user.id);
         })();
 
 
@@ -386,13 +445,81 @@
             if (error) {
                 showError(error.message || 'Login failed. Please check your credentials.');
             } else {
-                window.location.href = 'home.html';
+                routeAfterLogin(data.user.id);
             }
         });
 
 
+        // --- Role routing: students go to the student page; confirmed staff go to the staff page; no profile = blocked ---
+        async function routeAfterLogin(userId) {
+            const { data, error } = await _supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
+            if (error || !data) {
+                // No profile = account not set up. Never fall through to the staff page.
+                await _supabase.auth.signOut();
+                const msg = 'Your account is not set up yet. Please contact the department head.';
+                if (signupCard.style.display === 'none') showError(msg); else suMsg(msg);
+                return;
+            }
+            window.location.href = data.role === 'student' ? 'student.html' : 'home.html';
+        }
+
+        // --- Student sign-up ---
+        const SCHOOL_EMAIL_DOMAIN = 'gordoncollege.edu.ph';   // students type only their 9-digit ID; this is added for them
+        const loginCard = document.getElementById('loginCard');
+        const signupCard = document.getElementById('signupCard');
+        const suError = document.getElementById('suError');
+        const suBtn = document.getElementById('suBtn');
+
+        function showView(signup) {
+            loginCard.style.display = signup ? 'none' : '';
+            signupCard.style.display = signup ? '' : 'none';
+            hideError();
+            suError.className = 'error-msg';
+        }
+        function suMsg(msg, ok) { suError.textContent = msg; suError.className = 'error-msg show' + (ok ? ' ok' : ''); }
+        document.getElementById('showSignup').addEventListener('click', () => showView(true));
+        document.getElementById('showLogin').addEventListener('click', () => showView(false));
+
+        // ID field: digits only, max 9 (also cleans up pasted text)
+        const suId = document.getElementById('suId');
+        suId.addEventListener('input', () => { suId.value = suId.value.replace(/\D/g, '').slice(0, 9); });
+
+        // Eye icons on the sign-up password fields
+        document.querySelectorAll('.toggle-password[data-target]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.classList.toggle('visible', show);
+                btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+            });
+        });
+
+        suBtn.addEventListener('click', async () => {
+            const idNo = suId.value.trim();
+            const program = document.getElementById('suProgram').value;
+            const pw = document.getElementById('suPassword').value;
+            if (!idNo || !program || !pw || !document.getElementById('suConfirm').value) return suMsg('Please fill in every field.');
+            if (!/^\d{9}$/.test(idNo)) return suMsg('Enter your 9-digit ID number.');
+            const email = idNo + '@' + SCHOOL_EMAIL_DOMAIN;
+            if (pw.length < 6) return suMsg('Password must be at least 6 characters.');
+            if (pw !== document.getElementById('suConfirm').value) return suMsg('Passwords do not match.');
+
+            suBtn.classList.add('loading'); suBtn.disabled = true;
+            const { data, error } = await _supabase.auth.signUp({
+                email, password: pw,
+                options: { data: { program }, emailRedirectTo: location.origin + location.pathname }
+            });
+            suBtn.classList.remove('loading'); suBtn.disabled = false;
+
+            if (error) return suMsg(error.message);
+            if (data.user && data.user.identities && data.user.identities.length === 0) return suMsg('That email is already registered. Try logging in.');
+            if (data.session) return routeAfterLogin(data.user.id);   // email confirmation turned off
+            suMsg('Account created. Check ' + email + ' to confirm it, then log in.', true);
+        });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') loginBtn.click();
+            if (e.key === 'Enter') (signupCard.style.display === 'none' ? loginBtn : suBtn).click();
         });
 
         // ── Forgot Password ──

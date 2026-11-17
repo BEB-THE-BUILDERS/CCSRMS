@@ -17,6 +17,9 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <!-- Page stays hidden until main.js confirms the account is staff (department head / coordinator) -->
+    <style>html.auth-pending body { visibility: hidden; }</style>
+    <script>document.documentElement.classList.add('auth-pending');</script>
     <!-- Class schedules cannot be deleted: hide every remove/replace button.
          Hidden (not removed) so main.js can still find these ids without errors. -->
     <style>
@@ -1432,6 +1435,7 @@
         deleteAllOverlay.addEventListener('click', closeDeleteAll);
 
         deleteAllConfirm.addEventListener('click', async () => {
+            if (typeof isDeptHead !== 'function' || !isDeptHead()) { closeDeleteAll(); return; }   // department head only
             const password = deletePassInput.value.trim();
             if (!password) {
                 deletePassError.style.display = 'block';

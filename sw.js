@@ -3,13 +3,17 @@
    Caches the app shell for offline / fast loads.
    ========================================================= */
 
-const CACHE_NAME = 'ccsrms-v3';
+const CACHE_NAME = 'ccsrms-v4';
 
 // App shell: files to cache immediately on install
 const SHELL_ASSETS = [
   './',
   './index.html',
   './home.html',
+  './landing.html',
+  './student.html',
+  './student.js',
+  './main.js',
   './logo.png',
   './logo-gc-ccs.png',
   './styles.css',
@@ -19,7 +23,8 @@ const SHELL_ASSETS = [
 // ── Install: pre-cache the app shell ──────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_ASSETS))
+    // One missing file must not abort the whole install (addAll fails if any single file 404s)
+    caches.open(CACHE_NAME).then(cache => Promise.allSettled(SHELL_ASSETS.map(a => cache.add(a))))
   );
   self.skipWaiting();
 });

@@ -7,30 +7,37 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     // ── STATE ──
     let coordinatorCourse = null; // 'BSCS' | 'BSIT' | 'BSEMC-DAT' | 'BSEMC-GD'
 
-    function getCourseFromEmail(email) {
-        if (!email) return null;
-        const e = email.toLowerCase();
-        if (e.includes('bsemc_dat') || e.includes('bsemc-dat')) return 'BSEMC-DAT';
-        if (e.includes('bsemc_gd')  || e.includes('bsemc-gd'))  return 'BSEMC-GD';
-        if (e.includes('bscs')) return 'BSCS';
-        if (e.includes('bsit')) return 'BSIT';
-        return null;
+    // Role comes from the `profiles` table (set by the department head), never from the email text.
+    let userRole = null;   // 'dept_head' | 'coordinator'
+    function isStaff() { return userRole === 'dept_head' || userRole === 'coordinator'; }
+    function isDeptHead() { return userRole === 'dept_head'; }
+    function requireStaff() {
+        if (isStaff()) return true;
+        showToast('Your account is view-only', 'error');
+        return false;
     }
 
-    function getRoleLabel(email) {
-        if (!email) return '';
-        const e = email.toLowerCase();
-        if (e.includes('bsemc_dat') || e.includes('bsemc-dat')) return 'BSEMC-DAT Coordinator';
-        if (e.includes('bsemc_gd')  || e.includes('bsemc-gd'))  return 'BSEMC-GD Coordinator';
-        if (e.includes('bscs')) return 'BSCS Coordinator';
-        if (e.includes('bsit')) return 'BSIT Coordinator';
-        if (e.includes('dept_head') || e.includes('depthead') || e.includes('dept-head') || e.includes('department_head') || e.includes('departmenthead')) return 'Department Head';
-        return ''; // unknown account — show nothing
+    // Full-screen message for accounts that must not use this page. The page behind stays hidden.
+    function blockAccess(message) {
+        const gate = document.createElement('div');
+        gate.id = 'authGate';
+        gate.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#f1f5f9;display:flex;align-items:center;justify-content:center;padding:20px;font-family:"DM Sans",sans-serif;visibility:visible;';
+        gate.innerHTML = '<div style="background:#fff;border-radius:14px;padding:28px;max-width:420px;width:100%;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.08);">' +
+            '<p style="color:#1e293b;margin-bottom:18px;line-height:1.5;"></p>' +
+            '<button type="button" style="padding:10px 22px;border:none;border-radius:8px;background:#ED7117;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;">Log out</button></div>';
+        gate.querySelector('p').textContent = message;
+        gate.querySelector('button').addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.replace('index.html');
+        });
+        document.body.appendChild(gate);
     }
 
     // Returns true if the logged-in coordinator is allowed to edit/move/delete this slot
     function canOwnSection(section) {
-        if (!coordinatorCourse) return true; // no role detected = full access (admin / demo)
+        if (!isStaff()) return false;                // students / unknown accounts can never edit
+        if (userRole === 'dept_head') return true;   // department head owns everything
+        if (!coordinatorCourse) return false;
         if (!section) return false;
         const sec = section.trim().toUpperCase();
         const c   = coordinatorCourse.toUpperCase();
@@ -77,6 +84,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         if (undoStack.length > MAX_UNDO) undoStack.shift();
     }
     async function performUndo() {
+        if (!requireStaff()) return;
         let idx = -1;
         for (let i = undoStack.length - 1; i >= 0; i--) {
             if (undoStack[i].room === currentRoom) { idx = i; break; }
@@ -403,7 +411,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
 
     // ── AUTH ──
     (async () => {
-        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { init(); return; }
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { userRole = 'dept_head'; document.documentElement.classList.remove('auth-pending'); init(); return; }
         try {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'index.html'; return; }
@@ -415,25 +423,47 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
             if (document.getElementById('sidebarFooterName'))
                 document.getElementById('sidebarFooterName').textContent = email;
 
-            // Detect coordinator role from email pattern
-            coordinatorCourse = getCourseFromEmail(email);
-            const roleLabel = getRoleLabel(email);
-            // Update all role display elements (only show if we know the role)
+            // Role comes from the profiles table, never from the email text
+            const { data: prof, error: profErr } = await _supabase
+                .from('profiles').select('role, program').eq('id', session.user.id).maybeSingle();
+            if (profErr || !prof) {
+                blockAccess('Your account is not set up yet. Please contact the department head.');
+                return;
+            }
+            if (prof.role === 'student') { window.location.replace('student.html'); return; }
+            if (prof.role !== 'dept_head' && prof.role !== 'coordinator') {
+                blockAccess('Your account does not have access to this page.');
+                return;
+            }
+            if (prof.role === 'coordinator' && !prof.program) {
+                blockAccess('Your coordinator account has no program assigned. Please contact the department head.');
+                return;
+            }
+            userRole = prof.role;
+            coordinatorCourse = prof.role === 'coordinator' ? prof.program : null;
+            const roleLabel = userRole === 'dept_head' ? 'Department Head' : coordinatorCourse + ' Coordinator';
             ['userRole', 'userRoleMobile', 'sidebarFooterRole'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) el.textContent = roleLabel;
             });
-            if (coordinatorCourse) {
-                lockSectionDropdowns(coordinatorCourse);
-
+            if (coordinatorCourse) lockSectionDropdowns(coordinatorCourse);
+            // Delete All is department head only: hide the whole Danger Zone for everyone else
+            if (!isDeptHead()) {
+                const dz = document.querySelector('.sidebar-danger-zone');
+                if (dz) dz.style.display = 'none';
             }
+            document.documentElement.classList.remove('auth-pending');   // role confirmed: show the page
             // Check if user has accepted terms
             const termsAccepted = session.user.user_metadata?.terms_accepted;
             if (!termsAccepted) {
                 showTermsModal();
                 return; // don't call init() until terms are accepted
             }
-        } catch(e) { console.warn('Auth failed, demo mode'); }
+        } catch(e) {
+            console.error('Auth check failed', e);
+            blockAccess('Could not verify your account. Please check your connection and sign in again.');
+            return;
+        }
         init();
     })();
 
@@ -1544,6 +1574,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
             document.getElementById('detailsModal').classList.remove('show');
     });
     document.getElementById('detailDeleteBtn').addEventListener('click', () => {
+        if (!requireStaff()) return;
         if (!ALLOW_SCHEDULE_DELETE) { showToast(NO_DELETE_MSG, 'error'); return; }
         const _sDel = schedules.find(x => String(x.id)===String(currentDetailId));
         if (_sDel && !canOwnSection(_sDel.section)) {
@@ -1557,6 +1588,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         document.getElementById('deleteModal').classList.add('show');
     });
     document.getElementById('detailEditBtn').addEventListener('click', () => {
+        if (!requireStaff()) return;
         const s = schedules.find(x => String(x.id)===String(currentDetailId));
         if (!s) return;
         if (!canOwnSection(s.section)) {
@@ -1619,6 +1651,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     }
 
     document.getElementById('editSaveBtn').addEventListener('click', async () => {
+        if (!requireStaff()) return;
         const id         = currentDetailId;
         const courseName  = document.getElementById('editCourseName').value.trim();
         const editCourseType = document.getElementById('editCourseType').value;
@@ -1701,6 +1734,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     document.getElementById('deleteCancelBtn').addEventListener('click', () =>
         document.getElementById('deleteModal').classList.remove('show'));
     document.getElementById('deleteConfirmBtn').addEventListener('click', async () => {
+        if (!requireStaff()) return;
         document.getElementById('deleteModal').classList.remove('show');
         if (!ALLOW_SCHEDULE_DELETE) { pendingDeleteId = null; showToast(NO_DELETE_MSG, 'error'); return; }
         if (!pendingDeleteId) return;
@@ -2041,6 +2075,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     }
 
     function openScheduleModal(room, time) {
+        if (!requireStaff()) return;
         currentRoom = room || currentRoom;
         schedules   = allRoomSchedules[currentRoom] || [];
         document.getElementById('courseName').value  = '';
@@ -2107,6 +2142,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
 
     document.getElementById('scheduleForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!requireStaff()) return;
         const courseName = document.getElementById('courseName').value.trim();
         const courseType = document.getElementById('courseType').value;
         const courseMajorMinor = document.getElementById('courseMajorMinor').value;
@@ -2423,6 +2459,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
 
 
     async function applyConflictMove(conflictEntry, room, newStartMins, newEndMins, newDay) {
+        if (!requireStaff()) return;
         const newStart = minsToTime(newStartMins) + ':00';
         const newEnd   = minsToTime(newEndMins)   + ':00';
         const day      = newDay || conflictEntry.day;
@@ -2497,6 +2534,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
     }
 
     document.getElementById('conflictReplaceBtn').addEventListener('click', async () => {
+        if (!requireStaff()) return;
         if (!ALLOW_SCHEDULE_DELETE) {
             document.getElementById('conflictModal').classList.remove('show');
             pendingNewEntry = null;
@@ -2582,6 +2620,7 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         document.getElementById('termsModal').style.display = 'none';
     });
     document.getElementById('moveConfirmBtn').addEventListener('click', async () => {
+        if (!requireStaff()) return;
         document.getElementById('moveModal').classList.remove('show');
         if (!pendingMoveData) return;
         const { id, srcRoom, destRoom, day, start_time, end_time } = pendingMoveData;

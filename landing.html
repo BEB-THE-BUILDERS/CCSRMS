@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCSRMS | CCS Room Management System</title>
+<meta name="description" content="Real-time room scheduling and availability for the College of Computer Studies at Gordon College.">
+<meta name="theme-color" content="#ED7117">
+<meta property="og:title" content="CCSRMS | CCS Room Management System">
+<meta property="og:description" content="Real-time room scheduling and availability for the College of Computer Studies at Gordon College.">
+<meta property="og:image" content="https://ccsrms.vercel.app/logo-512.png">
+<link rel="icon" href="logo-192.png">
+<link rel="apple-touch-icon" href="logo-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a0b02; --panel:#2a1306; --line:#3f2210;
+  --orange:#ED7117; --orange-dk:#C2570C; --orange-soft:#FDBA74;
+  --paper:#f8f8f8; --ink:#1e293b; --muted:#cdb199;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:"DM Sans",system-ui,sans-serif;background:var(--bg);color:#f5ebe2;line-height:1.6;
+  background-image:
+    radial-gradient(900px 520px at 50% -10%,#5a2a0a77,transparent 70%),
+    radial-gradient(800px 600px at 92% 100%,#ED711728,transparent 70%),
+    linear-gradient(#ffffff07 1px,transparent 1px),linear-gradient(90deg,#ffffff07 1px,transparent 1px);
+  background-size:auto,auto,64px 64px,64px 64px;background-attachment:fixed,fixed,scroll,scroll}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--orange-soft);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+h1,h2,.brand{font-family:Sora,"DM Sans",sans-serif}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:700;font-size:1.15rem}
+.brand img{width:44px;height:44px;border-radius:50%}
+.nav-r{display:flex;gap:10px;align-items:center}
+.btn{display:inline-block;font:inherit;font-weight:700;text-decoration:none;cursor:pointer;border:0;padding:13px 26px;border-radius:10px;
+  background:var(--orange);color:#1a0b02;transition:background .15s,transform .15s}
+.btn:hover{background:var(--orange-soft)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:#f5ebe2;border:1px solid #6b3a1b}
+.btn.ghost:hover{background:var(--panel)}
+.btn.sm{padding:9px 18px}
+[hidden]{display:none!important}
+
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center;padding:64px 0 96px}
+h1{font-size:clamp(2.3rem,5.2vw,3.7rem);line-height:1.08;font-weight:700;letter-spacing:-.03em}
+.lead{margin:22px 0 34px;color:var(--muted);font-size:1.1rem;max-width:44ch}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.who{margin-top:26px;font-size:.92rem;color:var(--muted)}
+
+.board{background:var(--paper);color:var(--ink);border-radius:18px;padding:22px;box-shadow:0 40px 80px -30px #000d,0 0 0 1px #ffffff12}
+.board-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.board-head b{font-family:Sora,sans-serif;font-size:1.02rem;color:var(--orange-dk)}
+.live{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#64748b}
+.live i{width:9px;height:9px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.days{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto}
+.days button{font:inherit;font-size:.85rem;font-weight:500;padding:6px 14px;border-radius:99px;border:1px solid #e2e8f0;background:#fff;color:var(--ink);cursor:pointer}
+.days button[aria-pressed=true]{background:var(--orange);color:#1a0b02;border-color:var(--orange)}
+.grid{display:grid;grid-template-columns:56px repeat(6,1fr);gap:5px;font-size:.78rem}
+.grid .h{font:inherit;font-weight:500;color:#64748b;background:none;border:0;border-radius:6px;padding:2px 0;cursor:pointer}
+.grid .h:hover,.grid .h.sel{background:#fde7d3;color:var(--orange-dk)}
+.grid .r{display:flex;align-items:center;font-weight:700}
+.cell{height:36px;border:0;border-radius:7px;background:#d6ecdf;cursor:pointer;transition:background .15s,transform .1s}
+.cell:hover{transform:scale(1.07)}
+.cell.b{background:var(--orange)}
+.read{margin-top:14px;padding:10px 14px;border-radius:10px;background:#fdf1e7;color:#7c3a0a;font-size:.9rem;min-height:44px}
+.key{display:flex;gap:18px;margin-top:12px;font-size:.8rem;color:#64748b;flex-wrap:wrap}
+.key span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:#d6ecdf}
+.key span.b::before{background:var(--orange)}
+.note{margin-top:8px;font-size:.78rem;color:#94a3b8}
+
+section{padding:80px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.18;letter-spacing:-.02em;margin-bottom:12px;max-width:22ch}
+.sub{color:var(--muted);max-width:56ch;margin-bottom:44px}
+
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.role{padding:30px;border-radius:14px;background:var(--panel);border-left:4px solid var(--orange)}
+.role.chair{border-left-color:var(--orange-soft)}
+.role.student{border-left-color:var(--muted)}
+.role h3{font-family:Sora,sans-serif;font-size:1.2rem;margin-bottom:8px}
+.role p{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding:0}
+.chips li{list-style:none;font-size:.85rem;padding:4px 12px;border-radius:99px;background:#432412}
+
+.feat{display:grid;grid-template-columns:1fr 1fr;column-gap:64px}
+.feat div{padding:24px 0;border-bottom:1px solid var(--line)}
+.feat h3{font-size:1.08rem;margin-bottom:4px;color:var(--orange-soft)}
+.feat p{color:var(--muted)}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);counter-reset:s;padding:0}
+.steps li{list-style:none;counter-increment:s;padding-right:28px}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
+  background:var(--orange);color:#1a0b02;font-weight:700;margin-bottom:16px}
+.steps h3{font-size:1.1rem;margin-bottom:6px}
+.steps p{color:var(--muted)}
+
+details{border-bottom:1px solid var(--line);padding:18px 0;max-width:760px}
+summary{cursor:pointer;font-weight:500;font-size:1.05rem;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--orange);font-size:1.4rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:10px;color:var(--muted)}
+
+.cta{text-align:center}
+.cta h2,.cta .sub{margin-inline:auto}
+.cta .actions{justify-content:center}
+footer{padding:36px 0 52px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:44px;padding:36px 0 64px}
+  .roles,.feat{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;gap:32px}
+  .grid{grid-template-columns:42px repeat(6,1fr);gap:4px}
+  section{padding:56px 0}
+}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}html{scroll-behavior:auto}.cell,.btn,summary::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="landing.html"><img src="logo.png" alt="CCS logo">CCSRMS</a>
+    <div class="nav-r">
+      <button class="btn ghost sm" id="installTop" hidden>Install app</button>
+      <a class="btn sm" href="index.html">Log in</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Find and manage a free CCS room in seconds.</h1>
+      <p class="lead">CCSRMS is the room management system of the College of Computer Studies at Gordon College. Schedules stay in one place and update in real time, so everyone sees the same thing.</p>
+      <div class="actions">
+        <a class="btn" href="index.html">Log in to your account</a>
+        <a class="btn ghost" href="#features">See what it does</a>
+      </div>
+      <p class="who">For the department head, program chairs, and CCS students.</p>
+    </div>
+
+    <div class="board" role="group" aria-label="Sample room availability grid">
+      <div class="board-head"><b>Try it: tap a slot or a time</b><span class="live"><i></i>Sample view</span></div>
+      <div class="days" id="days"></div>
+      <div class="grid" id="grid"></div>
+      <div class="read" id="read" aria-live="polite">Tap a time to see which rooms are free, or tap a slot to flip it.</div>
+      <div class="key"><span>Available</span><span class="b">Scheduled</span></div>
+      <p class="note">Sample data for illustration only.</p>
+    </div>
+  </header>
+
+  <section id="roles">
+    <h2>Built for everyone who uses the schedule</h2>
+    <p class="sub">CCSRMS has three kinds of users. Access depends on the role, so everyone sees and changes only what they should.</p>
+    <div class="roles">
+      <div class="role">
+        <h3>Admin / Department head</h3>
+        <p>Full access to create and manage schedules across all CCS rooms.</p>
+      </div>
+      <div class="role chair">
+        <h3>Program chairs</h3>
+        <p>Limited access to the schedules of their own program.</p>
+        <ul class="chips"><li>BSCS</li><li>BSIT</li><li>BSEMC-DAT</li><li>BSEMC-GD</li></ul>
+      </div>
+      <div class="role student">
+        <h3>CCS students</h3>
+        <p>Can view the room schedules of the College of Computer Studies.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>What it does</h2>
+    <p class="sub">Everything needed to keep CCS rooms organized, without spreadsheets and group chat back-and-forth.</p>
+    <div class="feat">
+      <div><h3>Find a free room</h3><p>Pick a day and a time range and see which rooms are open.</p></div>
+      <div><h3>Real-time updates</h3><p>Changes show up for everyone using the system as they happen.</p></div>
+      <div><h3>Room and program views</h3><p>See schedules by room, or by program and major or minor.</p></div>
+      <div><h3>Conflict checks</h3><p>Catch a section scheduled in two places at the same time.</p></div>
+      <div><h3>Excel import</h3><p>Bring in existing schedules from a spreadsheet instead of typing them again.</p></div>
+      <div><h3>Audit log</h3><p>Review a log of changes made to the schedules.</p></div>
+      <div><h3>Role-based access</h3><p>Admins manage everything. Program chairs stay within their own program. CCS students can view schedules.</p></div>
+      <div><h3>Works like an app</h3><p>Install it on a phone or desktop, with a dark mode when you need it.</p></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <p class="sub">Three steps from login to a full room schedule.</p>
+    <ol class="steps">
+      <li><h3>Log in</h3><p>Use the account given by the CCS department.</p></li>
+      <li><h3>Add schedules</h3><p>Enter them one by one or import an Excel file.</p></li>
+      <li><h3>Find a free room</h3><p>Check open rooms by day and time before you plan.</p></li>
+    </ol>
+  </section>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+    <p class="sub">Quick answers before you log in.</p>
+    <details><summary>Who can use CCSRMS?</summary><p>The admin or department head and the program chairs manage schedules with accounts given by the CCS department. CCS students can view the room schedules.</p></details>
+    <details><summary>Can a program chair edit other programs?</summary><p>No. Program chairs only have access to their own program (BSCS, BSIT, BSEMC-DAT, or BSEMC-GD).</p></details>
+    <details><summary>Which rooms are in the system?</summary><p>Only the rooms assigned to the College of Computer Studies.</p></details>
+    <details><summary>I forgot my password.</summary><p>Use the Forgot password link on the login page.</p></details>
+    <details><summary>Does it work on my phone?</summary><p>Yes. Open it in your browser, or install it as an app from the button on this page when it appears.</p></details>
+  </section>
+
+  <section class="cta">
+    <h2>Ready to manage your rooms?</h2>
+    <p class="sub">Log in with the account given by the CCS department.</p>
+    <div class="actions">
+      <a class="btn" href="index.html">Log in</a>
+      <button class="btn ghost" id="installBot" hidden>Install app</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>College of Computer Studies, Gordon College, Olongapo City</span>
+    <span>Built by BEB the Builders</span>
+  </footer>
+</div>
+
+<script>
+// Sample data only. Room numbers are real, schedules are made up.
+var rooms = ["407","408","409","503","504"];
+var times = ["7AM","9AM","11AM","1PM","3PM","5PM"];
+var dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat"];
+var state = {}, cur = 0, selT = -1;
+var rd = document.getElementById("read");
+
+function seed(d){
+  var s = (d + 3) * 9301, out = [];
+  rooms.forEach(function(_, r){
+    var row = [];
+    times.forEach(function(_, c){ s = (s * 49297 + 233 + r * 7 + c) % 233280; row.push(s / 233280 > 0.6 ? 1 : 0); });
+    out.push(row);
+  });
+  return out;
+}
+dayNames.forEach(function(_, d){ state[d] = seed(d); });
+
+function freeAt(c){
+  return rooms.filter(function(_, r){ return state[cur][r][c] === 0; });
+}
+function draw(){
+  var h = '<span></span>';
+  times.forEach(function(t, c){ h += '<button class="h' + (c === selT ? ' sel' : '') + '" data-t="' + c + '">' + t + '</button>'; });
+  rooms.forEach(function(name, r){
+    h += '<span class="r">' + name + '</span>';
+    times.forEach(function(t, c){
+      var busy = state[cur][r][c] === 1;
+      h += '<button class="cell' + (busy ? ' b' : '') + '" data-r="' + r + '" data-c="' + c +
+           '" aria-label="Room ' + name + ', ' + t + ', ' + (busy ? 'scheduled' : 'available') + '"></button>';
+    });
+  });
+  document.getElementById("grid").innerHTML = h;
+  var db = '';
+  dayNames.forEach(function(n, d){ db += '<button data-d="' + d + '" aria-pressed="' + (d === cur) + '">' + n + '</button>'; });
+  document.getElementById("days").innerHTML = db;
+}
+function freeMsg(){
+  var f = freeAt(selT);
+  rd.textContent = dayNames[cur] + " " + times[selT] + ": " + (f.length ? "free rooms are " + f.join(", ") + "." : "no free rooms.");
+}
+document.getElementById("grid").addEventListener("click", function(e){
+  var t = e.target.closest(".h");
+  if(t){ selT = +t.dataset.t; draw(); freeMsg(); return; }
+  var b = e.target.closest(".cell"); if(!b) return;
+  var r = +b.dataset.r, c = +b.dataset.c;
+  state[cur][r][c] = state[cur][r][c] ? 0 : 1;
+  var busy = state[cur][r][c] === 1;
+  draw();
+  rd.textContent = "Room " + rooms[r] + ", " + dayNames[cur] + " " + times[c] + ": now " + (busy ? "scheduled." : "available.");
+  var nb = document.querySelector('.cell[data-r="' + r + '"][data-c="' + c + '"]'); if(nb) nb.focus();
+});
+document.getElementById("days").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  cur = +b.dataset.d; draw();
+  if(selT >= 0) freeMsg(); else rd.textContent = "Showing " + dayNames[cur] + ". Tap a time to see free rooms.";
+});
+draw();
+
+var deferred;
+window.addEventListener("beforeinstallprompt", function(e){
+  e.preventDefault(); deferred = e;
+  document.getElementById("installTop").hidden = false;
+  document.getElementById("installBot").hidden = false;
+});
+["installTop","installBot"].forEach(function(id){
+  document.getElementById(id).addEventListener("click", function(){
+    if(!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){
+      deferred = null;
+      document.getElementById("installTop").hidden = true;
+      document.getElementById("installBot").hidden = true;
+    });
+  });
+});
+</script>
+</body>
+</html>
