@@ -3,7 +3,7 @@
    Caches the app shell for offline / fast loads.
    ========================================================= */
 
-const CACHE_NAME = 'ccsrms-v4';
+const CACHE_NAME = 'ccsrms-v5';   // bump this every time you deploy changes
 
 // App shell: files to cache immediately on install
 const SHELL_ASSETS = [
@@ -16,6 +16,8 @@ const SHELL_ASSETS = [
   './main.js',
   './logo.png',
   './logo-gc-ccs.png',
+  './logo-192.png',
+  './logo-512.png',
   './styles.css',
   './manifest.json'
 ];
@@ -44,7 +46,7 @@ self.addEventListener('activate', event => {
 });
 
 // ── Fetch: Network-first for API/Supabase,
-//           Cache-first for everything else ─────────────────
+//           Network-first for pages, Cache-first for other assets ─────────────────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
@@ -54,6 +56,17 @@ self.addEventListener('fetch', event => {
       url.hostname.includes('cloudflare.com') ||
       url.hostname.includes('jsdelivr.net')) {
     event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Pages: network first, so updates and redirects (e.g. / -> landing.html) reach users.
+  // The cache is only an offline fallback.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match(event.request).then(r => r || caches.match('./landing.html'))
+      )
+    );
     return;
   }
 
@@ -76,7 +89,7 @@ self.addEventListener('fetch', event => {
     }).catch(() => {
       // Offline fallback for navigation requests
       if (event.request.mode === 'navigate') {
-        return caches.match('./index.html');
+        return caches.match('./landing.html');
       }
     })
   );
