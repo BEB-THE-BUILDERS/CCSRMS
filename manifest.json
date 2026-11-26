@@ -2,7 +2,7 @@
   "name": "CCS Room Management System",
   "short_name": "CCSRMS",
   "description": "College of Computer Studies Room Management System — schedule rooms, manage classes.",
-  "start_url": "./index.html",
+  "start_url": "./landing.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1a0b02",
@@ -21,6 +21,9 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "lang": "en"
 }
