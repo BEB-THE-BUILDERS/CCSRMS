@@ -3,7 +3,7 @@
    Caches the app shell for offline / fast loads.
    ========================================================= */
 
-const CACHE_NAME = 'ccsrms-v6';   // bump this every time you deploy changes
+const CACHE_NAME = 'ccsrms-v7';   // bump this every time you deploy changes
 
 // App shell: files to cache immediately on install
 const SHELL_ASSETS = [

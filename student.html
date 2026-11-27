@@ -28,6 +28,9 @@
         @media (max-width: 768px) {
             #dayGrid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* About modal: same look as the staff page */
+        #aboutModal .modal { max-width: 420px; padding: 0; overflow: hidden; border-radius: 16px; }
     </style>
 </head>
 <body>
@@ -41,9 +44,53 @@
                 <div class="user-name" id="userName">Loading…</div>
                 <div class="user-role" id="userRole">Student</div>
             </div>
-            <button class="logout-btn" id="logoutBtn" title="Log out"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <button class="hamburger-btn" id="hamburgerBtn" title="Menu" aria-label="Open menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle" style="width:32px;height:32px;font-size:0.6rem;border-radius:100%;flex-shrink:0;">
+                <img src="logo.png" style="height:100%;width:100%;object-fit:contain;border-radius:100%;" alt="">
+            </div>
+            <span style="font-family:'Sora',sans-serif;font-size:0.85rem;font-weight:600;color:white;letter-spacing:-0.2px;">CCSRMS</span>
+        </div>
+        <div class="sidebar-body">
+            <button class="sidebar-item" id="darkModeToggle">
+                <i class="fa-solid fa-moon"></i>
+                <span style="flex:1;">Dark Mode</span>
+                <div class="toggle-switch"><div class="toggle-knob"></div></div>
+            </button>
+            <button class="sidebar-item" id="changePasswordBtn">
+                <i class="fa-solid fa-key"></i>
+                <span style="flex:1;">Change Password</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
+            </button>
+            <button class="sidebar-item" id="aboutBtn">
+                <i class="fa-solid fa-circle-info"></i> About CCSRMS
+            </button>
+            <button class="sidebar-item" id="termsBtn">
+                <i class="fa-solid fa-file-contract"></i>
+                <span style="flex:1;">Terms &amp; Conditions</span>
+                <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-info">
+                <div class="sidebar-footer-name" id="sidebarFooterName">Student</div>
+                <div class="sidebar-footer-role" id="sidebarFooterRole">Student</div>
+            </div>
+            <button class="sidebar-logout-btn" id="sidebarLogoutBtn" title="Log out" aria-label="Log out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </div>
 
     <main class="dashboard">
         <section class="card">
@@ -88,6 +135,179 @@
                 <div class="detail-row"><i class="fa-solid fa-calendar-day"></i><div><div class="detail-row-label">Day</div><div class="detail-row-value" id="svDay"></div></div></div>
                 <div class="detail-row"><i class="fa-solid fa-clock"></i><div><div class="detail-row-label">Time</div><div class="detail-row-value" id="svTime"></div></div></div>
                 <div class="detail-row" id="svKindRow"><i class="fa-solid fa-book"></i><div><div class="detail-row-label">Course type</div><div class="detail-row-value" id="svKind"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+            <div style="background:var(--navy); padding:22px 24px 18px; display:flex; align-items:center; gap:14px; position:relative;">
+                <div style="width:42px;height:42px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-circle-info" style="color:white;font-size:1.1rem;"></i>
+                </div>
+                <div>
+                    <div id="aboutTitle" style="font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:white;letter-spacing:-0.2px;">About CCSRMS</div>
+                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.7);margin-top:1px;">College of Computer Studies Room Management System</div>
+                </div>
+                <button id="aboutXBtn" type="button" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="padding:22px 24px;">
+                <p style="font-size:0.875rem;line-height:1.75;color:var(--text);">
+                    CCSRMS is the room scheduling system of the College of Computer Studies at Gordon College.
+                    As a student, you can use it to see which rooms are used, by which section and professor, and at what time, from Monday to Saturday.
+                    Schedules are managed by the department head and the program coordinators, so what you see here is the latest version they have set.
+                    Your view is read only. If something looks wrong, tell your program coordinator.
+                </p>
+            </div>
+            <div style="padding:0 24px 20px; display:flex; justify-content:flex-end;">
+                <button id="aboutCloseBtn" type="button" style="padding:9px 22px;background:var(--navy);color:white;border:none;border-radius:9px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal" style="max-width:420px;position:relative;">
+            <button id="cpCloseBtn" type="button" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:var(--light-bg);color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <div style="width:44px;height:44px;background:#FFF7ED;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid #FDBA74;flex-shrink:0;">
+                    <i class="fa-solid fa-key" style="color:#C2570C;font-size:1.1rem;"></i>
+                </div>
+                <div>
+                    <div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);">Change Password</div>
+                    <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Update your account password</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password" autocomplete="current-password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                </div>
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                    <div id="pwStrengthWrap" style="display:none;margin-top:8px;">
+                        <div style="display:flex;gap:4px;margin-bottom:6px;">
+                            <div id="pwBar1" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar2" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar3" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                            <div id="pwBar4" style="flex:1;height:4px;border-radius:4px;background:#e2e8f0;transition:background 0.3s;"></div>
+                        </div>
+                        <div id="pwStrengthLabel" style="font-size:0.75rem;font-weight:600;margin-bottom:8px;color:var(--muted);"></div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <div id="req-length"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least 8 characters</span></div>
+                            <div id="req-upper"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one uppercase letter (A–Z)</span></div>
+                            <div id="req-lower"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one lowercase letter (a–z)</span></div>
+                            <div id="req-number"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one number (0–9)</span></div>
+                            <div id="req-special"><i class="fa-solid fa-circle-xmark" style="color:#ef4444;font-size:0.7rem;"></i> <span style="font-size:0.76rem;color:var(--muted);">At least one special character (!@#$…)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.82rem;font-weight:600;color:var(--text);display:block;margin-bottom:6px;">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter new password" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;color:var(--text);background:#f8fafc;">
+                </div>
+                <div id="changePasswordError" style="display:none;background:#fef2f2;border-left:3px solid #ef4444;color:#dc2626;padding:9px 12px;border-radius:0 7px 7px 0;font-size:0.8rem;"></div>
+                <div id="changePasswordSuccess" style="display:none;background:#f0fdf4;border-left:3px solid #22c55e;color:#166534;padding:9px 12px;border-radius:0 7px 7px 0;font-size:0.8rem;"></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+                <button id="cpCancelBtn" type="button" style="padding:9px 20px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;">Cancel</button>
+                <button id="changePasswordConfirmBtn" type="button" style="padding:9px 20px;border-radius:7px;border:none;background:#C2570C;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-check"></i> Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms & Conditions (must be accepted on first login; can be read again from the sidebar) -->
+    <div id="termsModal">
+        <div class="terms-card">
+            <div class="terms-header">
+                <h2><i class="fa-solid fa-file-contract" style="margin-right:8px;opacity:0.8;"></i>Terms and Conditions</h2>
+                <p id="termsIntro">Please read carefully and scroll to the bottom to accept before using CCSRMS.</p>
+            </div>
+            <div class="terms-body" id="termsBody">
+
+                <h3>1. Introduction</h3>
+                <p>Welcome to the <strong>CCS Room Management System (CCSRMS)</strong>, a web-based platform of the College of Computer Studies (CCS) at Gordon College. By using this system, you agree to the terms and conditions in this document.</p>
+
+                <h3>2. Purpose of the System</h3>
+                <p>CCSRMS is used to manage and schedule classrooms and laboratory rooms of the College of Computer Studies. As a student, you can:</p>
+                <ul>
+                    <li>View which rooms are used, and at what time, from Monday to Saturday</li>
+                    <li>See the section, professor, and subject type (Major or Minor, Lecture or Laboratory) of each class</li>
+                    <li>Filter the schedule by program (BSCS, BSIT, BSEMC-DAT, BSEMC-GD)</li>
+                </ul>
+                <p>Student accounts are view only. You cannot create, edit, move, or delete any schedule.</p>
+
+                <h3>3. Who Can Use the System</h3>
+                <p>CCSRMS is for currently enrolled CCS students. Your account is tied to your student ID number and your program. Your program is set when you sign up and cannot be changed afterward. Do not create an account using someone else's ID number.</p>
+
+                <h3>4. User Responsibilities</h3>
+                <p>As a user, you agree to:</p>
+                <ul>
+                    <li>Use the system only to check room schedules</li>
+                    <li>Give correct information when you sign up</li>
+                    <li>Not share the schedule data with others in a way that misleads them</li>
+                    <li>Report wrong or missing schedules to your program coordinator or the department head</li>
+                </ul>
+
+                <h3>5. Account Security</h3>
+                <p>You are responsible for your login credentials. You agree to:</p>
+                <ul>
+                    <li>Keep your password private and not share it with anyone</li>
+                    <li>Log out after each session, especially on shared or public devices</li>
+                    <li>Change your password using the Change Password option in the sidebar if you think someone else knows it</li>
+                </ul>
+                <p>The CCS is not responsible for problems caused by a password that you shared or did not keep safe.</p>
+
+                <h3>6. Data and Privacy</h3>
+                <p>CCSRMS stores the following about your account:</p>
+                <ul>
+                    <li>Your school email (built from your student ID number) and your encrypted password</li>
+                    <li>Your program (BSCS, BSIT, BSEMC-DAT, or BSEMC-GD)</li>
+                    <li>Your acceptance of these terms</li>
+                </ul>
+                <p>This data is used only for running the system and is not shared with outside parties. The room schedules in CCSRMS belong to the College of Computer Studies.</p>
+
+                <h3>7. Prohibited Actions</h3>
+                <p>The following may lead to account suspension or school disciplinary action:</p>
+                <ul>
+                    <li>Trying to use another person's account</li>
+                    <li>Trying to change, delete, or access schedule data you are not allowed to</li>
+                    <li>Trying to hack, overload, or reverse-engineer the system</li>
+                    <li>Creating an account with false information</li>
+                </ul>
+
+                <h3>8. System Availability and Changes</h3>
+                <p>CCSRMS is provided as available. The administrators may pause the system for maintenance, change or remove features, or update these terms at any time. Changes take effect the next time you log in. If you keep using CCSRMS after a change, you accept the updated terms.</p>
+
+                <h3>9. Disclaimer</h3>
+                <p>Schedules can change during the term. CCSRMS shows the latest information entered by the department, but it may not always match last-minute changes. Please confirm with your professor or program coordinator if you are unsure. The College of Computer Studies and the developers of CCSRMS are not liable for missed classes or other problems caused by relying only on this system.</p>
+
+                <h3>10. Acceptance</h3>
+                <p>By clicking <strong>"I Accept"</strong> below, you confirm that:</p>
+                <ul>
+                    <li>You have read and understood these Terms and Conditions</li>
+                    <li>You are a CCS student and the account belongs to you</li>
+                    <li>You agree to follow these terms</li>
+                    <li>You understand that breaking these terms may lead to removal of your access</li>
+                </ul>
+                <p style="margin-top:12px;font-size:0.78rem;color:var(--muted);font-style:italic;">Last updated: November 2026 · CCS Room Management System · College of Computer Studies</p>
+
+            </div>
+            <div class="terms-footer">
+                <div class="terms-scroll-hint" id="termsScrollHint">
+                    <i class="fa-solid fa-arrow-down"></i>
+                    <span>Scroll to the bottom to enable acceptance</span>
+                </div>
+                <button id="termsAcceptBtn" type="button" disabled>
+                    <i class="fa-solid fa-check"></i> I Accept
+                </button>
+                <button id="termsViewCloseBtn" type="button" style="display:none;padding:10px 24px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.88rem;cursor:pointer;align-items:center;gap:8px;flex-shrink:0;">
+                    <i class="fa-solid fa-xmark"></i> Close
+                </button>
             </div>
         </div>
     </div>

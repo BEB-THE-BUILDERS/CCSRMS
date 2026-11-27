@@ -11,6 +11,7 @@ const COLOR = { 'BSCS': 'slot-bscs', 'BSIT': 'slot-bsit', 'BSEMC-DAT': 'slot-bse
 
 let filter = null, program = '', rows = [], seq = 0;   // filter: null = default view, or one legend key
 let day = DAYS[new Date().getDay() - 1] || 'Monday';   // today, or Monday on Sundays
+let started = false;                                    // true once the schedule has started loading
 
 const toMins = t => { const [h, m] = t.split(':'); return +h * 60 + +m; };
 const to12   = m => { const h = Math.floor(m / 60); return (h % 12 || 12) + ':' + String(m % 60).padStart(2, '0') + ' ' + (h < 12 ? 'AM' : 'PM'); };
@@ -36,6 +37,204 @@ function stop(msg) {
     document.querySelector('main').innerHTML = '<section class="card"><p>' + msg + '</p></section>';
 }
 
+// ── Dark mode (same key as the staff page, so the choice follows the user) ──
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    $('darkModeToggle').classList.add('dark-mode-on');
+}
+$('darkModeToggle').addEventListener('click', () => {
+    const on = document.body.classList.toggle('dark-mode');
+    $('darkModeToggle').classList.toggle('dark-mode-on', on);
+    localStorage.setItem('darkMode', on);
+});
+
+// ── Sidebar ──
+function openSidebar() {
+    $('sidebar').classList.add('open');
+    $('sidebarOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    $('sidebar').classList.remove('open');
+    $('sidebarOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+}
+$('hamburgerBtn').addEventListener('click', openSidebar);
+$('sidebarOverlay').addEventListener('click', closeSidebar);
+
+$('sidebarLogoutBtn').addEventListener('click', async () => {
+    closeSidebar();
+    await db.auth.signOut();
+    location.replace('index.html');
+});
+$('refreshBtn').addEventListener('click', load);
+
+// ── About ──
+const openAbout  = () => { $('aboutModal').classList.add('show'); };
+const closeAbout = () => { $('aboutModal').classList.remove('show'); };
+$('aboutBtn').addEventListener('click', () => { closeSidebar(); openAbout(); });
+$('aboutCloseBtn').addEventListener('click', closeAbout);
+$('aboutXBtn').addEventListener('click', closeAbout);
+$('aboutModal').addEventListener('click', e => { if (e.target === $('aboutModal')) closeAbout(); });
+
+// ── Terms & Conditions ──
+// Accept mode (first login): the accept button unlocks after scrolling to the bottom and the page stays blocked until accepted.
+// View mode (sidebar): read only, with a Close button.
+let afterAccept = null;
+function termsAtBottom() {
+    const b = $('termsBody');
+    return b.scrollTop + b.clientHeight >= b.scrollHeight - 10;
+}
+function checkTermsScroll() {
+    if (!afterAccept) return;                   // only matters in accept mode
+    const done = termsAtBottom();
+    $('termsAcceptBtn').disabled = !done;
+    if (done) $('termsScrollHint').innerHTML = '<i class="fa-solid fa-check" style="color:#22c55e;"></i><span style="color:#22c55e;">You may now accept the terms</span>';
+}
+$('termsBody').addEventListener('scroll', checkTermsScroll);
+
+function openTerms(onAccept) {
+    afterAccept = onAccept || null;
+    const accepting = !!onAccept;
+    $('termsAcceptBtn').style.display    = accepting ? '' : 'none';
+    $('termsScrollHint').style.display   = accepting ? '' : 'none';
+    $('termsViewCloseBtn').style.display = accepting ? 'none' : 'flex';
+    $('termsIntro').textContent = accepting
+        ? 'Please read carefully and scroll to the bottom to accept before using CCSRMS.'
+        : 'These are the terms you accepted when you first used CCSRMS.';
+    if (accepting) {
+        $('termsAcceptBtn').disabled = true;
+        $('termsScrollHint').innerHTML = '<i class="fa-solid fa-arrow-down"></i><span>Scroll to the bottom to enable acceptance</span>';
+    }
+    $('termsModal').classList.add('show');
+    $('termsBody').scrollTop = 0;
+    checkTermsScroll();
+}
+function closeTerms() { $('termsModal').classList.remove('show'); }
+
+$('termsBtn').addEventListener('click', () => { closeSidebar(); openTerms(null); });
+$('termsViewCloseBtn').addEventListener('click', closeTerms);
+$('termsAcceptBtn').addEventListener('click', async () => {
+    if (!afterAccept) return;
+    const btn = $('termsAcceptBtn');
+    const go = afterAccept;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    try {
+        const { error } = await db.auth.updateUser({ data: { terms_accepted: true } });
+        if (error) throw error;
+    } catch (e) {
+        console.warn('Could not save terms acceptance:', e.message);   // same as the staff page: continue anyway
+    }
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> I Accept';
+    afterAccept = null;
+    closeTerms();
+    go();
+});
+
+// ── Change password ──
+const PW_REQS = {
+    length:  v => v.length >= 8,
+    upper:   v => /[A-Z]/.test(v),
+    lower:   v => /[a-z]/.test(v),
+    number:  v => /[0-9]/.test(v),
+    special: v => /[^A-Za-z0-9]/.test(v)
+};
+function resetPwMeter() {
+    $('pwStrengthWrap').style.display = 'none';
+    ['pwBar1', 'pwBar2', 'pwBar3', 'pwBar4'].forEach(id => $(id).style.background = '#e2e8f0');
+    Object.keys(PW_REQS).forEach(k => {
+        const el = $('req-' + k);
+        el.querySelector('i').className = 'fa-solid fa-circle-xmark';
+        el.querySelector('i').style.color = '#ef4444';
+        el.querySelector('span').style.color = 'var(--muted)';
+    });
+}
+const closePassword = () => $('changePasswordModal').classList.remove('show');
+$('changePasswordBtn').addEventListener('click', () => {
+    closeSidebar();
+    ['currentPassword', 'newPassword', 'confirmPassword'].forEach(id => $(id).value = '');
+    $('changePasswordError').style.display = 'none';
+    $('changePasswordSuccess').style.display = 'none';
+    resetPwMeter();
+    $('changePasswordModal').classList.add('show');
+});
+$('cpCloseBtn').addEventListener('click', closePassword);
+$('cpCancelBtn').addEventListener('click', closePassword);
+$('changePasswordModal').addEventListener('click', e => { if (e.target === $('changePasswordModal')) closePassword(); });
+
+$('newPassword').addEventListener('input', function () {
+    const val = this.value;
+    $('pwStrengthWrap').style.display = val ? 'block' : 'none';
+    let score = 0;
+    Object.entries(PW_REQS).forEach(([k, test]) => {
+        const met = test(val);
+        if (met) score++;
+        const el = $('req-' + k);
+        el.querySelector('i').className = 'fa-solid ' + (met ? 'fa-circle-check' : 'fa-circle-xmark');
+        el.querySelector('i').style.color = met ? '#10b981' : '#ef4444';
+        el.querySelector('span').style.color = met ? '#10b981' : 'var(--muted)';
+    });
+    const colors = ['#ef4444', '#f59e0b', '#ED7117', '#10b981'];
+    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    const i = score <= 1 ? 0 : score === 2 ? 1 : score <= 4 ? 2 : 3;
+    ['pwBar1', 'pwBar2', 'pwBar3', 'pwBar4'].forEach((id, n) => $(id).style.background = n < score ? colors[i] : '#e2e8f0');
+    $('pwStrengthLabel').textContent = 'Strength: ' + labels[i];
+    $('pwStrengthLabel').style.color = colors[i];
+});
+
+$('changePasswordConfirmBtn').addEventListener('click', async () => {
+    const current = $('currentPassword').value;
+    const newPass = $('newPassword').value;
+    const confirm = $('confirmPassword').value;
+    const errEl = $('changePasswordError'), okEl = $('changePasswordSuccess');
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+    const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    if (!current || !newPass || !confirm) return fail('Please fill in all fields.');
+    if (!Object.values(PW_REQS).every(test => test(newPass))) return fail('Password does not meet the strength requirements.');
+    if (newPass !== confirm) return fail('New passwords do not match.');
+
+    const btn = $('changePasswordConfirmBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+    try {
+        const { data: { session } } = await db.auth.getSession();
+        if (!session) { location.replace('index.html'); return; }
+        // Re-check the current password first
+        const { error: authErr } = await db.auth.signInWithPassword({ email: session.user.email, password: current });
+        if (authErr) {
+            fail('Current password is incorrect.');
+        } else {
+            const { error: upErr } = await db.auth.updateUser({ password: newPass });
+            if (upErr) {
+                fail('Failed to update password: ' + upErr.message);
+            } else {
+                okEl.textContent = 'Password updated successfully!';
+                okEl.style.display = 'block';
+                ['currentPassword', 'newPassword', 'confirmPassword'].forEach(id => $(id).value = '');
+                resetPwMeter();
+                setTimeout(closePassword, 1800);
+            }
+        }
+    } catch (e) {
+        fail('An error occurred. Please try again.');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Update Password';
+});
+
+// ── Start the schedule (runs once, after the terms are accepted) ──
+function startApp() {
+    if (started) return;
+    started = true;
+    buildControls();
+    load();
+    setInterval(load, 90000);                  // keeps the view fresh without realtime connections
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+}
+
 // ── Auth guard ──
 (async () => {
     const { data: { session } } = await db.auth.getSession();
@@ -46,16 +245,16 @@ function stop(msg) {
     if (p.role !== 'student') return location.replace('home.html');
 
     program = p.program;                       // locked: shown, never editable here
-    $('userName').textContent = session.user.email;
-    $('userRole').textContent = 'Student · ' + program;
-    buildControls();
-    load();
-    setInterval(load, 90000);                  // keeps the view fresh without realtime connections
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
-})();
+    const email = session.user.email;
+    const roleLabel = 'Student · ' + program;
+    $('userName').textContent = email;
+    $('userRole').textContent = roleLabel;
+    $('sidebarFooterName').textContent = email;
+    $('sidebarFooterRole').textContent = roleLabel;
 
-$('logoutBtn').addEventListener('click', async () => { await db.auth.signOut(); location.replace('index.html'); });
-$('refreshBtn').addEventListener('click', load);
+    if (session.user.user_metadata?.terms_accepted) startApp();
+    else openTerms(startApp);                  // first login: must accept before the schedule loads
+})();
 
 // ── Controls ──
 function buildControls() {
@@ -218,4 +417,13 @@ function hideDetails() {
 }
 $('svClose').addEventListener('click', hideDetails);
 $('svDetails').addEventListener('click', e => { if (e.target === $('svDetails')) hideDetails(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDetails(); });
+
+// Escape closes whatever is open (the first-login terms can't be dismissed this way)
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    hideDetails();
+    closeAbout();
+    closePassword();
+    closeSidebar();
+    if (!afterAccept) closeTerms();
+});
