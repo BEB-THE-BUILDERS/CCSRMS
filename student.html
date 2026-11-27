@@ -25,8 +25,48 @@
         #dayGrid { grid-template-columns: repeat(6, 1fr); }
         .sv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .sv-hint { font-size: 0.75rem; color: var(--muted, #64748b); margin-bottom: 14px; }
+        .sv-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .sv-filters .sv-search { position: relative; flex: 1 1 220px; }
+        .sv-filters .sv-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--muted, #64748b); pointer-events: none; }
+        .sv-filters input, .sv-filters select { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border, #e2e8f0); border-radius: 8px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; outline: none; color: var(--text); background: var(--white, #fff); }
+        .sv-filters input { padding-left: 28px; }
+        .sv-filters select { width: auto; max-width: 200px; }
+        .sv-filters .sv-count { font-size: 0.75rem; color: var(--muted, #64748b); white-space: nowrap; }
+        .sv-filters .sv-clear { padding: 6px 12px; border: 1.5px solid var(--border, #e2e8f0); border-radius: 8px; background: transparent; color: var(--text); font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+        .sv-filters .sv-clear[hidden] { display: none; }
+        /* View switch + My Schedule */
+        .sv-views { display: flex; gap: 8px; }
+        .sv-views .floor-btn { flex: 1; }
+        .my-picks { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .my-picks label { font-size: 0.78rem; font-weight: 700; color: var(--muted, #64748b); }
+        .my-picks select { padding: 7px 10px; border: 1.5px solid var(--border, #e2e8f0); border-radius: 8px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; outline: none; color: var(--text); background: var(--white, #fff); }
+        .my-week { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 14px; }
+        .my-day { border: 1.5px solid var(--border, #e2e8f0); border-radius: 12px; overflow: hidden; background: var(--white, #fff); }
+        .my-day.today { border-color: var(--accent, #ED7117); }
+        .my-day-head { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: var(--light-bg, #f8fafc); font-weight: 700; font-size: 0.85rem; color: var(--text); }
+        .my-day.today .my-day-head { background: #fff7ed; color: #9a3412; }
+        .my-day-head span { font-size: 0.72rem; font-weight: 600; color: var(--muted, #64748b); }
+        .my-day.today .my-day-head span { color: #c2410c; }
+        .my-class { display: flex; gap: 10px; width: 100%; padding: 10px 12px; border: none; border-top: 1px solid var(--border, #e2e8f0); background: transparent; text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text); }
+        .my-class:hover, .my-class:focus-visible { background: var(--light-bg, #f8fafc); outline: none; }
+        .my-class .bar { width: 4px; border-radius: 4px; flex-shrink: 0; background: #94a3b8; }
+        .my-class .bar.major { background: #eab308; }
+        .my-class .bar.minor { background: #d946ef; }
+        .my-class .time { font-size: 0.72rem; font-weight: 700; color: var(--muted, #64748b); }
+        .my-class .name { font-size: 0.88rem; font-weight: 700; margin: 2px 0; }
+        .my-class .meta { font-size: 0.76rem; color: var(--muted, #64748b); }
+        .my-class .now { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 10px; background: #16a34a; color: white; font-size: 0.65rem; font-weight: 700; vertical-align: 1px; }
+        .my-empty-day { padding: 10px 12px; border-top: 1px solid var(--border, #e2e8f0); font-size: 0.78rem; color: var(--muted, #64748b); }
+        .my-msg { margin-top: 14px; padding: 14px; text-align: center; font-size: 0.85rem; color: var(--muted, #64748b); }
+        body.dark-mode .my-day, body.dark-mode .my-picks select { background: #1e293b; }
+        body.dark-mode .my-day-head { background: #0f172a; }
+        body.dark-mode .my-day.today .my-day-head { background: #431407; color: #fed7aa; }
+        body.dark-mode .my-class:hover, body.dark-mode .my-class:focus-visible { background: #0f172a; }
+        [hidden] { display: none !important; }
+
         @media (max-width: 768px) {
             #dayGrid { grid-template-columns: repeat(2, 1fr); }
+            .my-week { grid-template-columns: 1fr; }
         }
 
         /* About modal: same look as the staff page */
@@ -94,17 +134,48 @@
 
     <main class="dashboard">
         <section class="card">
+            <div class="sv-views" role="tablist">
+                <button type="button" class="floor-btn" id="viewMineBtn" role="tab"><i class="fa-solid fa-user-graduate"></i> My Schedule</button>
+                <button type="button" class="floor-btn" id="viewRoomsBtn" role="tab"><i class="fa-solid fa-table-cells"></i> All Rooms</button>
+            </div>
+        </section>
+
+        <section class="card" id="mineCard" hidden>
+            <div class="sv-bar">
+                <div class="card-title"><i class="fa-solid fa-user-graduate"></i> <span id="mineTitle">My Schedule</span></div>
+                <div class="my-picks">
+                    <label for="myYear">Year</label>
+                    <select id="myYear"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+                    <label for="myBlock">Block</label>
+                    <select id="myBlock"><option value="">—</option></select>
+                </div>
+            </div>
+            <div class="my-msg" id="mineMsg"></div>
+            <div class="my-week" id="myWeek"></div>
+        </section>
+
+        <section class="card" id="dayCard">
             <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Select Day</div>
             <div class="floor-grid" id="dayGrid"></div>
         </section>
 
-        <section class="card">
+        <section class="card" id="roomsCard">
             <div class="sv-bar">
                 <div class="card-title"><i class="fa-solid fa-calendar-week"></i> <span id="scheduleTitle">Schedule</span></div>
                 <div class="sv-meta">
                     <span id="updated"></span>
                     <button class="floor-btn" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
                 </div>
+            </div>
+            <div class="sv-filters">
+                <div class="sv-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="svSearch" placeholder="Search subject, professor, section or room…" aria-label="Search schedule" autocomplete="off">
+                </div>
+                <select id="svRoomFilter" aria-label="Filter by room"><option value="">All rooms</option></select>
+                <select id="svProfFilter" aria-label="Filter by professor"><option value="">All professors</option></select>
+                <button type="button" class="sv-clear" id="svClear" hidden><i class="fa-solid fa-xmark"></i> Clear</button>
+                <span class="sv-count" id="svCount"></span>
             </div>
             <div class="sv-legend" id="legendBar"></div>
             <div class="sv-hint" id="legendHint"></div>

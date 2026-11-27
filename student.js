@@ -12,6 +12,7 @@ const COLOR = { 'BSCS': 'slot-bscs', 'BSIT': 'slot-bsit', 'BSEMC-DAT': 'slot-bse
 let filter = null, program = '', rows = [], seq = 0;   // filter: null = default view, or one legend key
 let day = DAYS[new Date().getDay() - 1] || 'Monday';   // today, or Monday on Sundays
 let started = false;                                    // true once the schedule has started loading
+let search = '', roomPick = '', profPick = '';          // search box, room and professor filters (kept across days)
 
 const toMins = t => { const [h, m] = t.split(':'); return +h * 60 + +m; };
 const to12   = m => { const h = Math.floor(m / 60); return (h % 12 || 12) + ':' + String(m % 60).padStart(2, '0') + ' ' + (h < 12 ? 'AM' : 'PM'); };
@@ -67,7 +68,7 @@ $('sidebarLogoutBtn').addEventListener('click', async () => {
     await db.auth.signOut();
     location.replace('index.html');
 });
-$('refreshBtn').addEventListener('click', load);
+$('refreshBtn').addEventListener('click', () => load());
 
 // ── About ──
 const openAbout  = () => { $('aboutModal').classList.add('show'); };
@@ -230,9 +231,9 @@ function startApp() {
     if (started) return;
     started = true;
     buildControls();
-    load();
-    setInterval(load, 90000);                  // keeps the view fresh without realtime connections
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+    setView(view);                             // loads the data for whichever view is showing
+    setInterval(refresh, 90000);               // keeps the view fresh without realtime connections
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 }
 
 // ── Auth guard ──
@@ -271,6 +272,197 @@ function buildControls() {
     make($('dayGrid'), DAYS.map(d => [d, d]), v => v === day, v => { day = v; load(); });
     buildLegend();
 }
+
+// ── Views: "My Schedule" (one block's week as a list) or "All Rooms" (the day timetable) ──
+const store = {
+    get: k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* private mode: just don't remember */ } }
+};
+let view = store.get('sv_view') === 'rooms' ? 'rooms' : 'mine';
+let myYear = store.get('sv_myYear'), myBlock = store.get('sv_myBlock');
+let weekRows = [], weekSeq = 0, weekLoaded = false;
+
+function refresh() { return view === 'mine' ? loadMine() : load(); }
+
+function setView(v) {
+    view = v;
+    store.set('sv_view', v);
+    const mine = v === 'mine';
+    $('mineCard').hidden = !mine;
+    $('dayCard').hidden = mine;
+    $('roomsCard').hidden = mine;
+    [['viewMineBtn', mine], ['viewRoomsBtn', !mine]].forEach(([id, on]) => {
+        $(id).classList.toggle('active', on);
+        $(id).setAttribute('aria-selected', String(on));
+    });
+    refresh();
+}
+$('viewMineBtn').addEventListener('click', () => setView('mine'));
+$('viewRoomsBtn').addEventListener('click', () => setView('rooms'));
+
+// "BSCS 3-A" -> { year: '3', blocks: ['A'] }; merged "BSCS 3-A/B" -> blocks ['A', 'B']
+function parseSection(section) {
+    const m = (section || '').trim().toUpperCase().match(/^\S+\s+(\d+)\s*-\s*([A-Z])(?:\s*\/\s*([A-Z]))?/);
+    return m ? { year: m[1], blocks: [m[2], m[3]].filter(Boolean) } : null;
+}
+
+// Both BSEMC tracks are stored with a "BSEMC" prefix; programOf() tells them apart afterwards
+const SECTION_PREFIX = { 'BSCS': 'BSCS', 'BSIT': 'BSIT', 'BSEMC-DAT': 'BSEMC', 'BSEMC-GD': 'BSEMC' };
+
+async function loadMine() {
+    const mine = ++weekSeq;
+    const { data, error } = await db.from('schedules')
+        .select('id, room, course_name, section, faculty, day, start_time, end_time')
+        .in('room', ROOMS)
+        .ilike('section', (SECTION_PREFIX[program] || program) + '%');
+    if (mine !== weekSeq) return;
+    if (error) return toast('Could not load your schedule. Check your connection and try again.', 'error');
+    weekRows = (data || []).filter(s => programOf(s.section) === program);
+    weekLoaded = true;
+    buildBlockOptions();
+    renderMine();
+}
+
+function buildBlockOptions() {
+    $('myYear').value = myYear;
+    const sel = $('myBlock');
+    const found = new Set();
+    weekRows.forEach(s => { const p = parseSection(s.section); if (p && p.year === myYear) p.blocks.forEach(b => found.add(b)); });
+    if (myBlock) found.add(myBlock);
+    sel.innerHTML = '';
+    sel.add(new Option('—', ''));
+    [...found].sort().forEach(b => sel.add(new Option(b, b)));
+    sel.value = myBlock;
+    sel.disabled = !myYear;
+}
+
+$('myYear').addEventListener('change', e => {
+    myYear = e.target.value;
+    myBlock = '';                               // blocks differ per year, so pick again
+    store.set('sv_myYear', myYear);
+    store.set('sv_myBlock', '');
+    buildBlockOptions();
+    renderMine();
+    const opts = $('myBlock').options;
+    if (myYear && opts.length === 2) {         // only one block that year: pick it for them
+        $('myBlock').value = opts[1].value;
+        $('myBlock').dispatchEvent(new Event('change'));
+    }
+});
+$('myBlock').addEventListener('change', e => {
+    myBlock = e.target.value;
+    store.set('sv_myBlock', myBlock);
+    renderMine();
+});
+
+const typeTag = n => ({ Lecture: ' (Lec)', Laboratory: ' (Lab)' })[(n.match(/\((Lecture|Laboratory)\)/) || [])[1]] || '';
+
+function renderMine() {
+    const label = program + (myYear && myBlock ? ' ' + myYear + '-' + myBlock : '');
+    $('mineTitle').textContent = 'My Schedule' + (myYear && myBlock ? ' — ' + label : '');
+    const week = $('myWeek'), msg = $('mineMsg');
+    week.innerHTML = '';
+
+    let note = '';
+    if (!weekLoaded) note = 'Loading…';
+    else if (!myYear || !myBlock) note = 'Pick your year and block to see your classes for the week.';
+    const classes = note ? [] : weekRows.filter(s => {
+        const p = parseSection(s.section);
+        return p && p.year === myYear && p.blocks.includes(myBlock);
+    });
+    if (!note && !classes.length) note = 'No classes found for ' + label + ' in the CCS rooms.';
+    msg.hidden = !note;
+    msg.textContent = note;
+    if (note) return;
+
+    const now = new Date();
+    const today = DAYS[now.getDay() - 1];
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+
+    DAYS.forEach(d => {
+        const list = classes.filter(s => s.day === d).sort((a, b) => toMins(a.start_time) - toMins(b.start_time));
+        if (!list.length && d === 'Saturday') return;      // most blocks have no Saturday classes
+        const card = document.createElement('div');
+        card.className = 'my-day' + (d === today ? ' today' : '');
+        const head = document.createElement('div');
+        head.className = 'my-day-head';
+        const count = document.createElement('span');
+        count.textContent = (d === today ? 'Today · ' : '') + (list.length ? list.length + (list.length === 1 ? ' class' : ' classes') : 'No classes');
+        head.append(d, count);
+        card.appendChild(head);
+
+        list.forEach(s => {
+            const start = toMins(s.start_time), end = toMins(s.end_time);
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'my-class';
+            const bar = document.createElement('span');
+            bar.className = 'bar' + (/\[Major\]/.test(s.course_name) ? ' major' : /\[Minor\]/.test(s.course_name) ? ' minor' : '');
+            const body = document.createElement('div');
+            const time = document.createElement('div');
+            time.className = 'time';
+            time.textContent = to12(start) + ' – ' + to12(end);
+            if (d === today && nowMins >= start && nowMins < end) {
+                const tag = document.createElement('span');
+                tag.className = 'now';
+                tag.textContent = 'NOW';
+                time.appendChild(tag);
+            }
+            const name = document.createElement('div');
+            name.className = 'name';
+            name.textContent = cleanName(s.course_name) + typeTag(s.course_name);
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            const merged = parseSection(s.section).blocks.length > 1;   // say so when it's a merged class
+            meta.textContent = 'Room ' + s.room + ' · ' + (s.faculty || 'TBA') + (merged ? ' · ' + s.section : '');
+            body.append(time, name, meta);
+            b.append(bar, body);
+            b.addEventListener('click', () => showDetails(s));
+            card.appendChild(b);
+        });
+        week.appendChild(card);
+    });
+}
+
+// ── Search and filters: subject, professor, section or room ──
+const cleanName = n => (n || '').replace(/\s*\[.*?\]/g, '').replace(/\s*\((Lecture|Laboratory|None)\)/, '').trim();
+
+function matchesSearch(s) {
+    if (profPick && (s.faculty || '') !== profPick) return false;
+    if (!search) return true;
+    const hay = [cleanName(s.course_name), s.faculty, s.section, 'room ' + s.room].join(' ').toLowerCase();
+    return search.split(/\s+/).every(w => hay.includes(w));   // every word must match somewhere
+}
+
+function fillSelect(el, values, current, allLabel, fmt) {
+    el.innerHTML = '';
+    el.add(new Option(allLabel, ''));
+    values.forEach(v => el.add(new Option(fmt(v), v)));
+    // keep the user's pick even if it has no classes on this day
+    if (current && !values.includes(current)) el.add(new Option(fmt(current) + ' (none today)', current));
+    el.value = current;
+}
+
+function buildFilterOptions() {
+    fillSelect($('svRoomFilter'), ROOMS, roomPick, 'All rooms', r => 'Room ' + r);
+    const profs = [...new Set(rows.map(s => (s.faculty || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    fillSelect($('svProfFilter'), profs, profPick, 'All professors', p => p);
+}
+
+let searchTimer;
+$('svSearch').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { search = e.target.value.trim().toLowerCase(); render(); }, 150);
+});
+$('svRoomFilter').addEventListener('change', e => { roomPick = e.target.value; render(); });
+$('svProfFilter').addEventListener('change', e => { profPick = e.target.value; render(); });
+$('svClear').addEventListener('click', () => {
+    search = roomPick = profPick = '';
+    $('svSearch').value = '';
+    buildFilterOptions();
+    render();
+    $('svSearch').focus();
+});
 
 // ── Legend: tap a chip to focus on that program (or Major / Minor); tap it again to reset ──
 const CHIPS = [
@@ -313,16 +505,30 @@ async function load() {
     if (mine !== seq) return;
     if (error) return toast('Could not load schedules. Check your connection and try again.', 'error');
     rows = data || [];
+    buildFilterOptions();
     $('updated').textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     render();
 }
 
 // ── Timetable ──
 function render() {
-    const rooms = ROOMS;
-    $('scheduleTitle').textContent = day + ' — All Rooms';
-    $('emptyMsg').hidden = rows.length > 0;
-    $('emptyMsg').textContent = 'No classes scheduled on ' + day + '.';
+    const searching = !!(search || profPick);
+    const hits = rows.filter(s => (!roomPick || s.room === roomPick) && matchesSearch(s));
+    // A room pick shows one column; a search shows only rooms with a match
+    let rooms = roomPick ? [roomPick] : ROOMS;
+    if (searching && !roomPick) rooms = ROOMS.filter(r => hits.some(s => s.room === r));
+
+    $('scheduleTitle').textContent = day + ' — ' + (roomPick ? 'Room ' + roomPick : 'All Rooms');
+    $('svClear').hidden = !(searching || roomPick);
+    $('svCount').textContent = (searching || roomPick)
+        ? hits.length + (hits.length === 1 ? ' class' : ' classes') + ' found' : '';
+
+    let empty = '';
+    if (!rows.length) empty = 'No classes scheduled on ' + day + '.';
+    else if (!hits.length) empty = 'No classes match your search on ' + day + '. Try another day or clear the filters.';
+    $('emptyMsg').hidden = !empty;
+    $('emptyMsg').textContent = empty;
+    if (!rooms.length) { $('timetableHead').innerHTML = ''; $('timetableBody').innerHTML = ''; return; }
     $('timetableHead').innerHTML = '<tr><th>Time</th>' + rooms.map(r => '<th>Room ' + r + '</th>').join('') + '</tr>';
 
     const byRoom = {};                          // room -> { startMins: schedule }
@@ -368,11 +574,13 @@ function slotCell(s, span) {
     else if (filter === 'minor') state = isMinor ? ' slot-highlight-minor' : ' slot-filtered-out';
     else if (filter)             state = p.toLowerCase() === filter ? '' : ' slot-filtered-out';
     else                         state = own ? ' mine' : ' dim';        // default: your program stands out
+    if (!matchesSearch(s))       state = ' slot-filtered-out';          // search / professor filter
+    else if (search || profPick) state = state.replace(' dim', '');     // matches stay fully visible
     td.className = 'scheduled-slot ' + (COLOR[p] || '') + state;
 
     // course_name carries [Major]/[Minor] and (Lecture)/(Laboratory) tags; show only Lec/Lab
     const type = (s.course_name.match(/\((Lecture|Laboratory)\)/) || [])[1];
-    const name = s.course_name.replace(/\s*\[.*?\]/g, '').replace(/\s*\((Lecture|Laboratory|None)\)/, '').trim();
+    const name = cleanName(s.course_name);
     const title = document.createElement('strong');
     title.textContent = name + (type ? ' (' + (type === 'Lecture' ? 'Lec' : 'Lab') + ')' : '');
 
