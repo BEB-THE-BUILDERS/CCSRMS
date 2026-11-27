@@ -103,6 +103,10 @@
                 <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:var(--muted);"></i>
             </button>
 
+            <button class="sidebar-item" id="exportAllBtn">
+                <i class="fa-solid fa-file-excel"></i>
+                <span style="flex:1;">Export All to Excel</span>
+            </button>
             <button class="sidebar-item" id="auditLogBtn">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span style="flex:1;">Audit Log</span>
@@ -1351,6 +1355,9 @@
                 <p style="font-size:0.85rem;line-height:1.65;color:var(--text);margin-bottom:16px;">
                     You are about to <strong>permanently delete all schedules</strong> for the current term. This is intended for semester resets and cannot be reversed.
                 </p>
+                <p id="deleteBackupNote" style="font-size:0.82rem;line-height:1.6;color:var(--text);margin-bottom:16px;padding:9px 12px;background:#f0fdf4;border-left:3px solid #16a34a;border-radius:0 7px 7px 0;">
+                    <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i> A backup Excel file of every schedule downloads first. It uses the import template format, so you can re-import it later.
+                </p>
                 <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">To continue, enter your account password below.</p>
                 <div style="position:relative;">
                     <input type="password" id="deletePasswordInput" placeholder="Enter your password"
@@ -1389,6 +1396,7 @@
         body.dark-mode #deletePasswordInput { background: #0f172a !important; border-color: #334155 !important; color: #e2e8f0 !important; }
         body.dark-mode #deleteAllCancelBtn { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
         body.dark-mode #deleteStep1 p, body.dark-mode #deleteStep1 p strong { color: #cbd5e1; }
+        body.dark-mode #deleteStep1 #deleteBackupNote { background: #052e16 !important; }
     </style>
 
     <script>
@@ -1461,10 +1469,26 @@
                     return;
                 }
 
-                // Password correct — delete all schedules for this user
+                // Back up first. If the backup fails, nothing is deleted.
+                deleteAllConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Backing up…';
+                let backup;
+                try {
+                    backup = await downloadAllSchedulesExcel('Backup_before_Delete_All');
+                } catch (backupErr) {
+                    console.error('Backup failed', backupErr);
+                    deletePassError.style.display = 'block';
+                    deletePassError.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Could not create the Excel backup, so nothing was deleted. Please try again.';
+                    deleteAllConfirm.disabled = false;
+                    deleteAllConfirm.innerHTML = '<i class="fa-solid fa-trash-can"></i> Delete All';
+                    return;
+                }
+
+                // Backup saved, so delete all schedules
+                deleteAllConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting…';
                 const { error: delError } = await _supabase.from('schedules').delete().neq('id', 0);
 
                 if (delError) throw delError;
+                await logAudit('All schedules deleted', '', '', { count: backup.count, backup_file: backup.file });
 
                 // Show success state
                 deleteStep1.style.display = 'none';

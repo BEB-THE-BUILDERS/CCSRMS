@@ -258,6 +258,57 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
         } catch(e) { console.warn('Audit log failed:', e); }
     }
 
+    // ── EXCEL BACKUP / EXPORT ──
+    // Writes every schedule in the same columns as the import template, so a backup
+    // can be re-imported later (e.g. to carry classes that stay the same into a new term).
+    async function fetchAllSchedules() {
+        const all = [], PAGE = 1000;               // Supabase returns at most 1000 rows per request
+        for (let from = 0; ; from += PAGE) {
+            const { data, error } = await _supabase.from('schedules')
+                .select('id, room, course_name, section, faculty, day, start_time, end_time')
+                .order('id').range(from, from + PAGE - 1);
+            if (error) throw error;
+            all.push(...(data || []));
+            if (!data || data.length < PAGE) return all;
+        }
+    }
+
+    function schedulesToImportSheet(rows) {
+        const DAY_ORDER = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const sorted = rows.slice().sort((a, b) =>
+            (parseInt(a.room) - parseInt(b.room)) ||
+            (DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day)) ||
+            String(a.start_time).localeCompare(String(b.start_time)));
+        const hhmm = t => String(t || '').slice(0, 5);
+        const aoa = [['Subject','Type','Major_Minor','Section','Merged_Section','Teacher','Room','Day','Start_Time','End_Time']];
+        sorted.forEach(s => {
+            const name = s.course_name || '';
+            const mm   = (name.match(/\[(Major|Minor)\]/) || [])[1] || '';
+            const type = (name.match(/\((Lecture|Laboratory)\)/) || [])[1] || 'None';
+            const subject = name.replace(/\s*\[.*?\]/g, '').replace(/\s*\((Lecture|Laboratory|None)\)/, '').trim();
+            // "BSCS 2-A/B" is stored merged; the template splits it into Section + Merged_Section
+            const m = String(s.section || '').match(/^(.*\d+-[A-Z])\s*\/\s*([A-Z])$/i);
+            aoa.push([subject, type, mm, m ? m[1] : (s.section || ''), m ? m[2].toUpperCase() : '',
+                      s.faculty || '', String(s.room || ''), s.day || '', hhmm(s.start_time), hhmm(s.end_time)]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [{wch:28},{wch:12},{wch:13},{wch:14},{wch:16},{wch:24},{wch:8},{wch:12},{wch:12},{wch:12}];
+        return ws;
+    }
+
+    // Returns the file name it saved, or throws if SheetJS isn't loaded or the data can't be read
+    async function downloadAllSchedulesExcel(label) {
+        if (typeof XLSX === 'undefined') throw new Error('SheetJS not loaded');
+        const rows = await fetchAllSchedules();
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, schedulesToImportSheet(rows), 'Schedules');
+        const d = new Date(), pad = n => String(n).padStart(2, '0');
+        const stamp = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes());
+        const file = 'CCSRMS_' + label + '_' + stamp + '.xlsx';
+        XLSX.writeFile(wb, file);
+        return { file, count: rows.length };
+    }
+
     // ── AUDIT MODAL UI ──
     let _auditAllEntries  = [];
     let _auditDisplayed   = 0;
@@ -293,7 +344,9 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
             : '';
         const detailLine = (coursePart || secPart || roomPart)
             ? (coursePart + secPart + roomPart + dayPart + timePart)
-            : (entry.schedule_id ? 'ID: ' + entry.schedule_id : '—');
+            : d.count != null   // "All schedules deleted" entries
+                ? d.count + ' schedules' + (d.backup_file ? ' · backup: ' + escHtml(d.backup_file) : '')
+                : (entry.schedule_id ? 'ID: ' + entry.schedule_id : '—');
         const userChip = entry.performed_by
             ? `<span class="audit-user-chip">${escHtml(entry.performed_by)}</span>`
             : '';
@@ -395,6 +448,16 @@ const SUPABASE_URL      = 'https://yfeibchcqhkcsutpctiw.supabase.co';
             document.getElementById(id).addEventListener('change', refreshAuditView);
         });
 
+        document.getElementById('exportAllBtn').addEventListener('click', async () => {
+            closeSidebar();
+            try {
+                const { count } = await downloadAllSchedulesExcel('All_Schedules');
+                showToast('Exported ' + count + ' schedules to Excel', 'success');
+            } catch (e) {
+                console.error('Export failed', e);
+                showToast('Export failed. Check your connection and try again.', 'error');
+            }
+        });
         document.getElementById('auditLogBtn').addEventListener('click', () => {
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('sidebarOverlay').classList.remove('show');
