@@ -25,6 +25,15 @@
         #dayGrid { grid-template-columns: repeat(6, 1fr); }
         .sv-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
         .sv-hint { font-size: 0.75rem; color: var(--muted, #64748b); margin-bottom: 14px; }
+        .sv-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .sv-filters .sv-search { position: relative; flex: 1 1 220px; }
+        .sv-filters .sv-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--muted, #64748b); pointer-events: none; }
+        .sv-filters input, .sv-filters select { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border, #e2e8f0); border-radius: 8px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; outline: none; color: var(--text); background: var(--white, #fff); }
+        .sv-filters input { padding-left: 28px; }
+        .sv-filters select { width: auto; max-width: 200px; }
+        .sv-filters .sv-count { font-size: 0.75rem; color: var(--muted, #64748b); white-space: nowrap; }
+        .sv-filters .sv-clear { padding: 6px 12px; border: 1.5px solid var(--border, #e2e8f0); border-radius: 8px; background: transparent; color: var(--text); font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+        .sv-filters .sv-clear[hidden] { display: none; }
         @media (max-width: 768px) {
             #dayGrid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -105,6 +114,16 @@
                     <span id="updated"></span>
                     <button class="floor-btn" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
                 </div>
+            </div>
+            <div class="sv-filters">
+                <div class="sv-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="svSearch" placeholder="Search subject, professor, section or room…" aria-label="Search schedule" autocomplete="off">
+                </div>
+                <select id="svRoomFilter" aria-label="Filter by room"><option value="">All rooms</option></select>
+                <select id="svProfFilter" aria-label="Filter by professor"><option value="">All professors</option></select>
+                <button type="button" class="sv-clear" id="svClear" hidden><i class="fa-solid fa-xmark"></i> Clear</button>
+                <span class="sv-count" id="svCount"></span>
             </div>
             <div class="sv-legend" id="legendBar"></div>
             <div class="sv-hint" id="legendHint"></div>

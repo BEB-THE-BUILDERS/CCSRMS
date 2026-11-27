@@ -12,6 +12,7 @@ const COLOR = { 'BSCS': 'slot-bscs', 'BSIT': 'slot-bsit', 'BSEMC-DAT': 'slot-bse
 let filter = null, program = '', rows = [], seq = 0;   // filter: null = default view, or one legend key
 let day = DAYS[new Date().getDay() - 1] || 'Monday';   // today, or Monday on Sundays
 let started = false;                                    // true once the schedule has started loading
+let search = '', roomPick = '', profPick = '';          // search box, room and professor filters (kept across days)
 
 const toMins = t => { const [h, m] = t.split(':'); return +h * 60 + +m; };
 const to12   = m => { const h = Math.floor(m / 60); return (h % 12 || 12) + ':' + String(m % 60).padStart(2, '0') + ' ' + (h < 12 ? 'AM' : 'PM'); };
@@ -272,6 +273,46 @@ function buildControls() {
     buildLegend();
 }
 
+// ── Search and filters: subject, professor, section or room ──
+const cleanName = n => (n || '').replace(/\s*\[.*?\]/g, '').replace(/\s*\((Lecture|Laboratory|None)\)/, '').trim();
+
+function matchesSearch(s) {
+    if (profPick && (s.faculty || '') !== profPick) return false;
+    if (!search) return true;
+    const hay = [cleanName(s.course_name), s.faculty, s.section, 'room ' + s.room].join(' ').toLowerCase();
+    return search.split(/\s+/).every(w => hay.includes(w));   // every word must match somewhere
+}
+
+function fillSelect(el, values, current, allLabel, fmt) {
+    el.innerHTML = '';
+    el.add(new Option(allLabel, ''));
+    values.forEach(v => el.add(new Option(fmt(v), v)));
+    // keep the user's pick even if it has no classes on this day
+    if (current && !values.includes(current)) el.add(new Option(fmt(current) + ' (none today)', current));
+    el.value = current;
+}
+
+function buildFilterOptions() {
+    fillSelect($('svRoomFilter'), ROOMS, roomPick, 'All rooms', r => 'Room ' + r);
+    const profs = [...new Set(rows.map(s => (s.faculty || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    fillSelect($('svProfFilter'), profs, profPick, 'All professors', p => p);
+}
+
+let searchTimer;
+$('svSearch').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => { search = e.target.value.trim().toLowerCase(); render(); }, 150);
+});
+$('svRoomFilter').addEventListener('change', e => { roomPick = e.target.value; render(); });
+$('svProfFilter').addEventListener('change', e => { profPick = e.target.value; render(); });
+$('svClear').addEventListener('click', () => {
+    search = roomPick = profPick = '';
+    $('svSearch').value = '';
+    buildFilterOptions();
+    render();
+    $('svSearch').focus();
+});
+
 // ── Legend: tap a chip to focus on that program (or Major / Minor); tap it again to reset ──
 const CHIPS = [
     { key: 'bscs',      label: 'BSCS',      prog: 'BSCS',      bg: '#eff6ff', bd: '#93c5fd', fg: '#1e40af', dot: '#3b82f6' },
@@ -313,16 +354,30 @@ async function load() {
     if (mine !== seq) return;
     if (error) return toast('Could not load schedules. Check your connection and try again.', 'error');
     rows = data || [];
+    buildFilterOptions();
     $('updated').textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     render();
 }
 
 // ── Timetable ──
 function render() {
-    const rooms = ROOMS;
-    $('scheduleTitle').textContent = day + ' — All Rooms';
-    $('emptyMsg').hidden = rows.length > 0;
-    $('emptyMsg').textContent = 'No classes scheduled on ' + day + '.';
+    const searching = !!(search || profPick);
+    const hits = rows.filter(s => (!roomPick || s.room === roomPick) && matchesSearch(s));
+    // A room pick shows one column; a search shows only rooms with a match
+    let rooms = roomPick ? [roomPick] : ROOMS;
+    if (searching && !roomPick) rooms = ROOMS.filter(r => hits.some(s => s.room === r));
+
+    $('scheduleTitle').textContent = day + ' — ' + (roomPick ? 'Room ' + roomPick : 'All Rooms');
+    $('svClear').hidden = !(searching || roomPick);
+    $('svCount').textContent = (searching || roomPick)
+        ? hits.length + (hits.length === 1 ? ' class' : ' classes') + ' found' : '';
+
+    let empty = '';
+    if (!rows.length) empty = 'No classes scheduled on ' + day + '.';
+    else if (!hits.length) empty = 'No classes match your search on ' + day + '. Try another day or clear the filters.';
+    $('emptyMsg').hidden = !empty;
+    $('emptyMsg').textContent = empty;
+    if (!rooms.length) { $('timetableHead').innerHTML = ''; $('timetableBody').innerHTML = ''; return; }
     $('timetableHead').innerHTML = '<tr><th>Time</th>' + rooms.map(r => '<th>Room ' + r + '</th>').join('') + '</tr>';
 
     const byRoom = {};                          // room -> { startMins: schedule }
@@ -368,11 +423,13 @@ function slotCell(s, span) {
     else if (filter === 'minor') state = isMinor ? ' slot-highlight-minor' : ' slot-filtered-out';
     else if (filter)             state = p.toLowerCase() === filter ? '' : ' slot-filtered-out';
     else                         state = own ? ' mine' : ' dim';        // default: your program stands out
+    if (!matchesSearch(s))       state = ' slot-filtered-out';          // search / professor filter
+    else if (search || profPick) state = state.replace(' dim', '');     // matches stay fully visible
     td.className = 'scheduled-slot ' + (COLOR[p] || '') + state;
 
     // course_name carries [Major]/[Minor] and (Lecture)/(Laboratory) tags; show only Lec/Lab
     const type = (s.course_name.match(/\((Lecture|Laboratory)\)/) || [])[1];
-    const name = s.course_name.replace(/\s*\[.*?\]/g, '').replace(/\s*\((Lecture|Laboratory|None)\)/, '').trim();
+    const name = cleanName(s.course_name);
     const title = document.createElement('strong');
     title.textContent = name + (type ? ' (' + (type === 'Lecture' ? 'Lec' : 'Lab') + ')' : '');
 
